@@ -4,6 +4,10 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import { AuthProvider } from '../context/authcontext';
+
+
+
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -17,16 +21,18 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <AuthProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <StatusBar style="auto" />
       <Stack initialRouteName='(auth)' screenOptions={{ headerShown: false }}>
-        <Stack.Screen name='onboarding' options={{headerShown:false}}/>
-        <Stack.Screen name="(auth)" options={{ headerShown: false,animation:'slide_from_right' }}  />
-         <Stack.Screen name="(Vendortab)" options={{ headerShown: false,animation:'slide_from_right' }}  />
-
-         <Stack.Screen name="(tabs)" options={{ headerShown: false,animation:'slide_from_right' }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+      <Stack.Screen name='splash' options={{ headerShown: false }} />
+      <Stack.Screen name='onboarding' options={{ headerShown: false }} />
+      <Stack.Screen name="(auth)" options={{ headerShown: false, animation: 'slide_from_right' }} />
+      <Stack.Screen name="(Vendortab)" options={{ headerShown: false, animation: 'slide_from_right' }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'slide_from_right' }} />
+      <Stack.Screen name="+not-found" />
+     </Stack>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }

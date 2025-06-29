@@ -1,14 +1,32 @@
 import { useRouter } from 'expo-router';
+import { Eye, EyeOff } from 'lucide-react-native'; // Ensure you have lucide-react-native installed
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useAuth } from '../../context/authcontext';
 import { supabase } from '../../lib/supabase';
-
 const Login = () => {
+  //   const { userType, isLoggedIn } = useAuth();
+  // useEffect(() => {
+  //   // Check if user is logged in and redirect accordingly
+  //   if (isLoggedIn) {
+  //     if (userType === 'vendor') {
+  //       router.replace('/(Vendortab)');
+  //     } else if (userType === 'user') {
+  //       router.replace('/(tabs)');
+  //     }
+  //   } else {
+  //     router.replace('/login');
+  //   }
+  // }, [isLoggedIn, userType]);
+
+  
+
   const router = useRouter();
+  const { loginAsUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-
+  const [showpass,setshowpass]=useState(false);
   const handleLogin = async () => {
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
@@ -19,6 +37,7 @@ const Login = () => {
     if (error) {
       Alert.alert('Login Error', error.message);
     } else {
+      loginAsUser();
       // Navigate to tabs after successful login
       router.push('/(tabs)'); // Adjust path to your tabs route
     }
@@ -46,17 +65,25 @@ const Login = () => {
         autoCapitalize="none"
         style={styles.input}
       />
-      <TextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={styles.input}
-      />
+      <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#ccc', borderRadius: 5, marginBottom: 10 }}>
+        <TextInput
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!showpass}
+          style={[styles.input, { borderWidth: 0, flex: 1, marginBottom: 0 }]}
+        />
+        <Pressable onPress={() => setshowpass(!showpass)} style={{ paddingHorizontal: 10 }}>
+        {
+          showpass ? <Eye color={'#ed3237'}/> : <EyeOff color={'#ed3237'}/>
+        }
+        </Pressable>
+      </View>
       <TouchableOpacity onPress={handleForgotPasswordNavigation}>
         <Text style={styles.linkText}>Forgot Password?</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={handleSignupNavigation}>
+      <TouchableOpacity 
+      onPress={handleSignupNavigation}>
         <Text style={styles.linkText}>Don't have an account? Sign Up</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={handleLogin} style={styles.button} disabled={loading}>

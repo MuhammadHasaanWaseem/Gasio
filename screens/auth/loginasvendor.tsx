@@ -1,13 +1,17 @@
 import { useRouter } from 'expo-router';
+import { Eye, EyeOff } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useAuth } from '../../context/authcontext';
 import { supabase } from '../../lib/supabase';
 
 export default () => {
   const router = useRouter();
+  const { loginAsVendor } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [eye, seteye] = useState(false);
 
   const handleLogin = async () => {
     setLoading(true);
@@ -19,8 +23,9 @@ export default () => {
     if (error) {
       Alert.alert('Login Error', error.message);
     } else {
-      // Navigate to tabs after successful login
-      router.push('/(tabs)'); // Adjust path to your tabs route
+      loginAsVendor();
+      // Navigate to vendor tabs after successful login
+      router.push('/(Vendortab)'); // Adjust path to your vendor tabs route
     }
   };
 
@@ -46,13 +51,18 @@ export default () => {
         autoCapitalize="none"
         style={styles.input}
       />
-      <TextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={styles.input}
-      />
+      <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#ccc', borderRadius: 5, marginBottom: 10 }}>
+        <TextInput
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!eye}
+          style={[styles.input, { borderWidth: 0, flex: 1, marginBottom: 0 }]}
+        />
+        <Pressable onPress={() => seteye(!eye)} style={{ paddingHorizontal: 10 }}>
+          {eye ? <Eye color={'#ed3237'}/> : <EyeOff color={'#ed3237'}/>}
+        </Pressable>
+      </View>
       <TouchableOpacity onPress={handleForgotPasswordNavigation}>
         <Text style={styles.linkText}>Forgot Password?</Text>
       </TouchableOpacity>
@@ -135,5 +145,3 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-
-

@@ -110,57 +110,57 @@ avatars	User profile pictures
 owner_profiles	Vendor owner CNIC images
 vendor_logos	Vendor business logo/images
 
--- --
--- <user_id>/avatar.jpg
--- Add Upload Policy
--- Name: Users can upload their own avatar
+--
+<user_id>/avatar.jpg
+Add Upload Policy
+Name: Users can upload their own avatar
 
--- Action: Insert
+Action: Insert
 
--- Target: Authenticated
+Target: Authenticated
 
--- Expression:
+Expression:
 
--- sql
--- Copy
--- Edit
--- auth.uid()::text = left(name, strpos(name, '/') - 1)
--- ✏️ Add View Policy
--- Name: Users can view their own avatar
+sql
+Copy
+Edit
+auth.uid()::text = left(name, strpos(name, '/') - 1)
+✏️ Add View Policy
+Name: Users can view their own avatar
 
--- Action: Select
+Action: Select
 
--- Target: Authenticated
+Target: Authenticated
 
--- Expression:
+Expression:
 
--- sql
--- Copy
--- Edit
--- auth.uid()::text = left(name, strpos(name, '/') - 1)
--- ✏️ Add Delete Policy (optional)
--- Name: Users can delete their own avatar
+sql
+Copy
+Edit
+auth.uid()::text = left(name, strpos(name, '/') - 1)
+✏️ Add Delete Policy (optional)
+Name: Users can delete their own avatar
 
--- Action: Delete
+Action: Delete
 
--- Target: Authenticated
+Target: Authenticated
 
--- Expression:
+Expression:
 
--- sql
--- Copy
--- Edit
--- auth.uid()::text = left(name, strpos(name, '/') - 1)
--- ✅ Folder Naming Rule for Upload
--- Always upload avatars like this:
+sql
+Copy
+Edit
+auth.uid()::text = left(name, strpos(name, '/') - 1)
+✅ Folder Naming Rule for Upload
+Always upload avatars like this:
 
--- bash
--- Copy
--- Edit
--- <user_id>/avatar.jpg
--- Example:
+bash
+Copy
+Edit
+<user_id>/avatar.jpg
+Example:
 
--- bash
--- Copy
--- Edit
--- 5f3d2cbd-32a4-46e1-bbb1-3c57fae6f2d9/avatar.jpg
+bash
+Copy
+Edit
+5f3d2cbd-32a4-46e1-bbb1-3c57fae6f2d9/avatar.jpg
