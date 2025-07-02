@@ -46,17 +46,20 @@ export default function VendorProfile() {
         style={styles.headerBackground}
       >
         <View style={styles.header}>
-  <View style={{ width: 18 }} /> 
-  <Text style={styles.headerTitle}>Vendor Profile</Text>
-  <TouchableOpacity onPress={() => router.push('/Vendordrawer')}>
-    <MenuIcon color={'white'} size={24}/>
-  </TouchableOpacity>
-</View>
+          <View style={{ width: 18 }} />
+          <Text style={styles.headerTitle}>Vendor Profile</Text>
+          <TouchableOpacity onPress={() => router.push('/Vendordrawer')}>
+            <MenuIcon color={'white'} size={24} />
+          </TouchableOpacity>
+        </View>
 
         <Animated.View entering={FadeInUp.duration(600)} style={styles.avatarRow}>
           <TouchableOpacity onPress={() => setModalVisible(true)}>
             {vendor?.profile_picture_url ? (
-              <Image source={{ uri: vendor.profile_picture_url }} style={styles.avatar} />
+              <Image
+                source={{ uri: `${vendor.profile_picture_url}?t=${Date.now()}` }} // cache buster
+                style={styles.avatar}
+              />
             ) : (
               <View style={styles.avatarPlaceholder}>
                 <Text style={styles.avatarPlaceholderText}>
@@ -135,7 +138,7 @@ function ProfileItem({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  
+
     backgroundColor: "#fefefe",
   },
   headerBackground: {
@@ -145,7 +148,7 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: 20,
-    marginTop:20,
+    marginTop: 20,
     paddingBottom: 15,
     paddingHorizontal: 20,
     flexDirection: "row",

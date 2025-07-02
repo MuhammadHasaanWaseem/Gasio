@@ -2,11 +2,11 @@ import Forgotpassword from "@/screens/auth/forgotpassword";
 import { router } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import {
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function ForgotPasswordScreenWrapper() {
@@ -18,7 +18,8 @@ export default function ForgotPasswordScreenWrapper() {
           <ArrowLeft color={"#ed3237"} size={26} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Forgot Password</Text>
-        <View style={{ width: 26 }} /> {/* Spacer for symmetry */}
+        <View style={{ width: 26 }} /> 
+        {/* Spacer for symmetry */}
       </View>
 
       {/* Divider */}

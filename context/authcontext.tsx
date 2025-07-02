@@ -1,34 +1,19 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const isWeb = typeof window !== 'undefined' && typeof window.document !== 'undefined';
 
 const storage = {
   getItem: async (key: string) => {
-    if (isWeb) {
-      return Promise.resolve(window.localStorage.getItem(key));
-    } else {
-      return AsyncStorage.getItem(key);
-    }
+    return isWeb ? Promise.resolve(window.localStorage.getItem(key)) : AsyncStorage.getItem(key);
   },
   setItem: async (key: string, value: string) => {
-    if (isWeb) {
-      window.localStorage.setItem(key, value);
-      return Promise.resolve();
-    } else {
-      return AsyncStorage.setItem(key, value);
-    }
+    return isWeb ? Promise.resolve(window.localStorage.setItem(key, value)) : AsyncStorage.setItem(key, value);
   },
   removeItem: async (key: string) => {
-    if (isWeb) {
-      window.localStorage.removeItem(key);
-      return Promise.resolve();
-    } else {
-      return AsyncStorage.removeItem(key);
-    }
+    return isWeb ? Promise.resolve(window.localStorage.removeItem(key)) : AsyncStorage.removeItem(key);
   },
 };
 
@@ -48,35 +33,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    // Check login status from storage here
     const checkLoginStatus = async () => {
       try {
         const storedUserType = await storage.getItem('userType');
+        const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
+
+        if (!currentUser || userError) {
+          setUserType(null);
+          setIsLoggedIn(false);
+          router.replace('/login');
+          return;
+        }
+
         if (storedUserType === 'user') {
           setUserType('user');
           setIsLoggedIn(true);
           router.replace('/(tabs)');
         } else if (storedUserType === 'vendor') {
-          // Check if vendor profile exists
-          const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
-          if (userError || !currentUser) {
-            setUserType(null);
-            setIsLoggedIn(false);
-            router.replace('/login');
-            return;
-          }
           const { data: vendorProfile, error: profileError } = await supabase
             .from('vendor_owners')
             .select('*')
             .eq('id', currentUser.id)
             .single();
+
+          setUserType('vendor');
+          setIsLoggedIn(true);
+
           if (profileError || !vendorProfile) {
-            setUserType('vendor');
-            setIsLoggedIn(true);
             router.replace('/createVendorProfile');
           } else {
-            setUserType('vendor');
-            setIsLoggedIn(true);
             router.replace('/(Vendortab)');
           }
         } else {
@@ -85,11 +70,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           router.replace('/login');
         }
       } catch (error) {
+        console.error('Login status check failed:', error);
         setUserType(null);
         setIsLoggedIn(false);
         router.replace('/login');
       }
     };
+
     checkLoginStatus();
   }, []);
 
@@ -99,7 +86,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await storage.setItem('userType', 'user');
     } catch (error) {
-      console.error('Failed to save userType to storage', error);
+      console.error('Failed to store userType for user:', error);
     }
     router.replace('/(tabs)');
   };
@@ -110,18 +97,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await storage.setItem('userType', 'vendor');
     } catch (error) {
-      console.error('Failed to save userType to storage', error);
+      console.error('Failed to store userType for vendor:', error);
     }
-    router.replace('/(Vendortab)');
+    // Navigation handled outside based on vendor profile existence
   };
 
   const logout = async () => {
+    await supabase.auth.signOut();
     setUserType(null);
     setIsLoggedIn(false);
     try {
       await storage.removeItem('userType');
     } catch (error) {
-      console.error('Failed to remove userType from storage', error);
+      console.error('Failed to clear userType:', error);
     }
     router.replace('/login');
   };

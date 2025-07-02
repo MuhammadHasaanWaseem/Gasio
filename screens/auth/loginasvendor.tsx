@@ -23,6 +23,13 @@ export default () => {
     if (error) {
       Alert.alert('Login Error', error.message);
     } else {
+      // Refresh session to ensure current user session is active
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !sessionData?.session) {
+        Alert.alert('Session Error', 'User session is not valid. Please login again.');
+        return;
+      }
+
       await loginAsVendor();
 
       // Check if vendor profile exists
@@ -35,12 +42,16 @@ export default () => {
         .eq('id', userId)
         .single();
 
+      console.log('Vendor profile fetch result:', { vendorProfile, profileError });
+
       if (profileError || !vendorProfile) {
         // Navigate to create vendor profile if profile does not exist
-        router.push('/createVendorProfile');
+        // Use router.replace to avoid stacking navigation
+        router.replace('/createVendorProfile');
       } else {
         // Navigate to vendor tabs if profile exists
-        router.push('/(Vendortab)');
+        // Use router.replace to avoid stacking navigation
+        router.replace('/(Vendortab)');
       }
     }
   };

@@ -164,3 +164,6 @@ bash
 Copy
 Edit
 5f3d2cbd-32a4-46e1-bbb1-3c57fae6f2d9/avatar.jpg
+
+
+CREATE POLICY "Allow authenticated users to upload update 1oj01fe_0" ON storage.objects FOR UPDATE TO anon, authenticated USING (auth.role() = 'authenticated');

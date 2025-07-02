@@ -61,25 +61,33 @@ export default () => {
     if (!avatar) return null;
 
     try {
+      // Refresh session to ensure valid access token
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !sessionData?.session) {
+        Alert.alert('Session Error', 'User session is not valid. Please login again.');
+        return null;
+      }
+
       const fileExt = avatar.split('.').pop();
-      const fileName = `${userId.trim()}/business_logo.${fileExt}`;
+      const fileName = `${userId.trim()}/avatar.${fileExt}`;
       const fileType = `image/${fileExt === 'jpg' ? 'jpeg' : fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(
-          fileName,
-          {
-            uri: avatar,
-            name: fileName,
-            type: fileType,
-          } as any,
-          {
-            cacheControl: '3600',
-            upsert: true,
-            contentType: fileType,
-          }
-        );
+      // Create a new supabase client with the current access token for storage upload
+      const supabaseWithAuth = supabase.storage.from('avatars');
+
+      const { error: uploadError } = await supabaseWithAuth.upload(
+        fileName,
+        {
+          uri: avatar,
+          name: fileName,
+          type: fileType,
+        } as any,
+        {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: fileType,
+        }
+      );
 
       if (uploadError) {
         Alert.alert('Upload Error', uploadError.message);
@@ -87,7 +95,7 @@ export default () => {
         return null;
       }
 
-      const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
+      const { data } = supabaseWithAuth.getPublicUrl(fileName);
       return data.publicUrl;
     } catch (err: any) {
       Alert.alert('Upload Failed', err.message || 'Unknown upload error');
@@ -140,6 +148,7 @@ export default () => {
 
       if (ownerError) {
         Alert.alert('Vendor Owner Error', ownerError.message);
+        console.error('Vendor Owner Error:', ownerError);
         setLoading(false);
         return;
       }
@@ -154,15 +163,19 @@ export default () => {
 
       if (vendorError) {
         Alert.alert('Vendor Info Error', vendorError.message);
+        console.error('Vendor Info Error:', vendorError);
         setLoading(false);
         return;
       }
 
       setLoading(false);
-      // await supabase.auth.getSession();
-      //await loginAsVendor();
+      await loginAsVendor();
     } catch (err: any) {
-      Alert.alert('Error', err.message || 'Unexpected error');
+      if (err.message && err.message.includes('duplicate key')) {
+        Alert.alert('Duplicate CNIC', 'A vendor with this CNIC already exists.');
+      } else {
+        Alert.alert('Error', err.message || 'Unexpected error');
+      }
       setLoading(false);
     }
   };

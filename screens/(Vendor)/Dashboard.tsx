@@ -11,13 +11,19 @@ import {
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
+  AppState,
+  Dimensions,
   Image,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
+
+const { width } = Dimensions.get('window');
 
 export default function VendorDashboard() {
   const { vendor } = useVendor();
@@ -28,6 +34,9 @@ export default function VendorDashboard() {
     pending_orders: 0,
     services_count: 0,
   });
+
+  const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   const fetchDashboardData = async () => {
     if (!vendor?.id) return;
@@ -40,17 +49,18 @@ export default function VendorDashboard() {
 
     if (!vendorRes) return;
 
-    const [{ count: pending_orders }, { count: services_count }] = await Promise.all([
-      supabase
-        .from("orders")
-        .select("*", { count: "exact", head: true })
-        .eq("vendor_id", vendorRes.id)
-        .eq("status", "Pending"),
-      supabase
-        .from("services")
-        .select("*", { count: "exact", head: true })
-        .eq("vendor_id", vendorRes.id),
-    ]);
+    const [{ count: pending_orders }, { count: services_count }] =
+      await Promise.all([
+        supabase
+          .from("orders")
+          .select("*", { count: "exact", head: true })
+          .eq("vendor_id", vendorRes.id)
+          .eq("status", "Pending"),
+        supabase
+          .from("services")
+          .select("*", { count: "exact", head: true })
+          .eq("vendor_id", vendorRes.id),
+      ]);
 
     setStats({
       total_earnings: vendorRes.total_earnings || 0,
@@ -61,199 +71,561 @@ export default function VendorDashboard() {
     });
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchDashboardData();
+    setRefreshing(false);
+  };
+
   useEffect(() => {
+    if (!vendor?.id) return;
+
     fetchDashboardData();
 
+    // Supabase Realtime subscription
     const subscription = supabase
       .channel("vendor_updates")
-      .on("postgres_changes", { event: "*", schema: "public", table: "vendors" }, fetchDashboardData)
-      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, fetchDashboardData)
-      .on("postgres_changes", { event: "*", schema: "public", table: "services" }, fetchDashboardData)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "vendors" },
+        fetchDashboardData
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders" },
+        fetchDashboardData
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "services" },
+        fetchDashboardData
+      )
       .subscribe();
+
+    const appStateListener = AppState.addEventListener("change", (state) => {
+      if (state === "active") {
+        fetchDashboardData();
+      }
+    });
 
     return () => {
       supabase.removeChannel(subscription);
+      appStateListener.remove();
     };
-  }, [vendor]);
+  }, [vendor?.id]);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Gasios</Text>
-        <Image source={require("../../assets/images/Gasio.png")} style={styles.logo} />
-        <Menu color="#ed3237" size={24} />
-      </View>
+    <View style={styles.container}>
+      {/* Header with 3D effect */}
+      <LinearGradient
+        colors={['#e91e63', '#ff5252']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.header}
+      >
+        <View style={styles.headerContent}>
+          <Image
+            source={require("../../assets/images/Gasio.png")}
+            style={styles.logo}
+          />
+          <Text style={styles.headerTitle}>Vendor Dashboard</Text>
+          <Menu color="#fff" size={24} />
+        </View>
+        
+        {/* 3D effect element */}
+        <View style={styles.header3DEffect} />
+      </LinearGradient>
 
-      {/* Vendor Profile Info */}
-      <Animated.View entering={FadeInUp.springify()} style={styles.profileRow}>
-        <Image
-          source={
-            vendor?.profile_picture_url
-              ? { uri: vendor.profile_picture_url }
-              : require("../../assets/images/placeholder.png")
-          }
-          style={styles.avatar}
-        />
-        <Text style={styles.vendorName}>{vendor?.full_name}</Text>
-      </Animated.View>
-
-      {/* Dashboard Cards */}
-      <View style={styles.cardsContainer}>
-        <DashboardCard
-          icon={<DollarSign color="#fff" size={20} />}
-          title="Total Earnings"
-          value={`$${stats.total_earnings.toFixed(2)}`}
-          delay={100}
-        />
-        <DashboardCard
-          icon={<ShoppingCart color="#fff" size={20} />}
-          title="Total Orders"
-          value={stats.total_orders}
-          delay={200}
-        />
-        <DashboardCard
-          icon={<Clock color="#fff" size={20} />}
-          title="Pending Orders"
-          value={stats.pending_orders}
-          delay={300}
-        />
-        <DashboardCard
-          icon={<Star color="#fff" size={20} />}
-          title="Avg. Rating"
-          value={<StarRating rating={stats.rating} />}
-          delay={400}
-        />
-        <DashboardCard
-          icon={<Briefcase color="#fff" size={20} />}
-          title="Services"
-          value={stats.services_count}
-          delay={500}
-        />
-      </View>
-    </ScrollView>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Vendor Profile Card */}
+        <Animated.View 
+          entering={FadeInUp.delay(100).springify()}
+          style={styles.profileCard}
+        >
+          <View style={styles.profileRow}>
+            <Image
+              source={
+                vendor?.profile_picture_url
+                  ? { uri: vendor.profile_picture_url }
+                  : require("../../assets/images/placeholder.png")
+              }
+              style={styles.avatar}
+            />
+            <View style={styles.vendorInfo}>
+              <Text style={styles.vendorName}>{vendor?.full_name}</Text>
+              <View style={styles.ratingContainer}>
+                <Star size={18} fill="#ffc107" color="#ffc107" />
+                <Text style={styles.ratingText}>{stats.rating.toFixed(1)}</Text>
+              </View>
+            </View>
+          </View>
+          
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{stats.total_orders}</Text>
+              <Text style={styles.statLabel}>Orders</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{stats.services_count}</Text>
+              <Text style={styles.statLabel}>Services</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>${stats.total_earnings.toFixed(0)}</Text>
+              <Text style={styles.statLabel}>Earnings</Text>
+            </View>
+          </View>
+        </Animated.View>
+        
+        {/* Navigation Tabs */}
+        <Animated.View 
+          entering={FadeInUp.delay(200).springify()}
+          style={styles.tabsContainer}
+        >
+          <TouchableOpacity 
+            style={[styles.tab, activeTab === 'dashboard' && styles.activeTab]}
+            onPress={() => setActiveTab('dashboard')}
+          >
+            <Text style={[styles.tabText, activeTab === 'dashboard' && styles.activeTabText]}>Dashboard</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.tab, activeTab === 'orders' && styles.activeTab]}
+            onPress={() => setActiveTab('orders')}
+          >
+            <Text style={[styles.tabText, activeTab === 'orders' && styles.activeTabText]}>Orders</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.tab, activeTab === 'analytics' && styles.activeTab]}
+            onPress={() => setActiveTab('analytics')}
+          >
+            <Text style={[styles.tabText, activeTab === 'analytics' && styles.activeTabText]}>Analytics</Text>
+          </TouchableOpacity>
+        </Animated.View>
+        
+        {/* Stats Overview */}
+        <Animated.View 
+          entering={FadeInUp.delay(300).springify()}
+          style={styles.section}
+        >
+          <Text style={styles.sectionTitle}>Business Overview</Text>
+          <View style={styles.cardsContainer}>
+            <DashboardCard
+              icon={<DollarSign color="#fff" size={24} />}
+              title="Total Earnings"
+              value={`$${stats.total_earnings.toFixed(2)}`}
+              colors={['#4caf50', '#8bc34a']}
+              delay={100}
+            />
+            <DashboardCard
+              icon={<ShoppingCart color="#fff" size={24} />}
+              title="Total Orders"
+              value={stats.total_orders}
+              colors={['#2196f3', '#03a9f4']}
+              delay={200}
+            />
+            <DashboardCard
+              icon={<Clock color="#fff" size={24} />}
+              title="Pending Orders"
+              value={stats.pending_orders}
+              colors={['#ff9800', '#ffc107']}
+              delay={300}
+            />
+            <DashboardCard
+              icon={<Briefcase color="#fff" size={24} />}
+              title="Services"
+              value={stats.services_count}
+              colors={['#9c27b0', '#e91e63']}
+              delay={400}
+            />
+          </View>
+        </Animated.View>
+        
+        {/* Recent Activity */}
+        <Animated.View 
+          entering={FadeInUp.delay(400).springify()}
+          style={styles.section}
+        >
+          <Text style={styles.sectionTitle}>Recent Activity</Text>
+          <View style={styles.activityCard}>
+            <View style={styles.activityItem}>
+              <View style={styles.activityIcon}>
+                <ShoppingCart color="#4caf50" size={18} />
+              </View>
+              <View style={styles.activityContent}>
+                <Text style={styles.activityTitle}>New order received</Text>
+                <Text style={styles.activityTime}>10 minutes ago</Text>
+              </View>
+              <Text style={styles.activityAmount}>$24.99</Text>
+            </View>
+            <View style={styles.activityItem}>
+              <View style={styles.activityIcon}>
+                <Clock color="#ff9800" size={18} />
+              </View>
+              <View style={styles.activityContent}>
+                <Text style={styles.activityTitle}>Order in progress</Text>
+                <Text style={styles.activityTime}>45 minutes ago</Text>
+              </View>
+              <Text style={styles.activityAmount}>$18.50</Text>
+            </View>
+            <View style={styles.activityItem}>
+              <View style={styles.activityIcon}>
+                <DollarSign color="#2196f3" size={18} />
+              </View>
+              <View style={styles.activityContent}>
+                <Text style={styles.activityTitle}>Payment received</Text>
+                <Text style={styles.activityTime}>2 hours ago</Text>
+              </View>
+              <Text style={styles.activityAmount}>$42.75</Text>
+            </View>
+          </View>
+        </Animated.View>
+        
+        {/* Performance Metrics */}
+        <Animated.View 
+          entering={FadeInUp.delay(500).springify()}
+          style={styles.section}
+        >
+          <Text style={styles.sectionTitle}>Performance Metrics</Text>
+          <View style={styles.metricsContainer}>
+            <View style={styles.metricCard}>
+              <Text style={styles.metricValue}>98%</Text>
+              <Text style={styles.metricLabel}>Completion Rate</Text>
+              <View style={[styles.metricBar, { width: '98%' }]} />
+            </View>
+            <View style={styles.metricCard}>
+              <Text style={styles.metricValue}>4.7</Text>
+              <Text style={styles.metricLabel}>Avg. Rating</Text>
+              <View style={[styles.metricBar, { width: '94%', backgroundColor: '#ffc107' }]} />
+            </View>
+            <View style={styles.metricCard}>
+              <Text style={styles.metricValue}>12 min</Text>
+              <Text style={styles.metricLabel}>Avg. Response Time</Text>
+              <View style={[styles.metricBar, { width: '85%', backgroundColor: '#4caf50' }]} />
+            </View>
+          </View>
+        </Animated.View>
+      </ScrollView>
+    </View>
   );
 }
+
+import type { ColorValue } from "react-native";
 
 const DashboardCard = ({
   icon,
   title,
   value,
+  colors = ['#ed3237', '#ff5f6d'],
   delay = 100,
 }: {
   icon: React.ReactNode;
   title: string;
   value: any;
+  colors?: ColorValue[];
   delay?: number;
 }) => (
-  <Animated.View entering={FadeInUp.delay(delay).springify()} style={styles.cardWrapper}>
+  <Animated.View
+    entering={FadeInUp.delay(delay).springify()}
+    style={styles.cardWrapper}
+  >
     <LinearGradient
-      colors={["#ed3237", "#ff5f6d"]}
+      colors={colors}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.card}
     >
       <View style={styles.cardHeader}>
         {icon}
-        <Text style={styles.cardTitle}>{title}</Text>
       </View>
+      <Text style={styles.cardTitle}>{title}</Text>
       <Text style={styles.cardValue}>{value}</Text>
     </LinearGradient>
   </Animated.View>
 );
 
-const StarRating = ({ rating }: { rating: number }) => {
-  const full = Math.floor(rating);
-  const half = rating - full >= 0.5;
-  return (
-    <View style={{ flexDirection: "row", gap: 2 }}>
-      {Array.from({ length: full }).map((_, i) => (
-        <Star key={i} size={16} fill="#fff" color="#fff" />
-      ))}
-      {half && <Star size={16} fill="#fff" color="#fff" style={{ opacity: 0.5 }} />}
-      {Array.from({ length: 5 - full - (half ? 1 : 0) }).map((_, i) => (
-        <Star key={i} size={16} color="#ddd" />
-      ))}
-    </View>
-  );
-};
-
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    backgroundColor: "#fff",
-    flexGrow: 1,
+    flex: 1,
+    backgroundColor: '#f0f2f5',
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
+    paddingTop: 55,
+    paddingBottom: 30,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    elevation: 12,
+    shadowColor: '#d81b60',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    zIndex: 10,
+    overflow: 'hidden',
   },
-  title: {
-    fontSize: 26,
-    fontWeight: "700",
-    color: "#ed3237",
+  header3DEffect: {
+    position: 'absolute',
+    bottom: -20,
+    left: 0,
+    right: 0,
+    height: 25,
+    backgroundColor: '#d81b60',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    opacity: 0.7,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    zIndex: 2,
+  },
+  headerTitle: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: '800',
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+    letterSpacing: 0.5,
+    flex: 1,
+    textAlign: 'center',
+    marginLeft: 10,
   },
   logo: {
-    width: 80,
-    height: 80,
-    resizeMode: "contain",
-    marginRight: 20,
+    width: 50,
+    height: 50,
+    resizeMode: 'contain',
+  },
+  content: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  profileCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    padding: 20,
+    elevation: 8,
+    shadowColor: '#3f51b5',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 15,
+    marginBottom: 20,
+    transform: [{ translateY: -20 }],
   },
   profileRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 20,
-    gap: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
   },
   avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 60,
-    borderWidth: 2,
-    borderColor: "#ed3237",
-    backgroundColor: "#eee",
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    borderWidth: 3,
+    borderColor: '#e91e63',
+    backgroundColor: '#eee',
+  },
+  vendorInfo: {
+    marginLeft: 15,
+    flex: 1,
   },
   vendorName: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#333',
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 5,
+  },
+  ratingText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ff9800',
+    marginLeft: 5,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    paddingTop: 15,
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statValue: {
     fontSize: 18,
-    fontWeight: "600",
-    color: "#333",
+    fontWeight: '700',
+    color: '#333',
+  },
+  statLabel: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 5,
+  },
+  tabsContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 5,
+    elevation: 5,
+    shadowColor: '#3f51b5',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    marginBottom: 20,
+  },
+  tab: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  activeTab: {
+    backgroundColor: '#e91e63',
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+  },
+  activeTabText: {
+    color: '#fff',
+  },
+  section: {
+    marginBottom: 25,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 15,
+    marginLeft: 5,
   },
   cardsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    gap: 12,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 15,
   },
   cardWrapper: {
-    width: "48%",
-    marginBottom: 12,
+    width: (width - 50) / 2,
+    marginBottom: 15,
   },
   card: {
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: "#ed3237",
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-    elevation: 4,
+    borderRadius: 18,
+    padding: 20,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    height: 150,
+    justifyContent: 'space-between',
   },
   cardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginBottom: 8,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   cardTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#fff",
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#fff',
+    marginTop: 10,
   },
   cardValue: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#fff",
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#fff',
+    marginTop: 5,
+  },
+  activityCard: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+    elevation: 5,
+    shadowColor: '#3f51b5',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+  },
+  activityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  activityIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 15,
+  },
+  activityContent: {
+    flex: 1,
+  },
+  activityTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#333',
+  },
+  activityTime: {
+    fontSize: 13,
+    color: '#888',
+    marginTop: 3,
+  },
+  activityAmount: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#333',
+  },
+  metricsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 15,
+  },
+  metricCard: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 15,
+    elevation: 5,
+    shadowColor: '#3f51b5',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+  },
+  metricValue: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+  metricLabel: {
+    fontSize: 13,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  metricBar: {
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#2196f3',
   },
 });
-
