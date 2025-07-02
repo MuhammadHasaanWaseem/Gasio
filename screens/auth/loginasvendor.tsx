@@ -23,9 +23,25 @@ export default () => {
     if (error) {
       Alert.alert('Login Error', error.message);
     } else {
-      loginAsVendor();
-      // Navigate to vendor tabs after successful login
-      router.push('/(Vendortab)'); // Adjust path to your vendor tabs route
+      await loginAsVendor();
+
+      // Check if vendor profile exists
+      const user = await supabase.auth.getUser();
+      const userId = user.data.user?.id;
+
+      const { data: vendorProfile, error: profileError } = await supabase
+        .from('vendor_owners')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (profileError || !vendorProfile) {
+        // Navigate to create vendor profile if profile does not exist
+        router.push('/createVendorProfile');
+      } else {
+        // Navigate to vendor tabs if profile exists
+        router.push('/(Vendortab)');
+      }
     }
   };
 

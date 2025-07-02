@@ -1,0 +1,63 @@
+setScreen('otp');
+    } catch (err:any) {
+      Alert.alert('Registration Error', err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!email || !otp) {
+      Alert.alert('Error', 'Please enter both email and OTP.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: otp,
+        type: 'email',
+      });
+      if (error) throw error;
+
+      // loginAsUser();
+      router.push('/createUserProfile');
+    } catch (err:any) {
+      Alert.alert('OTP Verification Failed', err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+=======
+      if (error) throw error;
+
+      setScreen('otp');
+    } catch (err:any) {
+      Alert.alert('Registration Error', err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!email || !otp) {
+      Alert.alert('Error', 'Please enter both email and OTP.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: otp,
+        type: 'email',
+      });
+      if (error) throw error;
+
+      await loginAsUser();
+      router.push('/createUserProfile');
+    } catch (err:any) {
+      Alert.alert('OTP Verification Failed', err.message);
+    } finally {
+      setLoading(false);
+    }
+  };

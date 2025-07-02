@@ -10,9 +10,18 @@ if (!supabaseUrl || !publishablekey) {
   throw new Error('Supabase URL and Anon Key must be defined in environment variables.')
 }
 
+// No-op storage for SSR or non-React Native environments
+const noopStorage = {
+  getItem: async (key: string) => null,
+  setItem: async (key: string, value: string) => {},
+  removeItem: async (key: string) => {},
+}
+
+const isReactNative = typeof navigator !== 'undefined' && navigator.product === 'ReactNative'
+
 export const supabase = createClient(supabaseUrl, publishablekey, {
   auth: {
-    storage: AsyncStorage,
+    storage: isReactNative ? AsyncStorage : noopStorage,
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,

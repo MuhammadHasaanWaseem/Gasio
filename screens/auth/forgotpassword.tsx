@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { supabase } from '../../lib/supabase';
 
 export default () => {
@@ -65,6 +65,7 @@ export default () => {
 
   return (
     <View style={styles.container}>
+      <Image source={require('../../assets/images/forgotpassword.png')} style={{ width: 200, height: 200, alignSelf: 'center', marginBottom: 20 }} />
       {!resetEmailSent ? (
         <>
           <TextInput

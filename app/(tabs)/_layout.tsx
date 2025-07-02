@@ -47,21 +47,21 @@ export default function TabLayout() {
       <Tabs.Screen
         name="Orders"
         options={{
-          title: 'Vendor Orders',
+          title: 'Orders',
           tabBarIcon: ({ color }) => <ClipboardList size={26} color={color} />,
         }}
       />
       <Tabs.Screen
         name="reviews"
         options={{
-          title: 'Vendor Review',
+          title: 'Review',
           tabBarIcon: ({ color }) => <Star size={26} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Vendor Profile',
+          title: 'Profile',
           tabBarIcon: ({ color }) => <User size={26} color={color} />,
         }}
       />

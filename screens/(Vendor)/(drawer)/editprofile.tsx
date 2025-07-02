@@ -1,43 +1,62 @@
 import countries from '@/constants/country';
+import { useVendor } from '@/context/vendorcontext';
+import { supabase } from '@/lib/supabase';
 import * as ImagePicker from 'expo-image-picker';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { default as React } from 'react';
+import { ChevronLeft } from 'lucide-react-native';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   FlatList,
   Image,
+  Modal,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useAuth } from '../../context/authcontext';
-import { supabase } from '../../lib/supabase';
-
-export default () => {
+export default function EditProfile() {
   const router = useRouter();
-  const { loginAsVendor } = useAuth();
-  const [avatar, setAvatar] = React.useState<string | null>(null);
-  const [fullName, setFullName] = React.useState('');
-  const [phone, setPhone] = React.useState('');
-  const [selectedCountry, setSelectedCountry] = React.useState(countries[0]);
-  const [showCountryList, setShowCountryList] = React.useState(false);
-  const [email, setEmail] = React.useState('');
-  const [cnic, setCnic] = React.useState('');
-  const [businessName, setBusinessName] = React.useState('');
-  const [businessLicense, setBusinessLicense] = React.useState('');
-  const [address, setAddress] = React.useState('');
-  const [loading, setLoading] = React.useState(false);
-  const [countrySearch, setCountrySearch] = React.useState('');
+  const { vendor, vendorBusiness } = useVendor();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [avatar, setAvatar] = useState<string | null>(null);
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState(countries[0]);
+  const [showCountryList, setShowCountryList] = useState(false);
+  const [email, setEmail] = useState('');
+  const [cnic, setCnic] = useState('');
+  const [businessName, setBusinessName] = useState('');
+  const [businessLicense, setBusinessLicense] = useState('');
+  const [address, setAddress] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [countrySearch, setCountrySearch] = useState('');
+
+  useEffect(() => {
+    if (vendor) {
+      setFullName(vendor.full_name || '');
+      setEmail(vendor.email || '');
+      setPhone(vendor.phone ? vendor.phone.replace(/^\+\d+/, '') : '');
+      setCnic(vendor.cnic || '');
+    }
+    if (vendorBusiness) {
+      setBusinessName(vendorBusiness.business_name || '');
+      setBusinessLicense(vendorBusiness.business_license || '');
+      setAddress(vendorBusiness.address || '');
+    }
+    if (vendor?.profile_picture_url) {
+      setAvatar(vendor.profile_picture_url);
+    }
+  }, [vendor, vendorBusiness]);
+
   const filteredCountries = countries.filter((item) =>
     item.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
     item.code.toLowerCase().includes(countrySearch.toLowerCase()) ||
     item.dial_code.includes(countrySearch)
   );
-
-  
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -67,19 +86,15 @@ export default () => {
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(
-          fileName,
-          {
-            uri: avatar,
-            name: fileName,
-            type: fileType,
-          } as any,
-          {
-            cacheControl: '3600',
-            upsert: true,
-            contentType: fileType,
-          }
-        );
+        .upload(fileName, {
+          uri: avatar,
+          name: fileName,
+          type: fileType,
+        } as any, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: fileType,
+        });
 
       if (uploadError) {
         Alert.alert('Upload Error', uploadError.message);
@@ -117,7 +132,9 @@ export default () => {
 
     setLoading(true);
     try {
+      console.log("Starting save profile process");
       const { data: userData, error: userError } = await supabase.auth.getUser();
+      console.log("User data fetched:", userData, "Error:", userError);
       const userId = userData?.user?.id;
 
       if (!userId || userError) {
@@ -126,8 +143,17 @@ export default () => {
         return;
       }
 
+      console.log("Uploading business logo...");
       const businessLogoUrl = await uploadBusinessLogo(userId);
+      console.log("Business logo URL:", businessLogoUrl);
 
+      if (businessLogoUrl === null) {
+        Alert.alert('Upload Error', 'Failed to upload business logo');
+        setLoading(false);
+        return;
+      }
+
+      console.log("Upserting vendor owner data...");
       const { error: ownerError } = await supabase.from('vendor_owners').upsert({
         id: userId,
         full_name: fullName,
@@ -137,6 +163,7 @@ export default () => {
         profile_picture_url: businessLogoUrl,
         country_code: selectedCountry.code,
       });
+      console.log("Vendor owner upsert error:", ownerError);
 
       if (ownerError) {
         Alert.alert('Vendor Owner Error', ownerError.message);
@@ -144,6 +171,7 @@ export default () => {
         return;
       }
 
+      console.log("Upserting vendor business data...");
       const { error: vendorError } = await supabase.from('vendors').upsert({
         owner_id: userId,
         business_name: businessName,
@@ -151,6 +179,7 @@ export default () => {
         business_logo_url: businessLogoUrl,
         address,
       });
+      console.log("Vendor business upsert error:", vendorError);
 
       if (vendorError) {
         Alert.alert('Vendor Info Error', vendorError.message);
@@ -158,10 +187,11 @@ export default () => {
         return;
       }
 
+      console.log("Profile saved successfully");
       setLoading(false);
-      // await supabase.auth.getSession();
-      //await loginAsVendor();
+      router.back();
     } catch (err: any) {
+      console.error("Error in saveProfile:", err);
       Alert.alert('Error', err.message || 'Unexpected error');
       setLoading(false);
     }
@@ -169,6 +199,20 @@ export default () => {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        colors={["#ed3237", "#ff5f6d"]}
+        style={styles.headerBackground}
+      >
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()}>
+            <ChevronLeft color="#fff" size={28} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Edit Profile</Text>
+          <View style={{ width: 28 }} /> 
+          {/* Placeholder for alignment */}
+        </View>
+      </LinearGradient>
+
       <TouchableOpacity onPress={pickImage} style={styles.avatarContainer}>
         {avatar ? (
           <Image source={{ uri: avatar }} style={styles.avatar} />
@@ -178,38 +222,39 @@ export default () => {
       </TouchableOpacity>
 
       <TextInput placeholder="Full Name" value={fullName} onChangeText={setFullName} style={styles.input} />
-      
-     <TouchableOpacity onPress={() => setShowCountryList(!showCountryList)} style={styles.countryPicker}>
-  <Text>{`${selectedCountry.flag} ${selectedCountry.name} (${selectedCountry.dial_code})`}</Text>
-</TouchableOpacity>
 
-{showCountryList && (
-  <View style={styles.countryListContainer}>
-    <TextInput
-      placeholder="Search country"
-      value={countrySearch}
-      onChangeText={setCountrySearch}
-      style={styles.searchInput}
-    />
-    <FlatList
-      data={filteredCountries}
-      keyExtractor={(item) => item.code}
-      renderItem={({ item }) => (
-        <TouchableOpacity
-          onPress={() => {
-            setSelectedCountry(item);
-            setShowCountryList(false);
-            setCountrySearch('');
-          }}
-          style={styles.countryItem}
-        >
-          <Text>{`${item.flag} ${item.name} (${item.dial_code})`}</Text>
-        </TouchableOpacity>
+      <TouchableOpacity onPress={() => setShowCountryList(!showCountryList)} style={styles.countryPicker}>
+        <Text>{`${selectedCountry.flag} ${selectedCountry.name} (${selectedCountry.dial_code})`}</Text>
+      </TouchableOpacity>
+
+      {showCountryList && (
+        <View style={styles.countryListContainer}>
+          <TextInput
+            placeholder="Search country"
+            value={countrySearch}
+            onChangeText={setCountrySearch}
+            style={styles.searchInput}
+          />
+          <FlatList
+            data={filteredCountries}
+            keyExtractor={(item) => item.code}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedCountry(item);
+                  setShowCountryList(false);
+                  setCountrySearch('');
+                }}
+                style={styles.countryItem}
+              >
+                <Text>{`${item.flag} ${item.name} (${item.dial_code})`}</Text>
+              </TouchableOpacity>
+            )}
+            keyboardShouldPersistTaps="handled"
+          />
+        </View>
       )}
-      keyboardShouldPersistTaps="handled"
-    />
-  </View>
-)}
+
       <TextInput
         placeholder="Phone (without country code)"
         value={phone}
@@ -226,18 +271,56 @@ export default () => {
       <TouchableOpacity onPress={handleSaveProfile} style={styles.button} disabled={loading}>
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Save Profile</Text>}
       </TouchableOpacity>
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>Profile updated successfully!</Text>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => {
+                setModalVisible(false);
+                router.back();
+              }}
+            >
+              <Text style={styles.modalButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#fff',
+    marginTop: 20,
+  },
+  headerBackground: {
+    paddingBottom: 60,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingTop: 15,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#fff",
   },
   avatarContainer: {
-  marginTop:'15%',
+    marginTop: '15%',
     alignSelf: 'center',
     marginBottom: 20,
     width: 120,
@@ -283,12 +366,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     backgroundColor: '#f9f9f9',
   },
-  countryList: {
-    maxHeight: 150,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 10,
-  },
   countryListContainer: {
     maxHeight: 200,
     borderWidth: 1,
@@ -309,5 +386,33 @@ const styles = StyleSheet.create({
     padding: 10,
     margin: 10,
     backgroundColor: '#f9f9f9',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 20,
+  },
+  modalButton: {
+    backgroundColor: '#ed3237',
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });

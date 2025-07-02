@@ -1,7 +1,7 @@
 import countries from '@/constants/country';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -13,10 +13,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useAuth } from '../../context/authcontext';
 import { supabase } from '../../lib/supabase';
 
 export default () => {
   const router = useRouter();
+  const { loginAsUser } = useAuth();
   const [avatar, setAvatar] = useState<string | null>(null);
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -26,6 +28,10 @@ export default () => {
   const [showCountryList, setShowCountryList] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loginAsUser();
+  }, []);
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -46,44 +52,43 @@ export default () => {
   };
 
   const uploadAvatar = async (userId: string) => {
-  if (!avatar) return null;
+    if (!avatar) return null;
 
-  try {
-    const fileExt = avatar.split('.').pop();
-    const fileName = `${userId.trim()}/avatar.${fileExt}`;
-    const fileType = `image/${fileExt === 'jpg' ? 'jpeg' : fileExt}`;
+    try {
+      const fileExt = avatar.split('.').pop();
+      const fileName = `${userId.trim()}/avatar.${fileExt}`;
+      const fileType = `image/${fileExt === 'jpg' ? 'jpeg' : fileExt}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(
-        fileName,
-        {
-          uri: avatar,
-          name: fileName,
-          type: fileType,
-        } as any,
-        {
-          cacheControl: '3600',
-          upsert: true,
-          contentType: fileType,
-        }
-      );
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(
+          fileName,
+          {
+            uri: avatar,
+            name: fileName,
+            type: fileType,
+          } as any,
+          {
+            cacheControl: '3600',
+            upsert: true,
+            contentType: fileType,
+          }
+        );
 
-    if (uploadError) {
-      Alert.alert('Upload Error', uploadError.message);
-      console.error('Upload Error:', uploadError);
+      if (uploadError) {
+        Alert.alert('Upload Error', uploadError.message);
+        console.error('Upload Error:', uploadError);
+        return null;
+      }
+
+      const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
+      return data?.publicUrl || null;
+    } catch (err: any) {
+      Alert.alert('Upload Error', err.message || 'Unknown error');
+      console.error(err);
       return null;
     }
-
-    const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
-    return data?.publicUrl || null;
-  } catch (err: any) {
-    Alert.alert('Upload Error', err.message || 'Unknown error');
-    console.error(err);
-    return null;
-  }
-};
-
+  };
 
   const validateFields = () => {
     const phoneRegex = /^[0-9]{10,15}$/;

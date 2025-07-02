@@ -1,3 +1,5 @@
+import { UserProvider } from '@/context/usercontext';
+import { VendorProvider } from '@/context/vendorcontext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
@@ -22,17 +24,26 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <StatusBar style="auto" />
-      <Stack initialRouteName='(auth)' screenOptions={{ headerShown: false }}>
-      <Stack.Screen name='splash' options={{ headerShown: false }} />
-      <Stack.Screen name='onboarding' options={{ headerShown: false }} />
-      <Stack.Screen name="(auth)" options={{ headerShown: false, animation: 'slide_from_right' }} />
-      <Stack.Screen name="(Vendortab)" options={{ headerShown: false, animation: 'slide_from_right' }} />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'slide_from_right' }} />
-      <Stack.Screen name="+not-found" />
-     </Stack>
-      </ThemeProvider>
+      <UserProvider>
+        <VendorProvider>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <StatusBar style="auto" />
+            <Stack initialRouteName='(auth)' screenOptions={{ headerShown: false }}>
+              <Stack.Screen name='splash' options={{ headerShown: false }} />
+              <Stack.Screen name='onboarding' options={{ headerShown: false }} />
+              <Stack.Screen name="(auth)" options={{ headerShown: false, animation: 'slide_from_right' }} />
+              <Stack.Screen name="(Vendortab)" options={{ headerShown: false, animation: 'slide_from_right' }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'slide_from_right' }} />
+              <Stack.Screen name="Vendordrawer" options={{ headerShown: false, animation: 'slide_from_right' }} />
+               <Stack.Screen name="(drawer)" options={{ headerShown: false, animation: 'slide_from_right' }} />
+              <Stack.Screen name="createservice" options={{ headerShown: false, animation: 'slide_from_right' }} />
+
+              <Stack.Screen name="+not-found" />
+            </Stack>
+
+          </ThemeProvider>
+        </VendorProvider>
+      </UserProvider>
     </AuthProvider>
   );
 }

@@ -69,8 +69,9 @@ const AuthFlow = () => {
       if (error) {
         Alert.alert('OTP Verification Failed', error.message);
       } else {
-        // loginAsVendor();
-      router.push('/createVendorProfile');
+        // Refresh session after OTP verification
+        
+        router.push('/createVendorProfile');
       }
     } catch (error) {
       setLoading(false);
