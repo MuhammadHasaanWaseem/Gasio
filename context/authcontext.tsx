@@ -88,7 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error('Failed to store userType for user:', error);
     }
-    router.replace('/(tabs)');
+    // router.replace('/(tabs)');
   };
 
   const loginAsVendor = async () => {

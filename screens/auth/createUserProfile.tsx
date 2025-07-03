@@ -138,7 +138,7 @@ export default () => {
         setLoading(false);
         return;
       }
-
+      loginAsUser()
       setLoading(false);
       router.push('/(tabs)');
     } catch (err: any) {
