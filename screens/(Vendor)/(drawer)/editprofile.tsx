@@ -36,6 +36,7 @@ export default function EditProfile() {
   const [address, setAddress] = useState('');
   const [loading, setLoading] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
+  const [website, setwebsite] = useState('');
 
   useEffect(() => {
     if (vendor) {
@@ -80,47 +81,47 @@ export default function EditProfile() {
     }
   };
 
-const uploadBusinessLogo = async (userId: string) => {
-  if (!avatar || avatar.startsWith('https')) return avatar;
+  const uploadBusinessLogo = async (userId: string) => {
+    if (!avatar || avatar.startsWith('https')) return avatar;
 
-  try {
-    const fileExt = avatar.split('.').pop()?.split('?')[0] || 'jpg';
-    const fileName = `${userId}/avatar.${fileExt}`;
-    const fileType = `image/${fileExt === 'jpg' ? 'jpeg' : fileExt}`;
+    try {
+      const fileExt = avatar.split('.').pop()?.split('?')[0] || 'jpg';
+      const fileName = `${userId}/avatar.${fileExt}`;
+      const fileType = `image/${fileExt === 'jpg' ? 'jpeg' : fileExt}`;
 
-    // Read the file URI
-    const fileUri = avatar;
+      // Read the file URI
+      const fileUri = avatar;
 
-    // Prepare file info
-    const file = {
-      uri: fileUri,
-      name: fileName,
-      type: fileType,
-    };
+      // Prepare file info
+      const file = {
+        uri: fileUri,
+        name: fileName,
+        type: fileType,
+      };
 
-    // Use FormData for upload
-    const formData = new FormData();
-    formData.append('file', file as any);
+      // Use FormData for upload
+      const formData = new FormData();
+      formData.append('file', file as any);
 
-    const { data, error } = await supabase.storage
-      .from('avatars')
-      .upload(fileName, file as any, {
-        contentType: fileType,
-        upsert: true,
-      });
+      const { data, error } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file as any, {
+          contentType: fileType,
+          upsert: true,
+        });
 
-    if (error) {
-      console.error('Upload error:', error.message);
+      if (error) {
+        console.error('Upload error:', error.message);
+        return null;
+      }
+
+      const { data: publicData } = supabase.storage.from('avatars').getPublicUrl(fileName);
+      return publicData.publicUrl;
+    } catch (err: any) {
+      console.error('Unexpected upload error', err.message);
       return null;
     }
-
-    const { data: publicData } = supabase.storage.from('avatars').getPublicUrl(fileName);
-    return publicData.publicUrl;
-  } catch (err: any) {
-    console.error('Unexpected upload error', err.message);
-    return null;
-  }
-};
+  };
 
 
   const validateFields = () => {
@@ -182,7 +183,7 @@ const uploadBusinessLogo = async (userId: string) => {
       const { error: ownerError } = await supabase.from('vendor_owners').upsert({
         id: userId,
         full_name: fullName,
-        phone: `${selectedCountry.dial_code}${phone}`,
+        phone: `${phone}`,
         email,
         cnic,
         profile_picture_url: businessLogoUrl,
@@ -196,6 +197,7 @@ const uploadBusinessLogo = async (userId: string) => {
         business_license: businessLicense,
         business_logo_url: businessLogoUrl,
         address,
+        website
       }, { onConflict: 'owner_id' });
       if (vendorError) throw new Error(vendorError.message);
 
@@ -204,7 +206,7 @@ const uploadBusinessLogo = async (userId: string) => {
         setLoading(false);
         setModalVisible(true);
       }, 500);
-    } catch (err:any) {
+    } catch (err: any) {
       Alert.alert('Error', err.message);
       setLoading(false);
     }
@@ -236,7 +238,7 @@ const uploadBusinessLogo = async (userId: string) => {
         <TouchableOpacity onPress={() => setShowCountryList(true)} style={styles.countrySelector}>
           <Text style={styles.countryText}>{selectedCountry.flag} {selectedCountry.dial_code}</Text>
         </TouchableOpacity>
-      <TextInput
+        <TextInput
           placeholder="Phone"
           value={phone}
           onChangeText={(text) => {
@@ -246,7 +248,7 @@ const uploadBusinessLogo = async (userId: string) => {
           keyboardType="phone-pad"
           style={styles.phoneInput}
         />
-      {phoneError ? <Text style={{ color: 'red', marginBottom: 10 }}>{phoneError}</Text> : null}
+        {phoneError ? <Text style={{ color: 'red', marginBottom: 10 }}>{phoneError}</Text> : null}
       </View>
 
       <TextInput placeholder="Email" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" style={styles.input} />
@@ -258,20 +260,28 @@ const uploadBusinessLogo = async (userId: string) => {
       <TextInput placeholder="Business Name" value={businessName} onChangeText={setBusinessName} style={styles.input} />
       <TextInput placeholder="Business License" value={businessLicense} onChangeText={setBusinessLicense} style={styles.input} />
       <TextInput placeholder="Address" value={address} onChangeText={setAddress} style={styles.input} />
+      <TextInput
+        placeholder="Website (optional)"
+        value={website}
+        onChangeText={setwebsite}
+        keyboardType="url"
+        style={styles.input}
+      />
+
       <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>
-  <TouchableOpacity
-    onPress={handleSaveProfile}
-    style={styles.button}
-    disabled={loading || phoneError !== '' || cnicError !== ''}
-    activeOpacity={0.8}
-  >
-    {loading ? (
-      <ActivityIndicator color="#fff" />
-    ) : (
-      <Text style={styles.buttonText}>Save Profile</Text>
-    )}
-  </TouchableOpacity>
-</View>
+        <TouchableOpacity
+          onPress={handleSaveProfile}
+          style={styles.button}
+          disabled={loading || phoneError !== '' || cnicError !== ''}
+          activeOpacity={0.8}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Save Profile</Text>
+          )}
+        </TouchableOpacity>
+      </View>
 
       <Modal visible={modalVisible} transparent animationType="fade" onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalOverlay}>
@@ -292,38 +302,38 @@ const uploadBusinessLogo = async (userId: string) => {
 
       <Modal visible={showCountryList} animationType="slide">
         <View style={{ flex: 1, backgroundColor: '#fff' }}>
-       <View
-  style={{
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 12,
-    marginHorizontal: 5,
-    marginTop:3,
-    marginBottom: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    elevation: 2,
-    backgroundColor:'#fff'
-    
-  }}
->
-  <SearchIcon color="#ed3237" size={20} />
-  <TextInput
-    placeholder="Search country..."
-    placeholderTextColor="#888"
-    value={countrySearch}
-    onChangeText={setCountrySearch}
-    style={{
-      flex: 1,
-      marginLeft: 10,
-      fontSize: 16,
-      color: '#333',
-    }}
-  />
-  <TouchableOpacity onPress={() => setShowCountryList(false)}>
-    <X color="#ed3237" size={22} />
-  </TouchableOpacity>
-</View>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              borderRadius: 12,
+              marginHorizontal: 5,
+              marginTop: 3,
+              marginBottom: 10,
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              elevation: 2,
+              backgroundColor: '#fff'
+
+            }}
+          >
+            <SearchIcon color="#ed3237" size={20} />
+            <TextInput
+              placeholder="Search country..."
+              placeholderTextColor="#888"
+              value={countrySearch}
+              onChangeText={setCountrySearch}
+              style={{
+                flex: 1,
+                marginLeft: 10,
+                fontSize: 16,
+                color: '#333',
+              }}
+            />
+            <TouchableOpacity onPress={() => setShowCountryList(false)}>
+              <X color="#ed3237" size={22} />
+            </TouchableOpacity>
+          </View>
 
           <FlatList
             data={filteredCountries}
@@ -348,7 +358,7 @@ const uploadBusinessLogo = async (userId: string) => {
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: '#fff' ,flex:1,marginTop:20},
+  container: { backgroundColor: '#fff', flex: 1, marginTop: 20 },
   headerBackground: { paddingBottom: 60, borderBottomLeftRadius: 30, borderBottomRightRadius: 30 },
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingTop: 15 },
   headerTitle: { fontSize: 20, fontWeight: "700", color: "#fff" },
@@ -361,7 +371,7 @@ const styles = StyleSheet.create({
   countrySelector: { paddingHorizontal: 12, paddingVertical: 10, backgroundColor: '#f0f0f0' },
   countryText: { fontSize: 16 },
   phoneInput: { flex: 1, padding: 10, fontSize: 16 },
-  button: { backgroundColor: '#ed3237', padding: 15,width:'60%', borderRadius: 15, alignItems: 'center' },
+  button: { backgroundColor: '#ed3237', padding: 15, width: '60%', borderRadius: 15, alignItems: 'center' },
   buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   modalContent: { backgroundColor: '#fff', padding: 20, borderRadius: 10, width: '80%', alignItems: 'center' },

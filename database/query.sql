@@ -32,6 +32,7 @@ CREATE TABLE public.vendors (
   business_license TEXT,
   business_logo_url TEXT, -- optional: storage bucket 'vendor_logos'
   address TEXT,
+  website TEXT;
   latitude DOUBLE PRECISION,
   longitude DOUBLE PRECISION,
   is_available BOOLEAN DEFAULT TRUE,

@@ -29,6 +29,7 @@ type VendorBusiness = {
   total_orders?: number;
   total_earnings?: number;
   created_at?: string;
+  website?:string;
 };
 
 type VendorContextType = {

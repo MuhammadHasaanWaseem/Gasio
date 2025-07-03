@@ -138,6 +138,7 @@ export default function VendorDashboard() {
          
           <Text style={styles.headerTitle}>Vendor Dashboard</Text>
         <TouchableOpacity onPress={()=>router.push('/vendormessage')}>
+
             <MessageCircle color="#fff" size={24} />
         </TouchableOpacity>
         </View>
@@ -218,108 +219,208 @@ export default function VendorDashboard() {
           </TouchableOpacity>
         </Animated.View>
         
-        {/* Stats Overview */}
-        <Animated.View 
-          entering={FadeInUp.delay(300).springify()}
-          style={styles.section}
-        >
-          <Text style={styles.sectionTitle}>Business Overview</Text>
-          <View style={styles.cardsContainer}>
-            <DashboardCard
-              icon={<DollarSign color="#fff" size={24} />}
-              title="Total Earnings"
-              value={`$${stats.total_earnings.toFixed(2)}`}
-              colors={['#4caf50', '#8bc34a']}
-              delay={100}
-            />
-            <DashboardCard
-              icon={<ShoppingCart color="#fff" size={24} />}
-              title="Total Orders"
-              value={stats.total_orders}
-              colors={['#2196f3', '#03a9f4']}
-              delay={200}
-            />
-            <DashboardCard
-              icon={<Clock color="#fff" size={24} />}
-              title="Pending Orders"
-              value={stats.pending_orders}
-              colors={['#ff9800', '#ffc107']}
-              delay={300}
-            />
-            <DashboardCard
-              icon={<Briefcase color="#fff" size={24} />}
-              title="Services"
-              value={stats.services_count}
-              colors={['#9c27b0', '#e91e63']}
-              delay={400}
-            />
-          </View>
-        </Animated.View>
+        {(activeTab === 'dashboard') && (
+          <Animated.View 
+            entering={FadeInUp.delay(300).springify()}
+            style={styles.section}
+          >
+            <Text style={styles.sectionTitle}>Business Overview</Text>
+            <View style={styles.cardsContainer}>
+              <DashboardCard
+                icon={<DollarSign color="#fff" size={24} />}
+                title="Total Earnings"
+                value={`$${stats.total_earnings.toFixed(2)}`}
+                colors={['#4caf50', '#8bc34a']}
+                delay={100}
+              />
+              <DashboardCard
+                icon={<ShoppingCart color="#fff" size={24} />}
+                title="Total Orders"
+                value={stats.total_orders}
+                colors={['#2196f3', '#03a9f4']}
+                delay={200}
+              />
+              <DashboardCard
+                icon={<Clock color="#fff" size={24} />}
+                title="Pending Orders"
+                value={stats.pending_orders}
+                colors={['#ff9800', '#ffc107']}
+                delay={300}
+              />
+              <DashboardCard
+                icon={<Briefcase color="#fff" size={24} />}
+                title="Services"
+                value={stats.services_count}
+                colors={['#9c27b0', '#e91e63']}
+                delay={400}
+              />
+            </View>
+            <Animated.View 
+              entering={FadeInUp.delay(400).springify()}
+              style={styles.section}
+            >
+              <Text style={styles.sectionTitle}>Recent Activity</Text>
+              <View style={styles.activityCard}>
+                <View style={styles.activityItem}>
+                  <View style={styles.activityIcon}>
+                    <ShoppingCart color="#4caf50" size={18} />
+                  </View>
+                  <View style={styles.activityContent}>
+                    <Text style={styles.activityTitle}>New order received</Text>
+                    <Text style={styles.activityTime}>10 minutes ago</Text>
+                  </View>
+                  <Text style={styles.activityAmount}>$24.99</Text>
+                </View>
+                <View style={styles.activityItem}>
+                  <View style={styles.activityIcon}>
+                    <Clock color="#ff9800" size={18} />
+                  </View>
+                  <View style={styles.activityContent}>
+                    <Text style={styles.activityTitle}>Order in progress</Text>
+                    <Text style={styles.activityTime}>45 minutes ago</Text>
+                  </View>
+                  <Text style={styles.activityAmount}>$18.50</Text>
+                </View>
+                <View style={styles.activityItem}>
+                  <View style={styles.activityIcon}>
+                    <DollarSign color="#2196f3" size={18} />
+                  </View>
+                  <View style={styles.activityContent}>
+                    <Text style={styles.activityTitle}>Payment received</Text>
+                    <Text style={styles.activityTime}>2 hours ago</Text>
+                  </View>
+                  <Text style={styles.activityAmount}>$42.75</Text>
+                </View>
+              </View>
+            </Animated.View>
+            
+            <Animated.View 
+              entering={FadeInUp.delay(500).springify()}
+              style={styles.section}
+            >
+              <Text style={styles.sectionTitle}>Performance Metrics</Text>
+              <View style={styles.metricsContainer}>
+                <View style={styles.metricCard}>
+                  <Text style={styles.metricValue}>98%</Text>
+                  <Text style={styles.metricLabel}>Completion Rate</Text>
+                  <View style={[styles.metricBar, { width: '98%' }]} />
+                </View>
+                <View style={styles.metricCard}>
+                  <Text style={styles.metricValue}>4.7</Text>
+                  <Text style={styles.metricLabel}>Avg. Rating</Text>
+                  <View style={[styles.metricBar, { width: '94%', backgroundColor: '#ffc107' }]} />
+                </View>
+                <View style={styles.metricCard}>
+                  <Text style={styles.metricValue}>12 min</Text>
+                  <Text style={styles.metricLabel}>Avg. Response Time</Text>
+                  <View style={[styles.metricBar, { width: '85%', backgroundColor: '#4caf50' }]} />
+                </View>
+              </View>
+            </Animated.View>
+          </Animated.View>
+          
+        )}
         
-        {/* Recent Activity */}
-        <Animated.View 
-          entering={FadeInUp.delay(400).springify()}
-          style={styles.section}
-        >
-          <Text style={styles.sectionTitle}>Recent Activity</Text>
-          <View style={styles.activityCard}>
-            <View style={styles.activityItem}>
-              <View style={styles.activityIcon}>
-                <ShoppingCart color="#4caf50" size={18} />
+        {( activeTab === 'analytics') && (
+          <>
+            <Animated.View 
+              entering={FadeInUp.delay(400).springify()}
+              style={styles.section}
+            >
+              <Text style={styles.sectionTitle}>Recent Activity</Text>
+              <View style={styles.activityCard}>
+                <View style={styles.activityItem}>
+                  <View style={styles.activityIcon}>
+                    <ShoppingCart color="#4caf50" size={18} />
+                  </View>
+                  <View style={styles.activityContent}>
+                    <Text style={styles.activityTitle}>New order received</Text>
+                    <Text style={styles.activityTime}>10 minutes ago</Text>
+                  </View>
+                  <Text style={styles.activityAmount}>$24.99</Text>
+                </View>
+                <View style={styles.activityItem}>
+                  <View style={styles.activityIcon}>
+                    <Clock color="#ff9800" size={18} />
+                  </View>
+                  <View style={styles.activityContent}>
+                    <Text style={styles.activityTitle}>Order in progress</Text>
+                    <Text style={styles.activityTime}>45 minutes ago</Text>
+                  </View>
+                  <Text style={styles.activityAmount}>$18.50</Text>
+                </View>
+                <View style={styles.activityItem}>
+                  <View style={styles.activityIcon}>
+                    <DollarSign color="#2196f3" size={18} />
+                  </View>
+                  <View style={styles.activityContent}>
+                    <Text style={styles.activityTitle}>Payment received</Text>
+                    <Text style={styles.activityTime}>2 hours ago</Text>
+                  </View>
+                  <Text style={styles.activityAmount}>$42.75</Text>
+                </View>
               </View>
-              <View style={styles.activityContent}>
-                <Text style={styles.activityTitle}>New order received</Text>
-                <Text style={styles.activityTime}>10 minutes ago</Text>
+            </Animated.View>
+            
+            <Animated.View 
+              entering={FadeInUp.delay(500).springify()}
+              style={styles.section}
+            >
+              <Text style={styles.sectionTitle}>Performance Metrics</Text>
+              <View style={styles.metricsContainer}>
+                <View style={styles.metricCard}>
+                  <Text style={styles.metricValue}>98%</Text>
+                  <Text style={styles.metricLabel}>Completion Rate</Text>
+                  <View style={[styles.metricBar, { width: '98%' }]} />
+                </View>
+                <View style={styles.metricCard}>
+                  <Text style={styles.metricValue}>4.7</Text>
+                  <Text style={styles.metricLabel}>Avg. Rating</Text>
+                  <View style={[styles.metricBar, { width: '94%', backgroundColor: '#ffc107' }]} />
+                </View>
+                <View style={styles.metricCard}>
+                  <Text style={styles.metricValue}>12 min</Text>
+                  <Text style={styles.metricLabel}>Avg. Response Time</Text>
+                  <View style={[styles.metricBar, { width: '85%', backgroundColor: '#4caf50' }]} />
+                </View>
               </View>
-              <Text style={styles.activityAmount}>$24.99</Text>
+            </Animated.View>
+          </>
+        )}
+          {( activeTab === 'orders') && (
+
+<View style={styles.cardsContainer}>
+              <DashboardCard
+                icon={<DollarSign color="#fff" size={24} />}
+                title="Total Earnings"
+                value={`$${stats.total_earnings.toFixed(2)}`}
+                colors={['#4caf50', '#8bc34a']}
+                delay={100}
+              />
+              <DashboardCard
+                icon={<ShoppingCart color="#fff" size={24} />}
+                title="Total Orders"
+                value={stats.total_orders}
+                colors={['#2196f3', '#03a9f4']}
+                delay={200}
+              />
+              <DashboardCard
+                icon={<Clock color="#fff" size={24} />}
+                title="Pending Orders"
+                value={stats.pending_orders}
+                colors={['#ff9800', '#ffc107']}
+                delay={300}
+              />
+              <DashboardCard
+                icon={<Briefcase color="#fff" size={24} />}
+                title="Services"
+                value={stats.services_count}
+                colors={['#9c27b0', '#e91e63']}
+                delay={400}
+              />
             </View>
-            <View style={styles.activityItem}>
-              <View style={styles.activityIcon}>
-                <Clock color="#ff9800" size={18} />
-              </View>
-              <View style={styles.activityContent}>
-                <Text style={styles.activityTitle}>Order in progress</Text>
-                <Text style={styles.activityTime}>45 minutes ago</Text>
-              </View>
-              <Text style={styles.activityAmount}>$18.50</Text>
-            </View>
-            <View style={styles.activityItem}>
-              <View style={styles.activityIcon}>
-                <DollarSign color="#2196f3" size={18} />
-              </View>
-              <View style={styles.activityContent}>
-                <Text style={styles.activityTitle}>Payment received</Text>
-                <Text style={styles.activityTime}>2 hours ago</Text>
-              </View>
-              <Text style={styles.activityAmount}>$42.75</Text>
-            </View>
-          </View>
-        </Animated.View>
-        
-        {/* Performance Metrics */}
-        <Animated.View 
-          entering={FadeInUp.delay(500).springify()}
-          style={styles.section}
-        >
-          <Text style={styles.sectionTitle}>Performance Metrics</Text>
-          <View style={styles.metricsContainer}>
-            <View style={styles.metricCard}>
-              <Text style={styles.metricValue}>98%</Text>
-              <Text style={styles.metricLabel}>Completion Rate</Text>
-              <View style={[styles.metricBar, { width: '98%' }]} />
-            </View>
-            <View style={styles.metricCard}>
-              <Text style={styles.metricValue}>4.7</Text>
-              <Text style={styles.metricLabel}>Avg. Rating</Text>
-              <View style={[styles.metricBar, { width: '94%', backgroundColor: '#ffc107' }]} />
-            </View>
-            <View style={styles.metricCard}>
-              <Text style={styles.metricValue}>12 min</Text>
-              <Text style={styles.metricLabel}>Avg. Response Time</Text>
-              <View style={[styles.metricBar, { width: '85%', backgroundColor: '#4caf50' }]} />
-            </View>
-          </View>
-        </Animated.View>
+
+          )}
       </ScrollView>
     </View>
   );

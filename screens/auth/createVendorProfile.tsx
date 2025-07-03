@@ -170,6 +170,7 @@ export default () => {
 
       setLoading(false);
       await loginAsVendor();
+      router.push('/(Vendortab)')
     } catch (err: any) {
       if (err.message && err.message.includes('duplicate key')) {
         Alert.alert('Duplicate CNIC', 'A vendor with this CNIC already exists.');

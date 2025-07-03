@@ -43,7 +43,6 @@ export default function MenuScreen() {
   const settingsItems = [
     { title: "Edit Profile", icon: <User size={24} color="#e91e63" /> },
     { title: "Password and Security", icon: <Lock size={24} color="#e91e63" /> },
-    { title: "Create/Update Business Profile", icon: <Briefcase size={24} color="#e91e63" /> },
     { title: "Add Payment Method", icon: <CreditCard size={24} color="#e91e63" /> },
     { title: "Logout", icon: <LogOut size={24} color="#ff1744" /> },
   ];
@@ -63,9 +62,6 @@ export default function MenuScreen() {
         break;
       case "Password and Security":
         router.push("/security");
-        break;
-      case "Create/Update Business Profile":
-        router.push("/BusinessProfile");
         break;
       case "Add Payment Method":
         // router.push("/AddPayment");
