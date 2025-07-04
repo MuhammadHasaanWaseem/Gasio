@@ -1,8 +1,11 @@
+import MapModal from '@/components/MapModal';
 import countries from '@/constants/country';
 import { useVendor } from '@/context/vendorcontext';
 import { supabase } from '@/lib/supabase';
+import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import { ChevronLeft, SearchIcon, X } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
@@ -19,7 +22,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
 export default function EditProfile() {
   const router = useRouter();
   const { vendor, vendorBusiness, refreshVendorProfile } = useVendor();
@@ -37,6 +39,35 @@ export default function EditProfile() {
   const [loading, setLoading] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
   const [website, setwebsite] = useState('');
+  const [modalMapVisible, setModalMapVisible] = useState(false);
+  const [selectedCoords, setSelectedCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+  const handleLocationSelect = async (location: { latitude: number; longitude: number }) => {
+  setSelectedCoords(location);
+  setModalMapVisible(false);
+
+  try {
+    const [reverseGeocode] = await Location.reverseGeocodeAsync(location);
+    if (reverseGeocode) {
+      const formattedAddress = `${reverseGeocode.name ? reverseGeocode.name + ', ' : ''}${reverseGeocode.street ? reverseGeocode.street + ', ' : ''}${reverseGeocode.city ? reverseGeocode.city + ', ' : ''}${reverseGeocode.region ? reverseGeocode.region + ', ' : ''}${reverseGeocode.postalCode ? reverseGeocode.postalCode + ', ' : ''}${reverseGeocode.country ? reverseGeocode.country : ''}`;
+      setAddress(formattedAddress.trim().replace(/,\s*$/, ''));
+    }
+  } catch (error) {
+    Alert.alert('Error', 'Failed to get address from location');
+  }
+};
+
+const handleUseCurrentLocation = async () => {
+  const { status } = await Location.requestForegroundPermissionsAsync();
+  if (status !== 'granted') {
+    Alert.alert('Permission denied', 'Location permission is required.');
+    return;
+  }
+  const location = await Location.getCurrentPositionAsync({});
+  await handleLocationSelect({
+    latitude: location.coords.latitude,
+    longitude: location.coords.longitude,
+  });
+};
 
   useEffect(() => {
     if (vendor) {
@@ -197,6 +228,8 @@ export default function EditProfile() {
         business_license: businessLicense,
         business_logo_url: businessLogoUrl,
         address,
+        latitude: selectedCoords?.latitude ?? null,
+        longitude: selectedCoords?.longitude ?? null,
         website
       }, { onConflict: 'owner_id' });
       if (vendorError) throw new Error(vendorError.message);
@@ -259,7 +292,23 @@ export default function EditProfile() {
       {cnicError ? <Text style={{ color: 'red', marginBottom: 10 }}>{cnicError}</Text> : null}
       <TextInput placeholder="Business Name" value={businessName} onChangeText={setBusinessName} style={styles.input} />
       <TextInput placeholder="Business License" value={businessLicense} onChangeText={setBusinessLicense} style={styles.input} />
-      <TextInput placeholder="Address" value={address} onChangeText={setAddress} style={styles.input} />
+      {/* <TextInput placeholder="Address" value={address} onChangeText={setAddress} style={styles.input} /> */}
+      <View>
+  <TextInput
+    placeholder="Address"
+    value={address}
+    onChangeText={setAddress}
+    style={[styles.input, { paddingRight: 80 }]}
+    editable={false}
+  />
+  <TouchableOpacity style={[styles.locationIcon, { right: 15 }]} onPress={handleUseCurrentLocation}>
+    <Ionicons name="location-outline" size={24} color="gray" />
+  </TouchableOpacity>
+  <TouchableOpacity style={[styles.locationIcon, { right: 50 }]} onPress={() => setModalMapVisible(true)}>
+    <Ionicons name="map-outline" size={24} color="gray" />
+  </TouchableOpacity>
+</View>
+
       <TextInput
         placeholder="Website (optional)"
         value={website}
@@ -334,7 +383,7 @@ export default function EditProfile() {
               <X color="#ed3237" size={22} />
             </TouchableOpacity>
           </View>
-
+              
           <FlatList
             data={filteredCountries}
             keyExtractor={(item) => item.code}
@@ -353,11 +402,22 @@ export default function EditProfile() {
           />
         </View>
       </Modal>
+      <MapModal
+  visible={modalMapVisible}
+  onClose={() => setModalMapVisible(false)}
+  onLocationSelect={handleLocationSelect}
+/>
+
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  locationIcon: {
+  position: 'absolute',
+  top: 15,
+},
+
   container: { backgroundColor: '#fff', flex: 1, marginTop: 20 },
   headerBackground: { paddingBottom: 60, borderBottomLeftRadius: 30, borderBottomRightRadius: 30 },
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingTop: 15 },

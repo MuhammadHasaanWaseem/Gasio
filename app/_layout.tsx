@@ -3,14 +3,14 @@ import { VendorProvider } from '@/context/vendorcontext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { AuthProvider } from '../context/authcontext';
 
-
-
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -29,22 +29,24 @@ export default function RootLayout() {
         <VendorProvider>
           <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <ActionSheetProvider>
-              <>
-                <StatusBar style="auto" />
-                <Stack initialRouteName='(auth)' screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name='splash' options={{ headerShown: false }} />
-                  <Stack.Screen name='onboarding' options={{ headerShown: false }} />
-                  <Stack.Screen name="(auth)" options={{ headerShown: false, animation: 'slide_from_right' }} />
-                  <Stack.Screen name="(Vendortab)" options={{ headerShown: false, animation: 'slide_from_right' }} />
-                  <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'slide_from_right' }} />
-                  <Stack.Screen name="Vendordrawer" options={{ headerShown: false, animation: 'slide_from_right' }} />
-                  <Stack.Screen name="(drawer)" options={{ headerShown: false, animation: 'slide_from_right' }} />
-                  <Stack.Screen name="createservice" options={{ headerShown: false, animation: 'slide_from_right' }} />
-                  <Stack.Screen name="vendormessage" options={{ headerShown: false, animation: 'slide_from_right' }} />
-                  <Stack.Screen name="chat" options={{ headerShown: false, animation: 'slide_from_right' }} />
-                  <Stack.Screen name="+not-found" />
-                </Stack>
-              </>
+              <QueryClientProvider client={queryClient}>
+                <>
+                  <StatusBar style="auto" />
+                  <Stack initialRouteName='(auth)' screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name='splash' options={{ headerShown: false }} />
+                    <Stack.Screen name='onboarding' options={{ headerShown: false }} />
+                    <Stack.Screen name="(auth)" options={{ headerShown: false, animation: 'slide_from_right' }} />
+                    <Stack.Screen name="(Vendortab)" options={{ headerShown: false, animation: 'slide_from_right' }} />
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'slide_from_right' }} />
+                    <Stack.Screen name="Vendordrawer" options={{ headerShown: false, animation: 'slide_from_right' }} />
+                    <Stack.Screen name="(drawer)" options={{ headerShown: false, animation: 'slide_from_right' }} />
+                    <Stack.Screen name="createservice" options={{ headerShown: false, animation: 'slide_from_right' }} />
+                    <Stack.Screen name="vendormessage" options={{ headerShown: false, animation: 'slide_from_right' }} />
+                    <Stack.Screen name="chat" options={{ headerShown: false, animation: 'slide_from_right' }} />
+                    <Stack.Screen name="+not-found" />
+                  </Stack>
+                </>
+              </QueryClientProvider>
             </ActionSheetProvider>
           </ThemeProvider>
         </VendorProvider>

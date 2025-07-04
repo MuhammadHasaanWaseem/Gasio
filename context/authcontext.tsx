@@ -99,6 +99,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error('Failed to store userType for vendor:', error);
     }
+          router.push('/(Vendortab)');
+
     // Navigation handled outside based on vendor profile existence
   };
 

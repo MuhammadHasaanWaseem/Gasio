@@ -1,5 +1,7 @@
 import countries from '@/constants/country';
+import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import { default as React } from 'react';
 import {
@@ -13,12 +15,15 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import MapModal from '../../components/MapModal';
 import { useAuth } from '../../context/authcontext';
+import { useVendor } from '../../context/vendorcontext';
 import { supabase } from '../../lib/supabase';
 
 export default () => {
   const router = useRouter();
   const { loginAsVendor } = useAuth();
+  const { refreshVendorProfile } = useVendor();
   const [avatar, setAvatar] = React.useState<string | null>(null);
   const [fullName, setFullName] = React.useState('');
   const [phone, setPhone] = React.useState('');
@@ -31,13 +36,14 @@ export default () => {
   const [address, setAddress] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [countrySearch, setCountrySearch] = React.useState('');
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [selectedCoords, setSelectedCoords] = React.useState<{latitude: number; longitude: number} | null>(null);
+
   const filteredCountries = countries.filter((item) =>
     item.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
     item.code.toLowerCase().includes(countrySearch.toLowerCase()) ||
     item.dial_code.includes(countrySearch)
   );
-
-  
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -61,7 +67,6 @@ export default () => {
     if (!avatar) return null;
 
     try {
-      // Refresh session to ensure valid access token
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !sessionData?.session) {
         Alert.alert('Session Error', 'User session is not valid. Please login again.');
@@ -72,7 +77,6 @@ export default () => {
       const fileName = `${userId.trim()}/avatar.${fileExt}`;
       const fileType = `image/${fileExt === 'jpg' ? 'jpeg' : fileExt}`;
 
-      // Create a new supabase client with the current access token for storage upload
       const supabaseWithAuth = supabase.storage.from('avatars');
 
       const { error: uploadError } = await supabaseWithAuth.upload(
@@ -120,6 +124,41 @@ export default () => {
     return true;
   };
 
+  const handleLocationSelect = async (location: { latitude: number; longitude: number }) => {
+    setSelectedCoords(location);
+    setModalVisible(false);
+
+    try {
+      const [reverseGeocode] = await Location.reverseGeocodeAsync({
+        latitude: location.latitude,
+        longitude: location.longitude,
+      });
+      if (reverseGeocode) {
+        const formattedAddress = `${reverseGeocode.name ? reverseGeocode.name + ', ' : ''}${reverseGeocode.street ? reverseGeocode.street + ', ' : ''}${reverseGeocode.city ? reverseGeocode.city + ', ' : ''}${reverseGeocode.region ? reverseGeocode.region + ', ' : ''}${reverseGeocode.postalCode ? reverseGeocode.postalCode + ', ' : ''}${reverseGeocode.country ? reverseGeocode.country : ''}`;
+        setAddress(formattedAddress.trim().replace(/,\s*$/, ''));
+      } else {
+        setAddress('');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to get address from location');
+      setAddress('');
+    }
+  };
+
+  const handleUseCurrentLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission denied', 'Location permission is required to get your current location.');
+      return;
+    }
+    let location = await Location.getCurrentPositionAsync({});
+    const coords = {
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+    };
+    await handleLocationSelect(coords);
+  };
+
   const handleSaveProfile = async () => {
     if (!validateFields()) return;
 
@@ -159,6 +198,8 @@ export default () => {
         business_license: businessLicense,
         business_logo_url: businessLogoUrl,
         address,
+        latitude: selectedCoords?.latitude ?? null,
+        longitude: selectedCoords?.longitude ?? null,
       });
 
       if (vendorError) {
@@ -170,7 +211,7 @@ export default () => {
 
       setLoading(false);
       await loginAsVendor();
-      router.push('/(Vendortab)')
+      await refreshVendorProfile();
     } catch (err: any) {
       if (err.message && err.message.includes('duplicate key')) {
         Alert.alert('Duplicate CNIC', 'A vendor with this CNIC already exists.');
@@ -192,38 +233,39 @@ export default () => {
       </TouchableOpacity>
 
       <TextInput placeholder="Full Name" value={fullName} onChangeText={setFullName} style={styles.input} />
-      
-     <TouchableOpacity onPress={() => setShowCountryList(!showCountryList)} style={styles.countryPicker}>
-  <Text>{`${selectedCountry.flag} ${selectedCountry.name} (${selectedCountry.dial_code})`}</Text>
-</TouchableOpacity>
 
-{showCountryList && (
-  <View style={styles.countryListContainer}>
-    <TextInput
-      placeholder="Search country"
-      value={countrySearch}
-      onChangeText={setCountrySearch}
-      style={styles.searchInput}
-    />
-    <FlatList
-      data={filteredCountries}
-      keyExtractor={(item) => item.code}
-      renderItem={({ item }) => (
-        <TouchableOpacity
-          onPress={() => {
-            setSelectedCountry(item);
-            setShowCountryList(false);
-            setCountrySearch('');
-          }}
-          style={styles.countryItem}
-        >
-          <Text>{`${item.flag} ${item.name} (${item.dial_code})`}</Text>
-        </TouchableOpacity>
+      <TouchableOpacity onPress={() => setShowCountryList(!showCountryList)} style={styles.countryPicker}>
+        <Text>{`${selectedCountry.flag} ${selectedCountry.name} (${selectedCountry.dial_code})`}</Text>
+      </TouchableOpacity>
+
+      {showCountryList && (
+        <View style={styles.countryListContainer}>
+          <TextInput
+            placeholder="Search country"
+            value={countrySearch}
+            onChangeText={setCountrySearch}
+            style={styles.searchInput}
+          />
+          <FlatList
+            data={filteredCountries}
+            keyExtractor={(item) => item.code}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedCountry(item);
+                  setShowCountryList(false);
+                  setCountrySearch('');
+                }}
+                style={styles.countryItem}
+              >
+                <Text>{`${item.flag} ${item.name} (${item.dial_code})`}</Text>
+              </TouchableOpacity>
+            )}
+            keyboardShouldPersistTaps="handled"
+          />
+        </View>
       )}
-      keyboardShouldPersistTaps="handled"
-    />
-  </View>
-)}
+
       <TextInput
         placeholder="Phone (without country code)"
         value={phone}
@@ -235,11 +277,32 @@ export default () => {
       <TextInput placeholder="CNIC (13 digits)" value={cnic} onChangeText={setCnic} keyboardType="numeric" style={styles.input} />
       <TextInput placeholder="Business Name" value={businessName} onChangeText={setBusinessName} style={styles.input} />
       <TextInput placeholder="Business License" value={businessLicense} onChangeText={setBusinessLicense} style={styles.input} />
-      <TextInput placeholder="Address" value={address} onChangeText={setAddress} style={styles.input} />
+
+      <View>
+        <TextInput
+          placeholder="Address"
+          value={address}
+          onChangeText={setAddress}
+          style={[styles.input, { paddingRight: 40 }]}
+          editable={false}
+        />
+        <TouchableOpacity style={styles.locationIcon} onPress={handleUseCurrentLocation}>
+          <Ionicons name="location-outline" size={24} color="gray" />
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.locationIcon, { right: 50 }]} onPress={() => setModalVisible(true)}>
+          <Ionicons name="map-outline" size={24} color="gray" />
+        </TouchableOpacity>
+      </View>
 
       <TouchableOpacity onPress={handleSaveProfile} style={styles.button} disabled={loading}>
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Save Profile</Text>}
       </TouchableOpacity>
+
+      <MapModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onLocationSelect={handleLocationSelect}
+      />
     </View>
   );
 };
@@ -251,7 +314,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   avatarContainer: {
-  marginTop:'15%',
+    marginTop: '15%',
     alignSelf: 'center',
     marginBottom: 20,
     width: 120,
@@ -297,12 +360,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     backgroundColor: '#f9f9f9',
   },
-  countryList: {
-    maxHeight: 150,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 10,
-  },
   countryListContainer: {
     maxHeight: 200,
     borderWidth: 1,
@@ -323,5 +380,10 @@ const styles = StyleSheet.create({
     padding: 10,
     margin: 10,
     backgroundColor: '#f9f9f9',
+  },
+  locationIcon: {
+    position: 'absolute',
+    right: 15,
+    top: 15,
   },
 });
