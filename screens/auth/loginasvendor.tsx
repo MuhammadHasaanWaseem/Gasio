@@ -48,10 +48,13 @@ export default () => {
         // Navigate to create vendor profile if profile does not exist
         // Use router.replace to avoid stacking navigation
         router.replace('/createVendorProfile');
-      } else {
-        // Navigate to vendor tabs if profile exists
+      } else if (vendorProfile && vendorProfile.cnic) {
+        // Navigate to vendor tabs if profile exists and has cnic
         // Use router.replace to avoid stacking navigation
         router.replace('/(Vendortab)');
+      } else {
+        // If profile exists but cnic is missing, navigate to createVendorProfile
+        router.replace('/createVendorProfile');
       }
     }
   };

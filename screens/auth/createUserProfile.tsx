@@ -14,11 +14,13 @@ import {
   View,
 } from 'react-native';
 import { useAuth } from '../../context/authcontext';
+import { useUser } from '../../context/usercontext';
 import { supabase } from '../../lib/supabase';
 
 export default () => {
   const router = useRouter();
   const { loginAsUser } = useAuth();
+  const { refreshUserProfile } = useUser();
   const [avatar, setAvatar] = useState<string | null>(null);
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -139,6 +141,7 @@ export default () => {
         return;
       }
       loginAsUser()
+      await refreshUserProfile();
       setLoading(false);
       router.push('/(tabs)');
     } catch (err: any) {

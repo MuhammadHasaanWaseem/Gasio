@@ -52,7 +52,7 @@ export default () => {
               <TouchableOpacity onPress={logout}>
                 <Text style={{ color: "red" }}>Logout</Text>
               </TouchableOpacity> 
-      <Text style={{ color: "black" }}>{user.full_name} </Text>
+      <Text style={{ color: "black" }}>{user.created_at} </Text>
       {user?.avatar_url ? (
         <Image
           source={{ uri: user.avatar_url }}
