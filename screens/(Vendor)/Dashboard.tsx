@@ -9,6 +9,8 @@ import {
   ShoppingCart,
   Star
 } from "lucide-react-native";
+import type { ColorValue } from "react-native";
+
 import React, { useEffect, useState } from "react";
 import {
   AppState,
@@ -22,21 +24,56 @@ import {
   View,
 } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
-interface VendorProfileProps {
-  vendor: {
-    id: string;
-    full_name: string;
-    email: string;
-    phone: string;
-    profile_picture_url: string;
-    business_logo_url: string;
-    created_at: string;
-    updated_at: string;
-  };
+;
+interface RecentOrder {
+  total_price: number;
+  order_time: string;
+}
+
+interface RecentOrdersState {
+  received: RecentOrder | null;
+  inProgress: RecentOrder | null;
+  completed: RecentOrder | null;
 }
 const { width } = Dimensions.get('window');
 
 export default function VendorDashboard() {
+
+const [totalorder,settotalorder]=useState<any>('');
+const { vendorBusiness } = useVendor();
+  const [total_earnings,settearning]=useState<number | null>(null);
+  const fetchearning  = async () => {
+  const { data, error } = await supabase
+    .from('vendor_owners')
+    .select('total_earning')
+    .eq('id', vendor?.id)
+    .single();
+
+  if (error) {
+    console.log('ERROR', error);
+    return;
+  }
+
+  settearning(data?.total_earning ?? 0); // ✅ Save only number value
+  console.log('Total Earning:', data?.total_earning);
+};
+  const fetchorder = async () => {
+  if (!vendorBusiness?.id) return;
+
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('vendor_id', vendorBusiness.id);
+
+  if (error) {
+    console.error("Error fetching orders:", error);
+    return;
+  }
+
+  settotalorder(data);
+};
+
+
   const { vendor } = useVendor();
   const [stats, setStats] = useState({
     total_earnings: 0,
@@ -45,6 +82,53 @@ export default function VendorDashboard() {
     pending_orders: 0,
     services_count: 0,
   });
+ const [recentOrders, setRecentOrders] = useState<RecentOrdersState>({
+  received: null,
+  inProgress: null,
+  completed: null,
+});
+const fetchRecentOrders = async () => {
+  if (!vendorBusiness?.id) return;
+
+  try {
+    const [received, inProgress, completed] = await Promise.all([
+      supabase
+        .from("orders")
+        .select("total_price, order_time")
+        .eq("vendor_id", vendorBusiness.id)
+        .eq("status", "Pending")
+        .order("order_time", { ascending: false })
+        .limit(1)
+        .single(),
+
+      supabase
+        .from("orders")
+        .select("total_price, order_time")
+        .eq("vendor_id", vendorBusiness.id)
+        .eq("status", "In Progress")
+        .order("order_time", { ascending: false })
+        .limit(1)
+        .single(),
+
+      supabase
+        .from("orders")
+        .select("total_price, order_time")
+        .eq("vendor_id", vendorBusiness.id)
+        .eq("status", "Completed")
+        .order("order_time", { ascending: false })
+        .limit(1)
+        .single(),
+    ]);
+
+    setRecentOrders({
+      received: received.data,
+      inProgress: inProgress.data,
+      completed: completed.data,
+    });
+  } catch (error) {
+    console.error("Error fetching recent orders:", error);
+  }
+};
 
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -89,6 +173,11 @@ export default function VendorDashboard() {
   };
 
   useEffect(() => {
+    if (vendorBusiness?.id) {
+    fetchRecentOrders();
+  }
+      fetchorder() // fetching no of orders
+      fetchearning();
     if (!vendor?.id) return;
 
     fetchDashboardData();
@@ -123,8 +212,13 @@ export default function VendorDashboard() {
       supabase.removeChannel(subscription);
       appStateListener.remove();
     };
-  }, [vendor?.id]);
+      
 
+  }, [vendor?.id,vendorBusiness?.id]);
+
+
+    
+    const order=totalorder.length;
   return (
     <View style={styles.container}>
       {/* Header with 3D effect */}
@@ -182,7 +276,7 @@ export default function VendorDashboard() {
           
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>{stats.total_orders}</Text>
+              <Text style={styles.statValue}>{order}</Text>
               <Text style={styles.statLabel}>Orders</Text>
             </View>
             <View style={styles.statItem}>
@@ -190,7 +284,7 @@ export default function VendorDashboard() {
               <Text style={styles.statLabel}>Services</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>${stats.total_earnings.toFixed(0)}</Text>
+              <Text style={styles.statValue}>${total_earnings}</Text>
               <Text style={styles.statLabel}>Earnings</Text>
             </View>
           </View>
@@ -231,14 +325,14 @@ export default function VendorDashboard() {
               <DashboardCard
                 icon={<DollarSign color="#fff" size={24} />}
                 title="Total Earnings"
-                value={`$${stats.total_earnings.toFixed(2)}`}
+                value={`${'$'} ${total_earnings}`}
                 colors={['#4caf50', '#8bc34a']}
                 delay={100}
               />
               <DashboardCard
                 icon={<ShoppingCart color="#fff" size={24} />}
                 title="Total Orders"
-                value={stats.total_orders}
+                value={order}
                 colors={['#2196f3', '#03a9f4']}
                 delay={200}
               />
@@ -262,45 +356,61 @@ export default function VendorDashboard() {
               style={styles.section}
             >
               <Text style={styles.sectionTitle}>Recent Activity</Text>
-              <View style={styles.activityCard}>
-                <View style={styles.activityItem}>
-                  <View style={styles.activityIcon}>
-                    <ShoppingCart color="#4caf50" size={18} />
-                  </View>
-                  <View style={styles.activityContent}>
-                    <Text style={styles.activityTitle}>New order received</Text>
-                    <Text style={styles.activityTime}>10 minutes ago</Text>
-                  </View>
-                  <Text style={styles.activityAmount}>$24.99</Text>
-                </View>
-                <View style={styles.activityItem}>
-                  <View style={styles.activityIcon}>
-                    <Clock color="#ff9800" size={18} />
-                  </View>
-                  <View style={styles.activityContent}>
-                    <Text style={styles.activityTitle}>Order in progress</Text>
-                    <Text style={styles.activityTime}>45 minutes ago</Text>
-                  </View>
-                  <Text style={styles.activityAmount}>$18.50</Text>
-                </View>
-                <View style={styles.activityItem}>
-                  <View style={styles.activityIcon}>
-                    <DollarSign color="#2196f3" size={18} />
-                  </View>
-                  <View style={styles.activityContent}>
-                    <Text style={styles.activityTitle}>Payment received</Text>
-                    <Text style={styles.activityTime}>2 hours ago</Text>
-                  </View>
-                  <Text style={styles.activityAmount}>$42.75</Text>
-                </View>
-              </View>
+             <View style={styles.activityCard}>
+
+    {recentOrders.received && (
+      <View style={styles.activityItem}>
+        <View style={styles.activityIcon}>
+          <ShoppingCart color="#4caf50" size={18} />
+        </View>
+        <View style={styles.activityContent}>
+          <Text style={styles.activityTitle}>New order received</Text>
+          <Text style={styles.activityTime}>
+            {new Date(recentOrders.received.order_time).toLocaleTimeString()}
+          </Text>
+        </View>
+        <Text style={styles.activityAmount}>${recentOrders.received.total_price || '0'}</Text>
+      </View>
+    )}
+
+    {recentOrders.inProgress && (
+      <View style={styles.activityItem}>
+        <View style={styles.activityIcon}>
+          <Clock color="#ff9800" size={18} />
+        </View>
+        <View style={styles.activityContent}>
+          <Text style={styles.activityTitle}>Order in progress</Text>
+          <Text style={styles.activityTime}>
+            {new Date(recentOrders.inProgress.order_time).toLocaleTimeString()}
+          </Text>
+        </View>
+        <Text style={styles.activityAmount}>${recentOrders.inProgress.total_price}</Text>
+      </View>
+    )}
+
+    {recentOrders.completed && (
+      <View style={styles.activityItem}>
+        <View style={styles.activityIcon}>
+          <DollarSign color="#2196f3" size={18} />
+        </View>
+        <View style={styles.activityContent}>
+          <Text style={styles.activityTitle}>Payment received</Text>
+          <Text style={styles.activityTime}>
+            {new Date(recentOrders.completed.order_time).toLocaleTimeString()}
+          </Text>
+        </View>
+        <Text style={styles.activityAmount}>${recentOrders.completed.total_price}</Text>
+      </View>
+    )}
+
+  </View>
             </Animated.View>
             
             <Animated.View 
               entering={FadeInUp.delay(500).springify()}
               style={styles.section}
             >
-              <Text style={styles.sectionTitle}>Performance Metrics</Text>
+              <Text style={styles.sectionTitle}>Best Performance Metrics</Text>
               <View style={styles.metricsContainer}>
                 <View style={styles.metricCard}>
                   <Text style={styles.metricValue}>98%</Text>
@@ -325,50 +435,67 @@ export default function VendorDashboard() {
         
         {( activeTab === 'analytics') && (
           <>
-            <Animated.View 
-              entering={FadeInUp.delay(400).springify()}
-              style={styles.section}
-            >
-              <Text style={styles.sectionTitle}>Recent Activity</Text>
-              <View style={styles.activityCard}>
-                <View style={styles.activityItem}>
-                  <View style={styles.activityIcon}>
-                    <ShoppingCart color="#4caf50" size={18} />
-                  </View>
-                  <View style={styles.activityContent}>
-                    <Text style={styles.activityTitle}>New order received</Text>
-                    <Text style={styles.activityTime}>10 minutes ago</Text>
-                  </View>
-                  <Text style={styles.activityAmount}>$24.99</Text>
-                </View>
-                <View style={styles.activityItem}>
-                  <View style={styles.activityIcon}>
-                    <Clock color="#ff9800" size={18} />
-                  </View>
-                  <View style={styles.activityContent}>
-                    <Text style={styles.activityTitle}>Order in progress</Text>
-                    <Text style={styles.activityTime}>45 minutes ago</Text>
-                  </View>
-                  <Text style={styles.activityAmount}>$18.50</Text>
-                </View>
-                <View style={styles.activityItem}>
-                  <View style={styles.activityIcon}>
-                    <DollarSign color="#2196f3" size={18} />
-                  </View>
-                  <View style={styles.activityContent}>
-                    <Text style={styles.activityTitle}>Payment received</Text>
-                    <Text style={styles.activityTime}>2 hours ago</Text>
-                  </View>
-                  <Text style={styles.activityAmount}>$42.75</Text>
-                </View>
-              </View>
-            </Animated.View>
+           <Animated.View 
+  entering={FadeInUp.delay(400).springify()}
+  style={styles.section}
+>
+  <Text style={styles.sectionTitle}>Recent Activity</Text>
+  <View style={styles.activityCard}>
+
+    {recentOrders.received && (
+      <View style={styles.activityItem}>
+        <View style={styles.activityIcon}>
+          <ShoppingCart color="#4caf50" size={18} />
+        </View>
+        <View style={styles.activityContent}>
+          <Text style={styles.activityTitle}>New order received</Text>
+          <Text style={styles.activityTime}>
+            {new Date(recentOrders.received.order_time).toLocaleTimeString()}
+          </Text>
+        </View>
+        <Text style={styles.activityAmount}>${recentOrders.received.total_price || '0'}</Text>
+      </View>
+    )}
+
+    {recentOrders.inProgress && (
+      <View style={styles.activityItem}>
+        <View style={styles.activityIcon}>
+          <Clock color="#ff9800" size={18} />
+        </View>
+        <View style={styles.activityContent}>
+          <Text style={styles.activityTitle}>Order in progress</Text>
+          <Text style={styles.activityTime}>
+            {new Date(recentOrders.inProgress.order_time).toLocaleTimeString()}
+          </Text>
+        </View>
+        <Text style={styles.activityAmount}>${recentOrders.inProgress.total_price}</Text>
+      </View>
+    )}
+
+    {recentOrders.completed && (
+      <View style={styles.activityItem}>
+        <View style={styles.activityIcon}>
+          <DollarSign color="#2196f3" size={18} />
+        </View>
+        <View style={styles.activityContent}>
+          <Text style={styles.activityTitle}>Payment received</Text>
+          <Text style={styles.activityTime}>
+            {new Date(recentOrders.completed.order_time).toLocaleTimeString()}
+          </Text>
+        </View>
+        <Text style={styles.activityAmount}>${recentOrders.completed.total_price}</Text>
+      </View>
+    )}
+
+  </View>
+</Animated.View>
+
             
             <Animated.View 
               entering={FadeInUp.delay(500).springify()}
               style={styles.section}
             >
-              <Text style={styles.sectionTitle}>Performance Metrics</Text>
+              <Text style={styles.sectionTitle}>Best Performance Metrics</Text>
               <View style={styles.metricsContainer}>
                 <View style={styles.metricCard}>
                   <Text style={styles.metricValue}>98%</Text>
@@ -395,14 +522,14 @@ export default function VendorDashboard() {
               <DashboardCard
                 icon={<DollarSign color="#fff" size={24} />}
                 title="Total Earnings"
-                value={`$${stats.total_earnings.toFixed(2)}`}
+                value={`${'$'} ${total_earnings}`}
                 colors={['#4caf50', '#8bc34a']}
                 delay={100}
               />
               <DashboardCard
                 icon={<ShoppingCart color="#fff" size={24} />}
                 title="Total Orders"
-                value={stats.total_orders}
+                value={order}
                 colors={['#2196f3', '#03a9f4']}
                 delay={200}
               />
@@ -428,7 +555,6 @@ export default function VendorDashboard() {
   );
 }
 
-import type { ColorValue } from "react-native";
 
 const DashboardCard = ({
   icon,

@@ -378,7 +378,7 @@ export default function OrderDetailScreen() {
 
           <View style={[styles.infoRow, { marginBottom: 0 }]}>
             <Text style={styles.infoLabel}>Total Amount:</Text>
-            <Text style={styles.totalPrice}>Rs {(order.total_price ?? 0).toFixed(0)}</Text>
+            <Text style={styles.totalPrice}>{(order.total_price ?? 0).toFixed(0)}</Text>
           </View>
         </View>
 
@@ -435,7 +435,7 @@ export default function OrderDetailScreen() {
             <View style={styles.serviceDetails}>
                <View style={styles.detailItem}>
                 <Feather name="dollar-sign" size={16} color="#6B7280" />
-                <Text style={styles.detailText}>Rs {service.price.toFixed(0)}</Text>
+                <Text style={styles.detailText}> {service.price.toFixed(0)}</Text>
               </View>
               
               <View style={styles.detailItem}>

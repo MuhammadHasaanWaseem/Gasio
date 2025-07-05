@@ -17,6 +17,8 @@ CREATE TABLE public.vendor_owners (
   full_name TEXT NOT NULL,
   phone VARCHAR(20),
   email TEXT,
+    total_earning DECIMAL(10,2),
+
   cnic TEXT NOT NULL UNIQUE,
   profile_picture_url TEXT, -- from Supabase Storage 'owner_profiles'
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -66,6 +68,7 @@ CREATE TABLE public.orders (
   order_status text
   order_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   total_price DECIMAL(10,2),
+
   notes TEXT,
   is_paid BOOLEAN DEFAULT FALSE
 );
@@ -194,3 +197,10 @@ CREATE TABLE public.messages (
 ALTER TABLE messages
 ADD COLUMN created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 ALTER TABLE messages ADD COLUMN content TEXT;
+
+DROP TRIGGER IF EXISTS trigger_add_earning_on_order_complete ON orders;
+
+CREATE TRIGGER trigger_add_earning_on_order_complete
+AFTER UPDATE ON orders
+FOR EACH ROW
+EXECUTE FUNCTION add_order_total_to_vendor_earning();
