@@ -55,6 +55,7 @@
 // });
 
 // export default BookServiceScreen;
+import { useVendor } from '@/context/vendorcontext';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { Calendar, TimerIcon } from 'lucide-react-native';
 import React, { useState } from 'react';
@@ -78,6 +79,7 @@ const BookServiceScreen = () => {
   const route = useRoute<BookServiceRouteProp>();
   const navigation = useNavigation();
   const { user } = useUser();
+  const {vendor}=useVendor()
   const service = route.params.service;
   const [loading, setLoading] = useState(false);
   const [notes, setNotes] = useState('');
@@ -125,6 +127,10 @@ const BookServiceScreen = () => {
       <View style={styles.card}>
         <Text style={styles.serviceTitle}>{service.service_name}</Text>
         <Text style={styles.description}>{service.description}</Text>
+    <View>
+    <Text style={styles.sectionTitle}>Payment method</Text>
+     <Text style={styles.description}>{service.payment_method}</Text>
+    </View>
         
         <View style={styles.priceContainer}>
           <Text style={styles.priceLabel}>Total Price:</Text>

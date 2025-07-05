@@ -116,6 +116,8 @@
 // });
 
 // export default OrdersScreen;
+import { router } from 'expo-router';
+import { Calendar, Currency, Receipt, Timer } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
@@ -125,7 +127,6 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useUser } from '../../context/usercontext';
 import { Order, Service } from '../../interface';
 import { supabase } from '../../lib/supabase';
@@ -207,19 +208,19 @@ const OrdersScreen = () => {
             <Text style={styles.serviceName}>{item.service.service_name}</Text>
             <View style={styles.orderDetails}>
               <View style={styles.detailItem}>
-                <Icon name="calendar-today" size={16} color="#6B7280" />
+                <Calendar  size={16} color="#6B7280" />
                 <Text style={styles.detailText}>
                   {new Date(item.order_time).toLocaleDateString()}
                 </Text>
               </View>
               <View style={styles.detailItem}>
-                <Icon name="access-time" size={16} color="#6B7280" />
+                <Timer size={16} color="#6B7280" />
                 <Text style={styles.detailText}>
                   {new Date(item.order_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </Text>
               </View>
               <View style={styles.detailItem}>
-                <Icon name="attach-money" size={16} color="#6B7280" />
+                <Currency size={16} color="#6B7280" />
                 <Text style={styles.detailText}>${item.service.price.toFixed(2)}</Text>
               </View>
             </View>
@@ -240,7 +241,15 @@ const OrdersScreen = () => {
           )}
           
           {(item.status === 'Completed' || item.status === 'In Progress') && (
-            <TouchableOpacity style={styles.reviewButton}>
+            <TouchableOpacity
+              style={styles.reviewButton}
+              onPress={() => {
+                router.push({
+                  pathname: '/LeaveReview',
+                  params: { orderId: item.id, vendorId: item.vendor_id },
+                });
+              }}
+            >
               <Text style={styles.reviewButtonText}>Leave Review</Text>
             </TouchableOpacity>
           )}
@@ -260,7 +269,7 @@ const OrdersScreen = () => {
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Icon name="receipt" size={60} color="#D1D5DB" />
+            <Receipt size={60} color="#D1D5DB" />
             <Text style={styles.emptyTitle}>No orders yet</Text>
             <Text style={styles.emptyText}>Your orders will appear here</Text>
           </View>

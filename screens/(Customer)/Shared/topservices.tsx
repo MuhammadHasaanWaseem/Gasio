@@ -79,7 +79,7 @@ const TopServicesScreen = () => {
           <TouchableOpacity 
             style={styles.serviceCard}
           onPress={() => router.push({
-              pathname:'/Eservice',
+              pathname:'/bookservice',
               params: { id: item.id }
             })}
           >

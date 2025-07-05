@@ -2,16 +2,17 @@ import { useVendor } from "@/context/vendorcontext";
 import { supabase } from "@/lib/supabase";
 import { Feather } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { Octagon } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 interface Order {
@@ -42,6 +43,8 @@ interface Service {
   estimated_time: string;
   unit: string;
   description: string;
+    payment_method:string
+
 }
 
 const statusOptions = [
@@ -55,7 +58,7 @@ const statusOptions = [
 export default function OrderDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
-  const { vendor } = useVendor();
+  const { vendor, vendorBusiness } = useVendor();
 
   const [order, setOrder] = useState<Order | null>(null);
   const [customer, setCustomer] = useState<UserProfile | null>(null);
@@ -88,7 +91,7 @@ export default function OrderDetailScreen() {
       }
 
       // Check if order belongs to current vendor
-      if (vendor && orderData.vendor_id !== vendor.id) {
+      if (vendorBusiness && orderData.vendor_id !== vendorBusiness.id) {
         Alert.alert("Unauthorized", "You do not have access to this order.");
         setOrder(null);
         setCustomer(null);
@@ -106,12 +109,21 @@ export default function OrderDetailScreen() {
           .select("*")
           .eq("id", orderData.user_id)
           .single(),
-        supabase
-          .from("services")
-          .select("*")
-          .eq("id", orderData.service_id)
-          .single(),
+        orderData.service_id
+          ? supabase
+              .from("services")
+              .select("*")
+              .eq("id", orderData.service_id)
+              .single()
+          : Promise.resolve({ data: null, error: null }),
       ]);
+
+      if (serviceResult.error) {
+        console.error("Service fetch error:", serviceResult.error);
+        // Add detailed logging for debugging
+        console.error("Order ID:", orderData.id);
+        console.error("Service ID:", orderData.service_id);
+      }
 
       if (customerResult.error || !customerResult.data) {
         console.error("Customer fetch error:", customerResult.error);
@@ -125,6 +137,11 @@ export default function OrderDetailScreen() {
         setService(null);
       } else {
         setService(serviceResult.data as Service);
+      }
+
+      if (!serviceResult.data) {
+        // Remove alert and handle missing service gracefully in UI
+        // Alert.alert("Warning", "Service details are not available for this order.");
       }
     } catch (error) {
       console.error("Error fetching order details:", error);
@@ -157,7 +174,32 @@ export default function OrderDetailScreen() {
 
               if (error) throw error;
 
-              setOrder({ ...order, status: newStatus });
+              // If order status is completed, update payment status to Paid and order is_paid to true
+              if (newStatus === "Completed") {
+                const { error: paymentError } = await supabase
+                  .from("payments")
+                  .update({ status: "Paid" })
+                  .eq("order_id", order.id);
+
+                if (paymentError) {
+                  console.error("Error updating payment status:", paymentError);
+                }
+
+                // Also update order's is_paid to true
+                const { error: orderUpdateError } = await supabase
+                  .from("orders")
+                  .update({ is_paid: true })
+                  .eq("id", order.id);
+
+                if (orderUpdateError) {
+                  console.error("Error updating order is_paid status:", orderUpdateError);
+                }
+              }
+
+              // Update order_stats accordingly
+              await updateOrderStats(newStatus);
+
+              setOrder({ ...order!, status: newStatus });
 
               Alert.alert("Success", `Order status updated to ${newStatus}`);
             } catch (error) {
@@ -170,6 +212,65 @@ export default function OrderDetailScreen() {
         },
       ]
     );
+  };
+
+  const updateOrderStats = async (newStatus: string) => {
+    if (!vendorBusiness || !order) return;
+
+    try {
+      // Fetch current stats
+      const { data: statsData, error: statsError } = await supabase
+        .from("order_stats")
+        .select("*")
+        .eq("vendor_id", vendorBusiness.id)
+        .single();
+
+      if (statsError && statsError.code !== "PGRST116") { // PGRST116 = no rows found
+        throw statsError;
+      }
+
+      let stats = statsData || {
+        vendor_id: vendorBusiness.id,
+        total_orders: 0,
+        successful_orders: 0,
+        failed_orders: 0,
+        cancelled_orders: 0,
+        total_earned: 0,
+      };
+
+      // Update counts based on newStatus
+      // Note: total_orders should be incremented only when a new order is created, not on status update
+      if (newStatus === "Completed") {
+        stats.successful_orders = (stats.successful_orders || 0) + 1;
+
+        // Fetch sum of paid payments for this order
+        const { data: paymentsData, error: paymentsError } = await supabase
+          .from("payments")
+          .select("amount")
+          .eq("order_id", order.id)
+          .eq("status", "Paid");
+
+        let totalPaid = 0;
+        if (!paymentsError && paymentsData) {
+          totalPaid = paymentsData.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+        }
+
+        stats.total_earned = (stats.total_earned || 0) + totalPaid;
+      } else if (newStatus === "Cancelled") {
+        stats.cancelled_orders = (stats.cancelled_orders || 0) + 1;
+      } else if (newStatus === "Failed") {
+        stats.failed_orders = (stats.failed_orders || 0) + 1;
+      }
+
+      // Upsert the updated stats
+      const { error: upsertError } = await supabase
+        .from("order_stats")
+        .upsert(stats, { onConflict: "vendor_id" });
+
+      if (upsertError) throw upsertError;
+    } catch (error) {
+      console.error("Error updating order stats:", error);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -269,14 +370,15 @@ export default function OrderDetailScreen() {
                 color={order.is_paid ? "#10B981" : "#EF4444"}
               />
               <Text style={[styles.paymentText, { color: order.is_paid ? "#10B981" : "#EF4444" }]}>
-                {order.is_paid ? "Paid" : "Payment Pending"}
+               {order.is_paid}
+               
               </Text>
             </View>
           </View>
 
           <View style={[styles.infoRow, { marginBottom: 0 }]}>
             <Text style={styles.infoLabel}>Total Amount:</Text>
-            <Text style={styles.totalPrice}>Rs {order.total_price.toFixed(0)}</Text>
+            <Text style={styles.totalPrice}>Rs {(order.total_price ?? 0).toFixed(0)}</Text>
           </View>
         </View>
 
@@ -308,7 +410,7 @@ export default function OrderDetailScreen() {
         </View>
 
         {/* Service Card */}
-        {service && (
+        {service ? (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Service Details</Text>
             <View style={styles.divider} />
@@ -328,11 +430,26 @@ export default function OrderDetailScreen() {
                 <Text style={styles.detailText}>{service.unit}</Text>
               </View>
 
-              <View style={styles.detailItem}>
+             
+            </View>
+            <View style={styles.serviceDetails}>
+               <View style={styles.detailItem}>
                 <Feather name="dollar-sign" size={16} color="#6B7280" />
                 <Text style={styles.detailText}>Rs {service.price.toFixed(0)}</Text>
               </View>
+              
+              <View style={styles.detailItem}>
+                <Octagon  size={16} color="#6B7280" />
+                <Text style={styles.detailText}>{service.payment_method}</Text>
+              </View>
             </View>
+
+          </View>
+        ) : (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Service Details</Text>
+            <View style={styles.divider} />
+            <Text style={styles.emptyText}>Service details are not available for this order.</Text>
           </View>
         )}
 
@@ -360,7 +477,7 @@ export default function OrderDetailScreen() {
                   updating && styles.disabledButton,
                 ]}
                 onPress={() => updateOrderStatus(status)}
-                disabled={updating || order.status === status}
+          disabled={updating || order.status === status || order.status === "Cancelled"}
               >
                 <Text
                   style={[

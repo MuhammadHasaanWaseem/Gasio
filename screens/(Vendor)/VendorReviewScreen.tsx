@@ -4,14 +4,15 @@ import { Feather } from "@expo/vector-icons";
 import { Star, StarHalf } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 interface Review {
@@ -29,8 +30,8 @@ interface UserProfile {
   avatar_url: string;
 }
 
-export default function ReviewsScreen() {
-  const { vendor: vendorUser } = useVendor();
+export default function VendorReviewScreen() {
+  const { vendor: vendorUser, vendorBusiness } = useVendor();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [userProfiles, setUserProfiles] = useState<{ [key: string]: UserProfile }>({});
   const [loading, setLoading] = useState(true);
@@ -38,53 +39,53 @@ export default function ReviewsScreen() {
   const [stats, setStats] = useState({
     averageRating: 0,
     totalReviews: 0,
-    ratingCounts: [0, 0, 0, 0, 0]
+    ratingCounts: [0, 0, 0, 0, 0],
   });
 
   const fetchReviews = async () => {
-    if (!vendorUser?.id) return;
+    console.log("Vendor Business ID for fetching reviews:", vendorBusiness?.id);
+    if (!vendorBusiness?.id) return;
     setLoading(true);
-
     try {
-      // Fetch reviews
       const { data: reviewsData, error } = await supabase
         .from("reviews")
         .select("*")
-        .eq("vendor_id", vendorUser.id)
+        .eq("vendor_id", vendorBusiness.id)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching reviews:", error);
+        throw error;
+      }
 
       setReviews(reviewsData || []);
 
-      // Calculate stats
       if (reviewsData && reviewsData.length > 0) {
         const total = reviewsData.length;
         const sum = reviewsData.reduce((acc, review) => acc + review.rating, 0);
         const average = sum / total;
-        
+
         const counts = [0, 0, 0, 0, 0];
-        reviewsData.forEach(review => {
+        reviewsData.forEach((review) => {
           if (review.rating >= 1 && review.rating <= 5) {
             counts[5 - Math.floor(review.rating)]++;
           }
         });
-        
+
         setStats({
           averageRating: parseFloat(average.toFixed(1)),
           totalReviews: total,
-          ratingCounts: counts
+          ratingCounts: counts,
         });
       } else {
         setStats({
           averageRating: 0,
           totalReviews: 0,
-          ratingCounts: [0, 0, 0, 0, 0]
+          ratingCounts: [0, 0, 0, 0, 0],
         });
       }
 
-      // Fetch user profiles
-      const userIds = [...new Set(reviewsData?.map(r => r.user_id))];
+      const userIds = [...new Set(reviewsData?.map((r) => r.user_id))];
       if (userIds.length > 0) {
         const { data: users } = await supabase
           .from("user_profiles")
@@ -92,7 +93,7 @@ export default function ReviewsScreen() {
           .in("id", userIds);
 
         const userMap: any = {};
-        users?.forEach(u => (userMap[u.id] = u));
+        users?.forEach((u) => (userMap[u.id] = u));
         setUserProfiles(userMap);
       }
     } catch (error) {
@@ -112,11 +113,34 @@ export default function ReviewsScreen() {
     fetchReviews();
   };
 
+  const deleteReview = (reviewId: string) => {
+    Alert.alert("Delete Review", "Are you sure you want to delete this review?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            setLoading(true);
+            const { error } = await supabase.from("reviews").delete().eq("id", reviewId);
+            if (error) throw error;
+            fetchReviews();
+          } catch (error) {
+            console.error("Error deleting review:", error);
+            Alert.alert("Error", "Failed to delete review");
+          } finally {
+            setLoading(false);
+          }
+        },
+      },
+    ]);
+  };
+
   const renderStars = (rating: number, size = 16) => {
     const stars = [];
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
-    
+
     for (let i = 1; i <= 5; i++) {
       if (i <= fullStars) {
         stars.push(<Star key={i} size={size} color="#FFD700" fill="#FFD700" />);
@@ -126,7 +150,7 @@ export default function ReviewsScreen() {
         stars.push(<Star key={i} size={size} color="#E5E7EB" />);
       }
     }
-    
+
     return <View style={{ flexDirection: "row" }}>{stars}</View>;
   };
 
@@ -135,13 +159,13 @@ export default function ReviewsScreen() {
     return date.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
-      year: "numeric"
+      year: "numeric",
     });
   };
 
   const renderRatingBar = (stars: number, count: number, total: number) => {
     const percentage = total > 0 ? (count / total) * 100 : 0;
-    
+
     return (
       <View style={styles.ratingRow}>
         <Text style={styles.ratingLabel}>{stars} star</Text>
@@ -155,7 +179,7 @@ export default function ReviewsScreen() {
 
   const renderItem = ({ item }: { item: Review }) => {
     const user = userProfiles[item.user_id];
-    
+
     return (
       <View style={styles.reviewCard}>
         <View style={styles.reviewHeader}>
@@ -166,17 +190,18 @@ export default function ReviewsScreen() {
               <Feather name="user" size={20} color="#6B7280" />
             </View>
           )}
-          
+
           <View style={styles.userInfo}>
             <Text style={styles.userName}>{user?.full_name || "Customer"}</Text>
             <Text style={styles.reviewDate}>{formatDate(item.created_at)}</Text>
           </View>
-          
-          <View style={styles.ratingContainer}>
-            {renderStars(item.rating)}
-          </View>
+
+          <View style={styles.ratingContainer}>{renderStars(item.rating)}</View>
+          <TouchableOpacity style={styles.deleteButton} onPress={() => deleteReview(item.id)}>
+            <Feather name="trash-2" size={20} color="#EF4444" />
+          </TouchableOpacity>
         </View>
-        
+
         {item.comment ? (
           <Text style={styles.comment}>{item.comment}</Text>
         ) : (
@@ -205,16 +230,13 @@ export default function ReviewsScreen() {
         </View>
       ) : (
         <ScrollView>
-          {/* Rating Summary Card */}
           <View style={styles.summaryCard}>
             <View style={styles.ratingSummary}>
               <Text style={styles.averageRating}>{stats.averageRating}</Text>
-              <View style={styles.ratingStars}>
-                {renderStars(stats.averageRating, 20)}
-              </View>
+              <View style={styles.ratingStars}>{renderStars(stats.averageRating, 20)}</View>
               <Text style={styles.totalReviews}>{stats.totalReviews} reviews</Text>
             </View>
-            
+
             <View style={styles.ratingBars}>
               {renderRatingBar(5, stats.ratingCounts[0], stats.totalReviews)}
               {renderRatingBar(4, stats.ratingCounts[1], stats.totalReviews)}
@@ -224,12 +246,11 @@ export default function ReviewsScreen() {
             </View>
           </View>
 
-          {/* Reviews List */}
           <Text style={styles.reviewsTitle}>All Reviews</Text>
           <FlatList
             data={reviews}
             renderItem={renderItem}
-            keyExtractor={item => item.id}
+            keyExtractor={(item) => item.id}
             scrollEnabled={false}
             contentContainerStyle={styles.listContainer}
           />
@@ -301,51 +322,6 @@ const styles = StyleSheet.create({
     borderRightColor: "#F3F4F6",
     paddingRight: 20,
   },
-  averageRating: {
-    fontSize: 42,
-    fontWeight: "700",
-    color: "#1F2937",
-    lineHeight: 48,
-  },
-  ratingStars: {
-    marginVertical: 8,
-  },
-  totalReviews: {
-    fontSize: 14,
-    color: "#6B7280",
-  },
-  ratingBars: {
-    flex: 2,
-    paddingLeft: 20,
-  },
-  ratingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  ratingLabel: {
-    width: 60,
-    fontSize: 14,
-    color: "#6B7280",
-  },
-  barContainer: {
-    flex: 1,
-    height: 8,
-    backgroundColor: "#F3F4F6",
-    borderRadius: 4,
-    overflow: "hidden",
-    marginHorizontal: 8,
-  },
-  barFill: {
-    height: "100%",
-    backgroundColor: "#F59E0B",
-  },
-  ratingCount: {
-    width: 30,
-    fontSize: 14,
-    color: "#6B7280",
-    textAlign: "right",
-  },
   reviewsTitle: {
     fontSize: 18,
     fontWeight: "700",
@@ -414,4 +390,54 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     lineHeight: 22,
   },
+  deleteButton: {
+    marginLeft: 10,
+    justifyContent: "center",
+  },
+  averageRating: {
+    fontSize: 42,
+    fontWeight: "700",
+    color: "#1F2937",
+    lineHeight: 48,
+  },
+  ratingStars: {
+    marginVertical: 8,
+  },
+  totalReviews: {
+    fontSize: 14,
+    color: "#6B7280",
+  },
+  ratingBars: {
+    flex: 2,
+    paddingLeft: 20,
+  },
+  ratingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  ratingLabel: {
+    width: 60,
+    fontSize: 14,
+    color: "#6B7280",
+  },
+  barContainer: {
+    flex: 1,
+    height: 8,
+    backgroundColor: "#F3F4F6",
+    borderRadius: 4,
+    overflow: "hidden",
+    marginHorizontal: 8,
+  },
+  barFill: {
+    height: "100%",
+    backgroundColor: "#F59E0B",
+  },
+  ratingCount: {
+    width: 30,
+    fontSize: 14,
+    color: "#6B7280",
+    textAlign: "right",
+  },
+  
 });

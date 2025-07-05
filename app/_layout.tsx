@@ -44,7 +44,8 @@ export default function RootLayout() {
                     <Stack.Screen name="(Edrawer)" options={{ headerShown: false, animation: 'slide_from_right' }} />
                     <Stack.Screen name='(Shared)' options={{ headerShown: false, animation: 'slide_from_right' }} />
                     <Stack.Screen name="bookservice" options={{ headerShown: false, animation: 'slide_from_right' }} />
-
+                    <Stack.Screen name="orderdetail" options={{ headerShown: false, animation: 'slide_from_right' }} />
+                    <Stack.Screen name="LeaveReview" options={{ headerShown: false, animation: 'slide_from_right' }} />
                     <Stack.Screen name="+not-found" />
                   </Stack>
                 </>

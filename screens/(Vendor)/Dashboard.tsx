@@ -137,7 +137,9 @@ export default function VendorDashboard() {
         <View style={styles.headerContent}>
          
           <Text style={styles.headerTitle}>Vendor Dashboard</Text>
-        <TouchableOpacity onPress={()=>router.push('/vendormessage')}>
+        <TouchableOpacity 
+        // onPress={()=>router.push('/vendormessage')}
+          >
 
             <MessageCircle color="#fff" size={24} />
         </TouchableOpacity>
@@ -426,7 +428,6 @@ export default function VendorDashboard() {
   );
 }
 
-import { router } from "expo-router";
 import type { ColorValue } from "react-native";
 
 const DashboardCard = ({

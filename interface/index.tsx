@@ -22,6 +22,8 @@ export interface Service {
   price: number;
   created_at: string;
   updated_at: string;
+    order_time:any;
+
 }
 
 export interface Order {
@@ -32,6 +34,7 @@ export interface Order {
   status: 'Pending' | 'In Progress' | 'Completed' | 'Accepted' | 'Cancelled';
   created_at: string;
   updated_at: string;
+  order_time:any;
 }
 
 export interface Review {

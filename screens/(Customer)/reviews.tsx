@@ -1,199 +1,24 @@
-// import React, { useEffect, useState } from 'react';
-// import { Alert, Button, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-// import { useUser } from '../../context/usercontext';
-// import { Review } from '../../interface';
-// import { supabase } from '../../lib/supabase';
-
-// const ReviewsScreen = () => {
-//   const { user } = useUser();
-//   const [reviews, setReviews] = useState<Review[]>([]);
-//   const [loading, setLoading] = useState(false);
-//   const [editingReview, setEditingReview] = useState<Review | null>(null);
-//   const [modalVisible, setModalVisible] = useState(false);
-//   const [rating, setRating] = useState('');
-//   const [comment, setComment] = useState('');
-
-//   useEffect(() => {
-//     fetchReviews();
-//   }, []);
-
-//     const fetchReviews = async () => {
-//     if (!user) return;
-//     setLoading(true);
-//     const { data, error } = await supabase
-//       .from('reviews')
-//       .select('*')
-//       .eq('user_id', user.id);
-//     setLoading(false);
-//     if (error) {
-//       Alert.alert('Error', 'Failed to fetch reviews: ' + error.message);
-//     } else {
-//       setReviews(data || []);
-//     }
-//   };
-
-//   const openEditModal = (review: Review) => {
-//     setEditingReview(review);
-//     setRating(review.rating.toString());
-//     setComment(review.comment);
-//     setModalVisible(true);
-//   };
-
-//   const saveReview = async () => {
-//     if (!editingReview) return;
-//     const updatedRating = parseInt(rating);
-//     if (isNaN(updatedRating) || updatedRating < 1 || updatedRating > 5) {
-//       Alert.alert('Error', 'Rating must be a number between 1 and 5');
-//       return;
-//     }
-//     setLoading(true);
-//     const { error } = await supabase
-//       .from('reviews')
-//       .update({ rating: updatedRating, comment })
-//       .eq('id', editingReview.id);
-//     setLoading(false);
-//     if (error) {
-//       Alert.alert('Error', 'Failed to update review: ' + error.message);
-//     } else {
-//       Alert.alert('Success', 'Review updated');
-//       setModalVisible(false);
-//       fetchReviews();
-//     }
-//   };
-
-//   const deleteReview = async (reviewId: string) => {
-//     Alert.alert('Confirm Delete', 'Are you sure you want to delete this review?', [
-//       { text: 'Cancel', style: 'cancel' },
-//       {
-//         text: 'Delete',
-//         style: 'destructive',
-//         onPress: async () => {
-//           setLoading(true);
-//           const { error } = await supabase.from('reviews').delete().eq('id', reviewId);
-//           setLoading(false);
-//           if (error) {
-//             Alert.alert('Error', 'Failed to delete review: ' + error.message);
-//           } else {
-//             Alert.alert('Success', 'Review deleted');
-//             fetchReviews();
-//           }
-//         },
-//       },
-//     ]);
-//   };
-
-//   const renderItem = ({ item }: { item: Review }) => (
-//     <View style={styles.item}>
-//       <Text>Rating: {item.rating} stars</Text>
-//       <Text>Comment: {item.comment}</Text>
-//       <View style={styles.buttons}>
-//         <TouchableOpacity style={styles.button} onPress={() => openEditModal(item)}>
-//           <Text style={styles.buttonText}>Edit</Text>
-//         </TouchableOpacity>
-//         <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => deleteReview(item.id)}>
-//           <Text style={styles.buttonText}>Delete</Text>
-//         </TouchableOpacity>
-//       </View>
-//     </View>
-//   );
-
-//   return (
-//     <View style={styles.container}>
-//       <FlatList
-//         data={reviews}
-//         keyExtractor={(item) => item.id}
-//         renderItem={renderItem}
-//         ListEmptyComponent={<Text style={styles.empty}>No reviews found.</Text>}
-//         refreshing={loading}
-//         onRefresh={fetchReviews}
-//       />
-//       <Modal visible={modalVisible} animationType="slide" transparent={true}>
-//         <View style={styles.modalContainer}>
-//           <View style={styles.modalContent}>
-//             <Text>Edit Review</Text>
-//             <TextInput
-//               style={styles.input}
-//               placeholder="Rating (1-5)"
-//               keyboardType="numeric"
-//               value={rating}
-//               onChangeText={setRating}
-//             />
-//             <TextInput
-//               style={[styles.input, { height: 80 }]}
-//               placeholder="Comment"
-//               multiline
-//               value={comment}
-//               onChangeText={setComment}
-//             />
-//             <Button title="Save" onPress={saveReview} disabled={loading} />
-//             <Button title="Cancel" onPress={() => setModalVisible(false)} />
-//           </View>
-//         </View>
-//       </Modal>
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: { flex: 1, backgroundColor: 'white', padding: 10 },
-//   item: {
-//     padding: 15,
-//     borderBottomColor: '#eee',
-//     borderBottomWidth: 1,
-//   },
-//   buttons: { flexDirection: 'row', marginTop: 10 },
-//   button: {
-//     backgroundColor: '#007bff',
-//     padding: 10,
-//     borderRadius: 5,
-//     marginRight: 10,
-//   },
-//   deleteButton: { backgroundColor: '#dc3545' },
-//   buttonText: { color: 'white' },
-//   empty: { textAlign: 'center', marginTop: 20, color: '#999' },
-//   modalContainer: {
-//     flex: 1,
-//     justifyContent: 'center',
-//     backgroundColor: 'rgba(0,0,0,0.5)',
-//   },
-//   modalContent: {
-//     backgroundColor: 'white',
-//     margin: 20,
-//     padding: 20,
-//     borderRadius: 10,
-//   },
-//   input: {
-//     borderColor: '#ccc',
-//     borderWidth: 1,
-//     borderRadius: 5,
-//     paddingHorizontal: 10,
-//     marginVertical: 10,
-//   },
-// });
-
-// export default ReviewsScreen;
 import { Delete, Edit, Pencil, Star } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    Modal,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Modal,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { useUser } from '../../context/usercontext';
 import { Review } from '../../interface';
 import { supabase } from '../../lib/supabase';
 
-// Custom Star Rating Component
 const StarRating = ({ 
   rating, 
   onRatingChange,
-  size = 24,
+  size = 28,
   editable = false
 }: {
   rating: number;
@@ -214,7 +39,8 @@ const StarRating = ({
         >
           <Star
             size={size}
-            color="#FFD700"
+            fill={star <= rating ? '#FFD700' : 'transparent'}
+            color={star <= rating ? '#FFD700' : '#d1d5db'}
           />
         </TouchableOpacity>
       ))}
@@ -304,37 +130,37 @@ const ReviewsScreen = () => {
   const renderItem = ({ item }: { item: Review }) => (
     <View style={styles.reviewCard}>
       <View style={styles.reviewHeader}>
-        <StarRating 
-          rating={item.rating} 
-          size={20}
-          editable={false}
-        />
-        <Text style={styles.date}>
-          {new Date(item.created_at).toLocaleDateString()}
-        </Text>
+        <View style={styles.ratingDateContainer}>
+        <Text style={styles.reviewHeader}>Order# {item.order_id.slice(0, 8).toUpperCase()}</Text>
+          <StarRating 
+            rating={item.rating} 
+            size={20}
+            editable={false}
+          />
+          <Text style={styles.date}>
+            {new Date(item.created_at).toLocaleDateString()}
+          </Text>
+        </View>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity 
+            style={styles.iconButton}
+            onPress={() => openEditModal(item)}
+          >
+            <Edit size={20} color="#3B82F6" />
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.iconButton}
+            onPress={() => deleteReview(item.id)}
+          >
+            <Delete size={20} color="#EF4444" />
+          </TouchableOpacity>
+        </View>
       </View>
       
       {item.comment && (
         <Text style={styles.comment}>{item.comment}</Text>
       )}
-      
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity 
-          style={styles.editButton}
-          onPress={() => openEditModal(item)}
-        >
-          <Edit  size={18} color="#3B82F6" />
-          <Text style={styles.editButtonText}>Edit</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.deleteButton}
-          onPress={() => deleteReview(item.id)}
-        >
-          <Delete  size={18} color="#EF4444" />
-          <Text style={styles.deleteButtonText}>Delete</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 
@@ -342,33 +168,45 @@ const ReviewsScreen = () => {
     <View style={styles.container}>
       <Text style={styles.title}>My Reviews</Text>
       
-      <FlatList
-        data={reviews}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Pencil  size={60} color="#D1D5DB" />
-            <Text style={styles.emptyText}>No reviews yet</Text>
-          </View>
-        }
-        refreshing={loading}
-        onRefresh={fetchReviews}
-      />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#3B82F6" />
+        </View>
+      ) : reviews.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Pencil size={64} color="#D1D5DB" />
+          <Text style={styles.emptyTitle}>No Reviews Yet</Text>
+          <Text style={styles.emptyText}>Your reviews will appear here</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={reviews}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContent}
+          refreshing={loading}
+          onRefresh={fetchReviews}
+        />
+      )}
 
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Edit Your Review</Text>
             
-            <StarRating
-              rating={rating}
-              onRatingChange={setRating}
-              size={32}
-              editable={true}
-            />
+            <View style={styles.starRatingContainer}>
+              <StarRating
+                rating={rating}
+                onRatingChange={setRating}
+                size={36}
+                editable={true}
+              />
+              <Text style={styles.ratingText}>
+                {rating === 0 ? 'Tap to rate' : `${rating} Star${rating > 1 ? 's' : ''}`}
+              </Text>
+            </View>
             
+            <Text style={styles.inputLabel}>Your Review</Text>
             <TextInput
               style={styles.modalInput}
               placeholder="Share your experience..."
@@ -376,7 +214,7 @@ const ReviewsScreen = () => {
               value={comment}
               onChangeText={setComment}
               multiline
-              numberOfLines={4}
+              numberOfLines={5}
             />
             
             <View style={styles.modalButtons}>
@@ -388,9 +226,9 @@ const ReviewsScreen = () => {
               </TouchableOpacity>
               
               <TouchableOpacity 
-                style={styles.saveButton}
+                style={[styles.saveButton, rating === 0 && styles.disabledButton]}
                 onPress={saveReview}
-                disabled={loading}
+                disabled={loading || rating === 0}
               >
                 {loading ? (
                   <ActivityIndicator color="white" />
@@ -410,28 +248,33 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8f9fa',
-    padding: 15,
+    padding: 16,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 26,
+    fontWeight: '700',
     color: '#1F2937',
-    marginVertical: 15,
+    marginVertical: 20,
     textAlign: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   listContent: {
     paddingBottom: 30,
   },
   reviewCard: {
     backgroundColor: 'white',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 20,
-    marginBottom: 15,
-    elevation: 2,
+    marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowRadius: 8,
+    elevation: 3,
   },
   reviewHeader: {
     flexDirection: 'row',
@@ -439,8 +282,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
+  ratingDateContainer: {
+    flex: 1,
+  },
   starContainer: {
     flexDirection: 'row',
+    marginBottom: 4,
   },
   date: {
     color: '#6B7280',
@@ -450,44 +297,37 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#4B5563',
     lineHeight: 24,
-    marginBottom: 15,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    gap: 8,
   },
-  editButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  iconButton: {
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
     padding: 8,
-    marginLeft: 10,
-  },
-  editButtonText: {
-    color: '#3B82F6',
-    marginLeft: 5,
-    fontWeight: '500',
-  },
-  deleteButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 8,
-    marginLeft: 10,
-  },
-  deleteButtonText: {
-    color: '#EF4444',
-    marginLeft: 5,
-    fontWeight: '500',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 50,
+    padding: 40,
+  },
+  emptyTitle: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#1F2937',
+    marginTop: 16,
   },
   emptyText: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#9CA3AF',
-    marginTop: 15,
+    marginTop: 8,
+    textAlign: 'center',
+    maxWidth: 300,
   },
   modalOverlay: {
     flex: 1,
@@ -498,62 +338,86 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: 'white',
     width: '90%',
-    borderRadius: 15,
+    maxWidth: 500,
+    borderRadius: 20,
     padding: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontWeight: '700',
     color: '#1F2937',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
   },
-  modalRating: {
-    justifyContent: 'center',
-    marginBottom: 20,
+  starRatingContainer: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  ratingText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#4B5563',
+    marginTop: 12,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#1F2937',
+    marginBottom: 8,
   },
   modalInput: {
     backgroundColor: '#f9fafb',
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    borderRadius: 10,
-    padding: 15,
-    minHeight: 120,
+    borderRadius: 12,
+    padding: 16,
+    minHeight: 140,
     fontSize: 16,
     textAlignVertical: 'top',
     color: '#1F2937',
-    marginBottom: 20,
+    marginBottom: 24,
   },
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: 12,
   },
   cancelButton: {
+    flex: 1,
     borderWidth: 1,
     borderColor: '#D1D5DB',
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    flex: 1,
-    marginRight: 10,
+    borderRadius: 12,
+    padding: 16,
     alignItems: 'center',
   },
   cancelButtonText: {
     color: '#4B5563',
-    fontWeight: '500',
+    fontWeight: '600',
     fontSize: 16,
   },
   saveButton: {
-    backgroundColor: '#ed3237',
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 25,
     flex: 1,
+    backgroundColor: '#3B82F6',
+    borderRadius: 12,
+    padding: 16,
     alignItems: 'center',
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  disabledButton: {
+    backgroundColor: '#9CA3AF',
+    shadowOpacity: 0,
   },
   saveButtonText: {
     color: 'white',
-    fontWeight: 'bold',
+    fontWeight: '600',
     fontSize: 16,
   },
 });
