@@ -115,7 +115,7 @@ console.log('Vendor:', vendor);
         style={styles.container}
       >
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#fff" />
+          <ActivityIndicator size="large" color="#000" />
           <Text style={styles.loadingText}>Loading Vendor Details</Text>
         </View>
       </LinearGradient>
@@ -136,8 +136,7 @@ console.log('Vendor:', vendor);
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Header with gradient */}
         <LinearGradient
-          colors={['#7c3aed', '#6d28d9']}
-          start={{ x: 0, y: 0 }}
+colors={['#ed3237', '#ff5f6d']}          start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.header}
         >
@@ -267,7 +266,10 @@ console.log('Vendor:', vendor);
                 >
                   <TouchableOpacity
                     style={styles.serviceCard}
-                    onPress={() => router.push(`/service/${item.id}` as any)}
+                    onPress={() => router.push({
+                      pathname:'/Eservice',
+                      params:{id:item.id}
+                    })}
                   >
                     <LinearGradient
                       colors={['#ede9fe', '#e0e7ff']}
@@ -304,6 +306,7 @@ const styles = StyleSheet.create({
   scrollContainer: { paddingBottom: 40 },
   loadingContainer: { 
     flex: 1, 
+    backgroundColor:'white',
     justifyContent: 'center', 
     alignItems: 'center' 
   },

@@ -93,6 +93,8 @@ export default function RootLayout() {
                   <Stack.Screen name="bookservice" options={{ animation: 'slide_from_right' }} />
                   <Stack.Screen name="orderdetail" options={{ animation: 'slide_from_right' }} />
                   <Stack.Screen name="LeaveReview" options={{ animation: 'slide_from_right' }} />                
+                                 
+
                <Stack.Screen name="+not-found" />
                 </Stack>
               </QueryClientProvider>

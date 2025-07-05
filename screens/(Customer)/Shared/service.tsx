@@ -142,8 +142,8 @@ export default () => {
         </View>
 
         {/* Action Button */}
-        <TouchableOpacity style={styles.bookButton}>
-          <Text style={styles.bookButtonText}>Book This Service</Text>
+        <TouchableOpacity onPress={()=>router.back()} style={styles.bookButton}>
+          <Text style={styles.bookButtonText}>Go back</Text>
         </TouchableOpacity>
       </ScrollView>
     </LinearGradient>

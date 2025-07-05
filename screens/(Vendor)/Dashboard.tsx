@@ -233,7 +233,7 @@ const fetchRecentOrders = async () => {
          
           <Text style={styles.headerTitle}>Vendor Dashboard</Text>
         <TouchableOpacity 
-         onPress={()=>router.push('/vendorindex')}
+         onPress={()=>router.push('/sharedchatlist')}
           >
 
             <MessageCircle color="#fff" size={24} />

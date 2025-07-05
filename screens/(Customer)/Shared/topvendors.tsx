@@ -42,7 +42,8 @@ const TopVendorsScreen = () => {
 
   if (loading) {
     return (
-      <LinearGradient colors={['#7c3aed', '#6d28d9']} style={styles.container}>
+      <LinearGradient 
+      colors={['#ed3237', '#ff5f6d']} style={styles.container}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#fff" />
           <Text style={styles.loadingText}>Loading Top Vendors</Text>
@@ -54,8 +55,7 @@ const TopVendorsScreen = () => {
   return (
     <LinearGradient colors={['#f0f9ff', '#e0f2fe']} style={styles.container}>
       <LinearGradient
-        colors={['#7c3aed', '#6d28d9']}
-        start={{ x: 0, y: 0 }}
+colors={['#ed3237', '#ff5f6d']}        start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.header}
       >

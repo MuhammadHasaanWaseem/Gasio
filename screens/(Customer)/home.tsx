@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRouter } from 'expo-router';
-import { Activity, MessageCircle } from 'lucide-react-native';
+import { MessageCircle } from 'lucide-react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -227,8 +227,8 @@ const HomeScreen = () => {
           <View style={styles.vendorInfo}>
             <Text style={styles.vendorName}>{item.business_name}</Text>
             <View style={styles.ratingContainer}>
-              <Activity size={16} color="darkblue" fill={'darkblue'} />
-              <Text style={{color:'darkblue',fontWeight:'900',fontSize:12,marginLeft:'1%'}}>click to view</Text>
+              <Ionicons name="star" size={16} color="#FFD700" />
+              <Text style={styles.ratingText}>{item.rating?.toFixed(1) || 'New'}</Text>
             </View>
           </View>
         </View>
@@ -354,7 +354,7 @@ const HomeScreen = () => {
 
             <TouchableOpacity
               style={styles.actionCard}
-            onPress={() => router.push('/userindex')}
+            onPress={() => router.push('/sharedchatlist')}
             >
               <LinearGradient
                 colors={['#FF9800', '#FFB74D']}
