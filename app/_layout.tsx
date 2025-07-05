@@ -41,8 +41,8 @@ export default function RootLayout() {
                     <Stack.Screen name="Vendordrawer" options={{ headerShown: false, animation: 'slide_from_right' }} />
                     <Stack.Screen name="(drawer)" options={{ headerShown: false, animation: 'slide_from_right' }} />
                     <Stack.Screen name="createservice" options={{ headerShown: false, animation: 'slide_from_right' }} />
-                    <Stack.Screen name="vendormessage" options={{ headerShown: false, animation: 'slide_from_right' }} />
-                    <Stack.Screen name="chat" options={{ headerShown: false, animation: 'slide_from_right' }} />
+                    <Stack.Screen name="(Edrawer)" options={{ headerShown: false, animation: 'slide_from_right' }} />
+                    <Stack.Screen name='(Shared)' options={{ headerShown: false, animation: 'slide_from_right' }} />
                     <Stack.Screen name="+not-found" />
                   </Stack>
                 </>

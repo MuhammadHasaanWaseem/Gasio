@@ -178,11 +178,11 @@ export default () => {
       const { error: ownerError } = await supabase.from('vendor_owners').upsert({
         id: userId,
         full_name: fullName,
-        phone: `${selectedCountry.dial_code}${phone}`,
+        phone: `${phone}`,
         email,
         cnic,
         profile_picture_url: businessLogoUrl,
-        country_code: selectedCountry.code,
+        country_code: selectedCountry.dial_code,
       });
 
       if (ownerError) {

@@ -2,6 +2,7 @@ import React, { createContext, ReactNode, useContext, useEffect, useState } from
 import { supabase } from '../lib/supabase';
 
 type VendorProfile = {
+  [x: string]: any;
   id: string;
   full_name: string;
   phone?: string;
@@ -11,6 +12,7 @@ type VendorProfile = {
   created_at?: string;
   country_code?: string;
   business_logo_url?: string;
+  owner_id?:string
 
 };
 
@@ -30,6 +32,7 @@ type VendorBusiness = {
   total_earnings?: number;
   created_at?: string;
   website?:string;
+  
 };
 
 type VendorContextType = {

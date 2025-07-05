@@ -22,7 +22,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-export default function EditProfile() {
+export default ()=>{
   const router = useRouter();
   const { vendor, vendorBusiness, refreshVendorProfile } = useVendor();
   const [modalVisible, setModalVisible] = useState(false);
@@ -218,7 +218,7 @@ const handleUseCurrentLocation = async () => {
         email,
         cnic,
         profile_picture_url: businessLogoUrl,
-        country_code: selectedCountry.code,
+        country_code: selectedCountry.dial_code,
       });
       if (ownerError) throw new Error(ownerError.message);
 

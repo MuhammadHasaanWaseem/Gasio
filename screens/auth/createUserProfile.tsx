@@ -1,5 +1,8 @@
+import MapModal from '@/components/MapModal';
 import countries from '@/constants/country';
+import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -16,7 +19,6 @@ import {
 import { useAuth } from '../../context/authcontext';
 import { useUser } from '../../context/usercontext';
 import { supabase } from '../../lib/supabase';
-
 export default () => {
   const router = useRouter();
   const { loginAsUser } = useAuth();
@@ -30,7 +32,43 @@ export default () => {
   const [showCountryList, setShowCountryList] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
   const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedCoords, setSelectedCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+  const handleLocationSelect = async (location: { latitude: number; longitude: number }) => {
+  setSelectedCoords(location);
+  setModalVisible(false);
 
+  try {
+    const [reverseGeocode] = await Location.reverseGeocodeAsync({
+      latitude: location.latitude,
+      longitude: location.longitude,
+    });
+
+    if (reverseGeocode) {
+      const formattedAddress = `${reverseGeocode.name ? reverseGeocode.name + ', ' : ''}${reverseGeocode.street ? reverseGeocode.street + ', ' : ''}${reverseGeocode.city ? reverseGeocode.city + ', ' : ''}${reverseGeocode.region ? reverseGeocode.region + ', ' : ''}${reverseGeocode.postalCode ? reverseGeocode.postalCode + ', ' : ''}${reverseGeocode.country ? reverseGeocode.country : ''}`;
+      setAddress(formattedAddress.trim().replace(/,\s*$/, ''));
+    } else {
+      setAddress('');
+    }
+  } catch (error) {
+    Alert.alert('Error', 'Failed to get address from location');
+    setAddress('');
+  }
+};
+
+const handleUseCurrentLocation = async () => {
+  let { status } = await Location.requestForegroundPermissionsAsync();
+  if (status !== 'granted') {
+    Alert.alert('Permission denied', 'Location permission is required to get your current location.');
+    return;
+  }
+  let location = await Location.getCurrentPositionAsync({});
+  const coords = {
+    latitude: location.coords.latitude,
+    longitude: location.coords.longitude,
+  };
+  await handleLocationSelect(coords);
+};
   useEffect(() => {
     loginAsUser();
   }, []);
@@ -128,11 +166,13 @@ export default () => {
       const { error } = await supabase.from('user_profiles').upsert({
         id: userId,
         full_name: fullName,
-        phone: `${selectedCountry.dial_code}${phone}`,
+        phone: `${phone}`,
         address,
         avatar_url: avatarUrl,
         cnic,
-        country_code: selectedCountry.code,
+        country_code: selectedCountry.dial_code,
+        latitude: selectedCoords?.latitude ?? null,
+        longitude: selectedCoords?.longitude ?? null,
       });
 
       if (error) {
@@ -222,13 +262,27 @@ export default () => {
         keyboardType="numeric"
         style={styles.input}
       />
-      <TextInput
+      {/* <TextInput
         placeholder="Address"
         value={address}
         onChangeText={setAddress}
         style={styles.input}
-      />
-
+      /> */}
+  <View>
+  <TextInput
+    placeholder="Address"
+    value={address}
+    onChangeText={setAddress}
+    style={[styles.input, { paddingRight: 40 }]}
+    editable={false}
+  />
+  <TouchableOpacity style={styles.locationIcon} onPress={handleUseCurrentLocation}>
+    <Ionicons name="location-outline" size={24} color="gray" />
+  </TouchableOpacity>
+  <TouchableOpacity style={[styles.locationIcon, { right: 50 }]} onPress={() => setModalVisible(true)}>
+    <Ionicons name="map-outline" size={24} color="gray" />
+  </TouchableOpacity>
+</View>
       <TouchableOpacity
         onPress={handleSaveProfile}
         style={styles.button}
@@ -240,6 +294,11 @@ export default () => {
           <Text style={styles.buttonText}>Save Profile</Text>
         )}
       </TouchableOpacity>
+      <MapModal
+  visible={modalVisible}
+  onClose={() => setModalVisible(false)}
+  onLocationSelect={handleLocationSelect}
+/>
     </View>
   );
 };
@@ -271,6 +330,12 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
   },
+  locationIcon: {
+  position: 'absolute',
+  right: 15,
+  top: 15,
+},
+
   input: {
     borderWidth: 1,
     borderColor: '#ccc',

@@ -105,7 +105,7 @@ const [paymentMethods, setPaymentMethods] = useState<string[]>(
     "Gas Delivery",
     "Installation",
     "Maintenance",
-    "Emergency",
+    "Refill",
     "Consultation",
     "Other",
   ];

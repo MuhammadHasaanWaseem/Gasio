@@ -435,7 +435,7 @@ export default function VendorProfile() {
           />
           <ProfileItem
             label="Phone"
-            value={`${vendor?.country_code} - (0)${vendor?.phone}` || "N/A"}
+            value={`${vendor?.country_code}${vendor?.phone}` || "N/A"}
             icon={<Phone color="#e91e63" size={20} />}
           />
           <ProfileItem
