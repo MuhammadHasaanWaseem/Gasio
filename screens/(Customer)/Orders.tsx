@@ -28,7 +28,22 @@ const OrdersScreen = () => {
     setRefreshing(true);
     const { data, error } = await supabase
       .from('orders')
-      .select('*, service:service_id(*)')
+      // .select('*, service:service_id(*)')
+     .select(`
+  *,
+  service:service_id(
+    *,
+    vendor:vendor_id(
+      id,
+      owner:owner_id(
+        id,
+        full_name,
+        profile_picture_url
+      )
+    )
+  )
+`)
+
       .eq('user_id', user.id)
       .order('order_time', { ascending: false });
     
@@ -111,31 +126,52 @@ const OrdersScreen = () => {
           <Text style={styles.serviceName}>Service not available</Text>
         )}
         
-        <View style={styles.actionButtons}>
-          {item.status === 'Pending' && (
-            <TouchableOpacity 
-              style={styles.cancelButton}
-              onPress={() => cancelOrder(item.id)}
-              disabled={loading}
-            >
-              <Text style={styles.cancelButtonText}>Cancel Order</Text>
-            </TouchableOpacity>
-          )}
-          
-          {(item.status === 'Completed' || item.status === 'In Progress') && (
-            <TouchableOpacity
-              style={styles.reviewButton}
-              onPress={() => {
-                router.push({
-                  pathname: '/LeaveReview',
-                  params: { orderId: item.id, vendorId: item.vendor_id },
-                });
-              }}
-            >
-              <Text style={styles.reviewButtonText}>Leave Review</Text>
-            </TouchableOpacity>
-          )}
-        </View>
+       <View style={styles.actionButtons}>
+  {item.status === 'Pending' && (
+    <TouchableOpacity 
+      style={styles.cancelButton}
+      onPress={() => cancelOrder(item.id)}
+      disabled={loading}
+    >
+      <Text style={styles.cancelButtonText}>Cancel Order</Text>
+    </TouchableOpacity>
+  )}
+
+  {(item.status === 'Completed' || item.status === 'In Progress') && (
+    <>
+      <TouchableOpacity
+        style={styles.reviewButton}
+        onPress={() => {
+          router.push({
+            pathname: '/LeaveReview',
+            params: { orderId: item.id, vendorId: item.vendor_id },
+          });
+        }}
+      >
+        <Text style={styles.reviewButtonText}>Leave Review</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.messageButton}
+        onPress={() => {
+        router.push({
+  pathname: '/chat',
+  params: {
+    receiver_id: item.service?.vendor?.owner?.id,
+    receiver_name: item.service?.vendor?.owner?.full_name ?? 'Vendor',
+    receiver_avatar: item.service?.vendor?.owner?.profile_picture_url ?? '',
+    receiver_role: 'vendor',
+    sender_role: 'user',
+  },
+});
+        }}
+      >
+        <Text style={styles.messageButtonText}>Message</Text>
+      </TouchableOpacity>
+    </>
+  )}
+</View>
+
       </View>
     );
   };
@@ -243,6 +279,18 @@ const styles = StyleSheet.create({
     color: '#EF4444',
     fontWeight: '500',
   },
+  messageButton: {
+  backgroundColor: '#E0F2FE',
+  borderRadius: 8,
+  paddingVertical: 10,
+  paddingHorizontal: 15,
+  marginLeft: 10,
+},
+messageButtonText: {
+  color: '#0284C7',
+  fontWeight: '500',
+},
+
   reviewButton: {
     backgroundColor: '#EFF6FF',
     borderRadius: 8,
