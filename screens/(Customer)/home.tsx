@@ -23,6 +23,7 @@ import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 
 const HomeScreen = () => {
   const { user } = useUser();
+  console.log('HomeScreen user data:', user);
   const router = useRouter();
   const [services, setServices] = useState<any[]>([]);
   const [vendors, setVendors] = useState<any[]>([]);

@@ -3,31 +3,20 @@ import { Eye, EyeOff } from 'lucide-react-native'; // Ensure you have lucide-rea
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../../context/authcontext';
+import { useUser } from '../../context/usercontext';
 import { supabase } from '../../lib/supabase';
-const Login = () => {
-  //   const { userType, isLoggedIn } = useAuth();
-  // useEffect(() => {
-  //   // Check if user is logged in and redirect accordingly
-  //   if (isLoggedIn) {
-  //     if (userType === 'vendor') {
-  //       router.replace('/(Vendortab)');
-  //     } else if (userType === 'user') {
-  //       router.replace('/(tabs)');
-  //     }
-  //   } else {
-  //     router.replace('/login');
-  //   }
-  // }, [isLoggedIn, userType]);
 
-  
+const Login = () => {
+ 
 
   const router = useRouter();
   const { loginAsUser } = useAuth();
+  const { refreshUserProfile } = useUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showpass,setshowpass]=useState(false);
-  const handleLogin = async () => {
+const handleLogin = async () => {
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -38,6 +27,9 @@ const Login = () => {
       Alert.alert('Login Error', error.message);
     } else {
       loginAsUser();
+      console.log('Calling refreshUserProfile after login');
+      await refreshUserProfile();
+      console.log('Completed refreshUserProfile after login');
       // Navigate to tabs after successful login
       router.push('/(tabs)'); // Adjust path to your tabs route
     }
