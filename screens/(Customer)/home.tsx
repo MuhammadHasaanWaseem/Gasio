@@ -1,9 +1,10 @@
 // app/(tabs)/index.tsx
 import { useUser } from '@/context/usercontext';
+import { Service } from '@/interface';
 import { supabase } from '@/lib/supabase';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { useNavigation, useRouter } from 'expo-router';
 import { MessageCircle } from 'lucide-react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
@@ -24,6 +25,8 @@ import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 const HomeScreen = () => {
   const { user } = useUser();
   console.log('HomeScreen user data:', user);
+  const navigation: any = useNavigation();
+  const [query, setQuery] = useState('');
   const router = useRouter();
   const [services, setServices] = useState<any[]>([]);
   const [vendors, setVendors] = useState<any[]>([]);
@@ -103,51 +106,69 @@ const HomeScreen = () => {
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]); // Now safe to use fetchData as dependency
+    if (query.length > 2) {
+      fetchServices();
+    } else {
+      setServices([]);
+    }
+  }, [fetchData, query]); // Now safe to use fetchData as dependency
 
   const onRefresh = () => {
     setRefreshing(true);
     fetchData();
   };
-const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
 
-useEffect(() => {
-  const fetchCategories = async () => {
-    const { data, error } = await supabase
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data, error } = await supabase
+        .from('services')
+        .select('tags');
+
+      if (error) {
+        console.error('Error fetching tags:', error);
+        return;
+      }
+
+      // Flatten all tags from all rows
+      const allTags = data
+        .map(service => service.tags || [])
+        .flat();
+
+      // Remove duplicates and empty strings
+      const uniqueTags = [...new Set(allTags)].filter(Boolean);
+
+      setCategories(uniqueTags);
+    };
+
+    fetchCategories();
+  }, []);
+  const fetchServices = async () => {
+    setLoading(true);
+    let { data, error } = await supabase
       .from('services')
-      .select('tags');
+      .select('*')
+      .ilike('service_name', `%${query}%`)
+      .limit(20);
 
+    setLoading(false);
     if (error) {
-      console.error('Error fetching tags:', error);
-      return;
+      console.error('Search error:', error);
+    } else {
+      setServices(data || []);
     }
-
-    // Flatten all tags from all rows
-    const allTags = data
-      .map(service => service.tags || [])
-      .flat();
-
-    // Remove duplicates and empty strings
-    const uniqueTags = [...new Set(allTags)].filter(Boolean);
-
-    setCategories(uniqueTags);
   };
-
-  fetchCategories();
-}, []);
-
+  const onServicePress = (service: Service) => {
+    navigation.navigate('bookservice', { service });
+  };
   const renderServiceItem = ({ item, index }: { item: any; index: number }) => (
     <Animated.View
       entering={FadeInDown.delay(100 * index).duration(500)}
       style={styles.serviceCard}
     >
       <TouchableOpacity
-        onPress={() => router.push({
-          pathname:'/Eservice',
-          params:{
-            id:item.id
-          }
-        })}
+        onPress={() => onServicePress(item)}
+
       >
         <View style={styles.serviceHeader}>
           {item.vendors.business_logo_url ? (
@@ -186,9 +207,9 @@ useEffect(() => {
     >
       <TouchableOpacity
         onPress={() => router.push({
-          pathname:'/vendor',
-          params:{
-            id:item.id
+          pathname: '/vendor',
+          params: {
+            id: item.id
           }
         })}
       >
@@ -333,7 +354,7 @@ useEffect(() => {
 
             <TouchableOpacity
               style={styles.actionCard}
-              //onPress={() => router.push('/usermessage')}
+            //onPress={() => router.push('/usermessage')}
             >
               <LinearGradient
                 colors={['#FF9800', '#FFB74D']}
@@ -423,9 +444,9 @@ useEffect(() => {
                   style={styles.categoryCard}
                   onPress={() => router.push(
                     {
-                      pathname:'/category',
-                      params:{
-                        id:category.name
+                      pathname: '/category',
+                      params: {
+                        id: category.name
                       }
                     }
                   )}

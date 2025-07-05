@@ -1,7 +1,8 @@
+import { Service } from '@/interface';
 import { supabase } from '@/lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -13,6 +14,16 @@ import {
 } from 'react-native';
 
 const TopServicesScreen = () => {
+    const navigation: any = useNavigation();
+      const [query, setQuery] = useState('');
+
+    useEffect(() => {
+      if (query.length > 2) {
+        fetchServices();
+      } else {
+        setServices([]);
+      }
+    }, [query]);
   const router = useRouter();
   const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,6 +61,25 @@ const TopServicesScreen = () => {
   useEffect(() => {
     fetchTopServices();
   }, []);
+   const fetchServices = async () => {
+      setLoading(true);
+      let { data, error } = await supabase
+        .from('services')
+        .select('*')
+        .ilike('service_name', `%${query}%`)
+        .limit(20);
+      
+      setLoading(false);
+      if (error) {
+        console.error('Search error:', error);
+      } else {
+        setServices(data || []);
+      }
+    };
+  
+    const onServicePress = (service: Service) => {
+      navigation.navigate('bookservice', { service });
+    };
 
   if (loading) {
     return (
@@ -78,10 +108,7 @@ const TopServicesScreen = () => {
         renderItem={({ item }) => (
           <TouchableOpacity 
             style={styles.serviceCard}
-          onPress={() => router.push({
-              pathname:'/bookservice',
-              params: { id: item.id }
-            })}
+                onPress={() => onServicePress(item)  }
           >
           
             <View style={styles.serviceHeader}>
@@ -98,9 +125,8 @@ const TopServicesScreen = () => {
             
             <View style={styles.serviceFooter}>
               <View style={styles.ratingContainer}>
-                <Ionicons name="star" size={16} color="#FFD700" />
-                <Text style={styles.ratingText}>{item.vendors.rating?.toFixed(1) || 'New'}</Text>
-                <Text style={styles.ordersText}>• {item.vendors.total_orders || 0} orders</Text>
+                <Text style={styles.ratingText}></Text>
+                <Text style={styles.ordersText}></Text>
               </View>
               <Text style={styles.serviceTime}>
                 <Ionicons name="time-outline" size={14} color="#718096" />

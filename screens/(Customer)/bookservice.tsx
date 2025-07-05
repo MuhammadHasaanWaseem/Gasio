@@ -78,7 +78,7 @@ const BookServiceScreen = () => {
         
         <View style={styles.priceContainer}>
           <Text style={styles.priceLabel}>Total Price:</Text>
-          <Text style={styles.price}>${service.price.toFixed(2)}</Text>
+          <Text style={styles.price}>${service.price}</Text>
         </View>
       </View>
       
