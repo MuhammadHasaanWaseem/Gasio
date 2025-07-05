@@ -11,6 +11,7 @@ import {
 } from "lucide-react-native";
 import type { ColorValue } from "react-native";
 
+import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   AppState,
@@ -232,7 +233,7 @@ const fetchRecentOrders = async () => {
          
           <Text style={styles.headerTitle}>Vendor Dashboard</Text>
         <TouchableOpacity 
-        // onPress={()=>router.push('/vendormessage')}
+         onPress={()=>router.push('/vendorindex')}
           >
 
             <MessageCircle color="#fff" size={24} />

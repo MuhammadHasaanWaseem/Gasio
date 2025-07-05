@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Star } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -17,7 +18,29 @@ import MapView, { Marker } from 'react-native-maps';
 import Animated, { FadeInDown, FadeInRight, FadeInUp } from 'react-native-reanimated';
 
 export default () => {
-  const router = useRouter();
+  const [rating,setrating]=useState<number[]>([]);
+ const fetchratings = async () => {
+    if (!vendor?.id) return;
+
+    const { data, error } = await supabase
+      .from('reviews')
+      .select('*')
+      .eq('vendor_id', vendor.id);
+
+    if (error) {
+      console.error('Error fetching ratings:', error.message);
+      return;
+    }
+
+     const numericRatings = data?.map((item) => item.rating) ?? [];
+  setrating(numericRatings);
+  };
+ const averageRating =
+    rating.length > 0
+      ? (rating.reduce((acc, val) => acc + val, 0) / rating.length).toFixed(1)
+      : 'No Ratings';  
+      console.log(averageRating)
+      const router = useRouter();
   const { id } = useLocalSearchParams();
   const [vendor, setVendor] = useState<any>(null);
   const [services, setServices] = useState<any[]>([]);
@@ -31,9 +54,10 @@ export default () => {
       } = await supabase.auth.getUser();
       setUser(user);
     };
-
+fetchratings();
     fetchUser();
-  }, []);
+  }, [vendor]);
+console.log('Vendor:', vendor);
 
   const fetchVendorData = async () => {
     try {
@@ -98,22 +122,10 @@ export default () => {
     );
   }
 
-  const renderStars = (rating: number, size = 16) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
+  const renderStars = (averageRating: number, size = 16) => {
+  
 
-    for (let i = 1; i <= 5; i++) {
-      if (i <= fullStars) {
-        stars.push(<Ionicons key={i} name="star" size={size} color="#FFD700" />);
-      } else if (i === fullStars + 1 && hasHalfStar) {
-        stars.push(<Ionicons key={i} name="star-half" size={size} color="#FFD700" />);
-      } else {
-        stars.push(<Ionicons key={i} name="star-outline" size={size} color="#FFD700" />);
-      }
-    }
-
-    return <View style={{ flexDirection: "row" }}>{stars}</View>;
+    return <Star color={'yellow'} fill={'yellow'}/>
   };
 
   return (
@@ -158,7 +170,7 @@ export default () => {
             <Text style={styles.businessName}>{vendor.business_name}</Text>
             <View style={styles.ratingContainer}>
               {renderStars(vendor.rating || 0, 18)}
-              <Text style={styles.ratingText}>{vendor.rating?.toFixed(1) || 'New'}</Text>
+              <Text style={styles.ratingText}>{averageRating ||'New'}</Text>
               <Text style={styles.ordersText}>• {vendor.total_orders} orders</Text>
             </View>
             <View style={styles.availabilityContainer}>
@@ -281,69 +293,6 @@ export default () => {
           entering={FadeInUp.duration(600).delay(700)} 
           style={styles.buttonContainer}
         >
-          <TouchableOpacity
-            style={[styles.contactButton, !user && { opacity: 0.5 }]}
-            disabled={!user}
-            onPress={async () => {
-              if (!user) {
-                console.warn('User not logged in');
-                return;
-              }
-              try {
-                const { data: existingOrder, error: fetchError } = await supabase
-                  .from('orders')
-                  .select('id')
-                  .eq('user_id', user.id)
-                  .eq('vendor_id', vendor.id)
-                  .limit(1)
-                  .single();
-
-                if (fetchError && fetchError.code !== 'PGRST116') {
-                  console.error('Error fetching existing order:', fetchError);
-                  return;
-                }
-
-                let orderId = existingOrder?.id;
-
-                if (!orderId) {
-                  const { data: newOrder, error: insertError } = await supabase
-                    .from('orders')
-                    .insert({
-                      user_id: user.id,
-                      vendor_id: vendor.id,
-                      status: 'Pending',
-                      order_time: new Date().toISOString(),
-                    })
-                    .select('id')
-                    .single();
-
-                  if (insertError) {
-                    console.error('Error creating new order:', insertError);
-                    return;
-                  }
-
-                  orderId = newOrder.id;
-                }
-
-                // router.push({
-                //   pathname: '/chat',
-                //   params: { id: orderId },
-                // });
-              } catch (error) {
-                console.error('Error handling contact vendor:', error);
-              }
-            }}
-          >
-            <LinearGradient
-              colors={['#7c3aed', '#6d28d9']}
-              style={styles.contactGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-            >
-              <Ionicons name="chatbubble-ellipses" size={24} color="#fff" />
-              <Text style={styles.contactButtonText}>Contact Vendor</Text>
-            </LinearGradient>
-          </TouchableOpacity>
         </Animated.View>
       </ScrollView>
     </LinearGradient>
