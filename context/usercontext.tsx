@@ -10,7 +10,8 @@ type UserProfile = {
   latitude?: number;
   longitude?: number;
   created_at?: string;
-  country_code?:number
+  country_code?:number;
+  cnic?:any
 };
 
 type UserContextType = {
