@@ -256,10 +256,10 @@ export default () => {
                 orderId = newOrder.id;
               }
 
-              router.push({
-                pathname: '/chat',
-                params: { id: orderId },
-              });
+              //router.push({
+                //pathname: '/chat',
+                //params: { id: orderId },
+              //});
             } catch (error) {
               console.error('Error handling contact vendor:', error);
             }

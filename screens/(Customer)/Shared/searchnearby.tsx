@@ -4,12 +4,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    FlatList,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  FlatList,
+  StyleSheet,
+  Text,
+  TextInput,
+  ToastAndroid,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
@@ -123,7 +124,12 @@ const SearchNearbyScreen = () => {
         renderItem={({ item }) => (
           <TouchableOpacity 
             style={styles.resultItem}
-            onPress={() => handleLocationSelect(item)}
+            onPress={() => {
+    ToastAndroid.show(
+      'You need to search from the search screen for this service because this business is not registered on Google Maps.',
+      ToastAndroid.LONG // or ToastAndroid.SHORT
+    );
+  }}
           >
             <Text style={styles.resultName}>{item.business_name}</Text>
             <Text style={styles.resultAddress} numberOfLines={1}>
