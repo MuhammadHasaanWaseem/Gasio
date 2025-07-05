@@ -147,7 +147,7 @@ export default function ServicesScreen() {
           </Text>
           <TouchableOpacity
             style={styles.emptyBusinessButton}
-            onPress={() => router.push('/BusinessProfile')}
+            onPress={() => router.push('/editprofile')}
           >
             <Text style={styles.emptyBusinessButtonText}>Create Vendor Profile</Text>
           </TouchableOpacity>

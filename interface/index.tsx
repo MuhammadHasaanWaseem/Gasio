@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 export interface VendorProfileProps {
   vendor: {
     id: string;
@@ -9,4 +11,36 @@ export interface VendorProfileProps {
     created_at: string;
     updated_at: string;
   };
+}
+
+export interface Service {
+  [x: string]: ReactNode;
+  id: string;
+  vendor_id: string;
+  title: string;
+  description: string;
+  price: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Order {
+  id: string;
+  service_id: string;
+  user_id: string;
+  vendor_id: string;
+  status: 'Pending' | 'In Progress' | 'Completed' | 'Accepted' | 'Cancelled';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Review {
+  id: string;
+  order_id: string;
+  user_id: string;
+  vendor_id: string;
+  rating: number; // stars
+  comment: string;
+  created_at: string;
+  updated_at: string;
 }
