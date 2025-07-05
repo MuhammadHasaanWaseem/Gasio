@@ -14,6 +14,7 @@ import {
   View,
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
+import Animated, { FadeInDown, FadeInRight, FadeInUp } from 'react-native-reanimated';
 
 export default () => {
   const router = useRouter();
@@ -85,38 +86,78 @@ export default () => {
 
   if (loading || !vendor) {
     return (
-      <LinearGradient colors={['#f5f7fa', '#e4e7f1']} style={styles.container}>
+      <LinearGradient 
+        colors={['#6d28d9', '#4c1d95']} 
+        style={styles.container}
+      >
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#6C63FF" />
+          <ActivityIndicator size="large" color="#fff" />
+          <Text style={styles.loadingText}>Loading Vendor Details</Text>
         </View>
       </LinearGradient>
     );
   }
 
-  return (
-    <LinearGradient colors={['#f5f7fa', '#e4e7f1']} style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#2D3748" />
-          </TouchableOpacity>
-          <Text style={styles.title}>Vendors</Text>
-          <View style={{ width: 24 }} />
-        </View>
+  const renderStars = (rating: number, size = 16) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
 
-        <View style={styles.vendorHeader}>
+    for (let i = 1; i <= 5; i++) {
+      if (i <= fullStars) {
+        stars.push(<Ionicons key={i} name="star" size={size} color="#FFD700" />);
+      } else if (i === fullStars + 1 && hasHalfStar) {
+        stars.push(<Ionicons key={i} name="star-half" size={size} color="#FFD700" />);
+      } else {
+        stars.push(<Ionicons key={i} name="star-outline" size={size} color="#FFD700" />);
+      }
+    }
+
+    return <View style={{ flexDirection: "row" }}>{stars}</View>;
+  };
+
+  return (
+    <LinearGradient 
+      colors={['#f0f9ff', '#e0f2fe']} 
+      style={styles.container}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {/* Header with gradient */}
+        <LinearGradient
+          colors={['#7c3aed', '#6d28d9']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.header}
+        >
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="white" />
+          </TouchableOpacity>
+          <Text style={styles.title}>Vendor Details</Text>
+          <View style={{ width: 24 }} />
+        </LinearGradient>
+
+        <Animated.View 
+          entering={FadeInUp.duration(600).delay(200)} 
+          style={styles.vendorHeader}
+        >
           {vendor.business_logo_url ? (
-            <Image source={{ uri: vendor.business_logo_url }} style={styles.vendorLogo} />
+            <Image 
+              source={{ uri: vendor.business_logo_url }} 
+              style={styles.vendorLogo} 
+            />
           ) : (
-            <View style={[styles.vendorLogo, styles.logoPlaceholder]}>
-              <Ionicons name="business" size={32} color="#6C63FF" />
-            </View>
+            <LinearGradient
+              colors={['#8b5cf6', '#7c3aed']}
+              style={[styles.vendorLogo, styles.logoPlaceholder]}
+            >
+              <Ionicons name="business" size={36} color="white" />
+            </LinearGradient>
           )}
 
           <View style={styles.vendorInfo}>
             <Text style={styles.businessName}>{vendor.business_name}</Text>
             <View style={styles.ratingContainer}>
-              <Ionicons name="star" size={20} color="#FFD700" />
+              {renderStars(vendor.rating || 0, 18)}
               <Text style={styles.ratingText}>{vendor.rating?.toFixed(1) || 'New'}</Text>
               <Text style={styles.ordersText}>• {vendor.total_orders} orders</Text>
             </View>
@@ -124,7 +165,7 @@ export default () => {
               <View
                 style={[
                   styles.availabilityDot,
-                  { backgroundColor: vendor.is_available ? '#48BB78' : '#E53E3E' },
+                  { backgroundColor: vendor.is_available ? '#10b981' : '#ef4444' },
                 ]}
               />
               <Text style={styles.availabilityText}>
@@ -132,32 +173,39 @@ export default () => {
               </Text>
             </View>
           </View>
-        </View>
+        </Animated.View>
 
-        <View style={styles.detailsCard}>
-          <Text style={styles.sectionTitle}>About</Text>
+        <Animated.View 
+          entering={FadeInDown.duration(600).delay(300)} 
+          style={styles.detailsCard}
+        >
+          <Text style={styles.sectionTitle}>About Business</Text>
+          
           <View style={styles.detailRow}>
-            <Ionicons name="location-outline" size={20} color="#718096" />
+            <Ionicons name="location-outline" size={20} color="#6d28d9" />
             <Text style={styles.detailText}>{vendor.address}</Text>
           </View>
 
           {vendor.website && (
             <View style={styles.detailRow}>
-              <Ionicons name="globe-outline" size={20} color="#718096" />
+              <Ionicons name="globe-outline" size={20} color="#6d28d9" />
               <Text style={[styles.detailText, styles.linkText]}>{vendor.website}</Text>
             </View>
           )}
 
           <View style={styles.detailRow}>
-            <Ionicons name="cash-outline" size={20} color="#718096" />
+            <Ionicons name="cash-outline" size={20} color="#6d28d9" />
             <Text style={styles.detailText}>
               Total earnings: ${vendor.total_earnings?.toFixed(2)}
             </Text>
           </View>
-        </View>
+        </Animated.View>
 
         {vendor.latitude && vendor.longitude && (
-          <View style={styles.mapContainer}>
+          <Animated.View 
+            entering={FadeInDown.duration(600).delay(400)} 
+            style={styles.mapContainer}
+          >
             <Text style={styles.sectionTitle}>Location</Text>
             <MapView
               style={styles.map}
@@ -175,16 +223,23 @@ export default () => {
                   longitude: vendor.longitude,
                 }}
                 title={vendor.business_name}
-              />
+              >
+                <View style={styles.marker}>
+                  <Ionicons name="location" size={24} color="#7c3aed" />
+                </View>
+              </Marker>
             </MapView>
-          </View>
+          </Animated.View>
         )}
 
-        <View style={styles.servicesContainer}>
+        <Animated.View 
+          entering={FadeInDown.duration(600).delay(500)} 
+          style={styles.servicesContainer}
+        >
           <Text style={styles.sectionTitle}>Services Offered</Text>
           {services.length === 0 ? (
             <View style={styles.emptyServices}>
-              <Ionicons name="construct-outline" size={48} color="#CBD5E0" />
+              <Ionicons name="construct-outline" size={48} color="#cbd5e1" />
               <Text style={styles.emptyText}>No services listed</Text>
             </View>
           ) : (
@@ -194,80 +249,102 @@ export default () => {
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.servicesList}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.serviceCard}
-                  onPress={() => router.push(`/service/${item.id}` as any)}
+              renderItem={({ item, index }) => (
+                <Animated.View 
+                  entering={FadeInRight.duration(500).delay(100 * index)}
                 >
-                  <Text style={styles.serviceName} numberOfLines={1}>
-                    {item.service_name}
-                  </Text>
-                  <Text style={styles.servicePrice}>${item.price.toFixed(2)}</Text>
-                  <Text style={styles.serviceTime}>
-                    <Ionicons name="time-outline" size={14} color="#718096" /> {item.estimated_time}
-                  </Text>
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.serviceCard}
+                    onPress={() => router.push(`/service/${item.id}` as any)}
+                  >
+                    <LinearGradient
+                      colors={['#ede9fe', '#e0e7ff']}
+                      style={styles.serviceGradient}
+                    >
+                      <Text style={styles.serviceName} numberOfLines={1}>
+                        {item.service_name}
+                      </Text>
+                      <Text style={styles.servicePrice}>${item.price.toFixed(2)}</Text>
+                      <View style={styles.timeContainer}>
+                        <Ionicons name="time-outline" size={16} color="#6d28d9" />
+                        <Text style={styles.serviceTime}>{item.estimated_time}</Text>
+                      </View>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </Animated.View>
               )}
             />
           )}
-        </View>
+        </Animated.View>
 
-        <TouchableOpacity
-          style={[styles.contactButton, !user && { opacity: 0.5 }]}
-          disabled={!user}
-          onPress={async () => {
-            if (!user) {
-              console.warn('User not logged in');
-              return;
-            }
-            try {
-              const { data: existingOrder, error: fetchError } = await supabase
-                .from('orders')
-                .select('id')
-                .eq('user_id', user.id)
-                .eq('vendor_id', vendor.id)
-                .limit(1)
-                .single();
-
-              if (fetchError && fetchError.code !== 'PGRST116') {
-                console.error('Error fetching existing order:', fetchError);
+        <Animated.View 
+          entering={FadeInUp.duration(600).delay(700)} 
+          style={styles.buttonContainer}
+        >
+          <TouchableOpacity
+            style={[styles.contactButton, !user && { opacity: 0.5 }]}
+            disabled={!user}
+            onPress={async () => {
+              if (!user) {
+                console.warn('User not logged in');
                 return;
               }
-
-              let orderId = existingOrder?.id;
-
-              if (!orderId) {
-                const { data: newOrder, error: insertError } = await supabase
+              try {
+                const { data: existingOrder, error: fetchError } = await supabase
                   .from('orders')
-                  .insert({
-                    user_id: user.id,
-                    vendor_id: vendor.id,
-                    status: 'Pending',
-                    order_time: new Date().toISOString(),
-                  })
                   .select('id')
+                  .eq('user_id', user.id)
+                  .eq('vendor_id', vendor.id)
+                  .limit(1)
                   .single();
 
-                if (insertError) {
-                  console.error('Error creating new order:', insertError);
+                if (fetchError && fetchError.code !== 'PGRST116') {
+                  console.error('Error fetching existing order:', fetchError);
                   return;
                 }
 
-                orderId = newOrder.id;
-              }
+                let orderId = existingOrder?.id;
 
-              //router.push({
-                //pathname: '/chat',
-                //params: { id: orderId },
-              //});
-            } catch (error) {
-              console.error('Error handling contact vendor:', error);
-            }
-          }}
-        >
-          <Ionicons name="chatbubble-ellipses" size={24} color="#fff" />
-          <Text style={styles.contactButtonText}>Contact Vendor</Text>
-        </TouchableOpacity>
+                if (!orderId) {
+                  const { data: newOrder, error: insertError } = await supabase
+                    .from('orders')
+                    .insert({
+                      user_id: user.id,
+                      vendor_id: vendor.id,
+                      status: 'Pending',
+                      order_time: new Date().toISOString(),
+                    })
+                    .select('id')
+                    .single();
+
+                  if (insertError) {
+                    console.error('Error creating new order:', insertError);
+                    return;
+                  }
+
+                  orderId = newOrder.id;
+                }
+
+                // router.push({
+                //   pathname: '/chat',
+                //   params: { id: orderId },
+                // });
+              } catch (error) {
+                console.error('Error handling contact vendor:', error);
+              }
+            }}
+          >
+            <LinearGradient
+              colors={['#7c3aed', '#6d28d9']}
+              style={styles.contactGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <Ionicons name="chatbubble-ellipses" size={24} color="#fff" />
+              <Text style={styles.contactButtonText}>Contact Vendor</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </Animated.View>
       </ScrollView>
     </LinearGradient>
   );
@@ -276,71 +353,247 @@ export default () => {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scrollContainer: { paddingBottom: 40 },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16 },
-  title: { fontSize: 20, fontWeight: '700', color: '#2D3748' },
-  vendorHeader: { flexDirection: 'row', alignItems: 'center', padding: 16 },
-  vendorLogo: { width: 80, height: 80, borderRadius: 16, marginRight: 16 },
-  logoPlaceholder: { backgroundColor: '#EDF2F7', justifyContent: 'center', alignItems: 'center' },
+  loadingContainer: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
+  loadingText: {
+    color: 'white',
+    fontSize: 18,
+    marginTop: 20,
+    fontWeight: '500'
+  },
+  header: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    padding: 20,
+    paddingTop: 50,
+    paddingBottom: 30,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    marginBottom: 20,
+  },
+  backButton: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 12,
+    padding: 8,
+  },
+  title: { 
+    fontSize: 22, 
+    fontWeight: '700', 
+    color: 'white',
+    textShadowColor: 'rgba(0,0,0,0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  vendorHeader: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    padding: 20,
+    marginHorizontal: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 10,
+    marginTop: -40,
+  },
+  vendorLogo: { 
+    width: 90, 
+    height: 90, 
+    borderRadius: 20, 
+    marginRight: 20,
+    borderWidth: 3,
+    borderColor: 'white',
+  },
+  logoPlaceholder: { 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    borderColor: '#f5f3ff',
+  },
   vendorInfo: { flex: 1 },
-  businessName: { fontSize: 24, fontWeight: '700', color: '#2D3748', marginBottom: 8 },
-  ratingContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  ratingText: { fontSize: 18, fontWeight: '600', color: '#4A5568', marginLeft: 6 },
-  ordersText: { fontSize: 16, color: '#718096', marginLeft: 10 },
-  availabilityContainer: { flexDirection: 'row', alignItems: 'center' },
-  availabilityDot: { width: 10, height: 10, borderRadius: 5, marginRight: 8 },
-  availabilityText: { fontSize: 16, color: '#4A5568' },
+  businessName: { 
+    fontSize: 24, 
+    fontWeight: '800', 
+    color: '#1e293b',
+    marginBottom: 8 
+  },
+  ratingContainer: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    marginBottom: 8 
+  },
+  ratingText: { 
+    fontSize: 18, 
+    fontWeight: '700', 
+    color: '#4b5563', 
+    marginLeft: 8 
+  },
+  ordersText: { 
+    fontSize: 16, 
+    color: '#64748b', 
+    marginLeft: 8 
+  },
+  availabilityContainer: { 
+    flexDirection: 'row', 
+    alignItems: 'center',
+    backgroundColor: '#f1f5f9',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+  },
+  availabilityDot: { 
+    width: 10, 
+    height: 10, 
+    borderRadius: 5, 
+    marginRight: 8 
+  },
+  availabilityText: { 
+    fontSize: 15, 
+    color: '#334155',
+    fontWeight: '500'
+  },
   detailsCard: {
     backgroundColor: '#fff',
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 20,
-    margin: 16,
+    marginHorizontal: 20,
+    marginBottom: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 10,
   },
-  sectionTitle: { fontSize: 20, fontWeight: '700', color: '#2D3748', marginBottom: 16 },
-  detailRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-  detailText: { fontSize: 16, color: '#4A5568', marginLeft: 12, flex: 1 },
-  linkText: { color: '#4299E1' },
-  mapContainer: { margin: 16 },
-  map: { height: 200, borderRadius: 16 },
-  servicesContainer: { margin: 16, marginTop: 8 },
-  servicesList: { paddingVertical: 8 },
+  sectionTitle: { 
+    fontSize: 20, 
+    fontWeight: '700', 
+    color: '#1e293b', 
+    marginBottom: 20,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
+  },
+  detailRow: { 
+    flexDirection: 'row', 
+    alignItems: 'flex-start', 
+    marginBottom: 15 
+  },
+  detailText: { 
+    fontSize: 16, 
+    color: '#475569', 
+    marginLeft: 12, 
+    flex: 1,
+    lineHeight: 24,
+  },
+  linkText: { 
+    color: '#6366f1',
+    textDecorationLine: 'underline'
+  },
+  mapContainer: { 
+    marginHorizontal: 20,
+    marginBottom: 20,
+  },
+  map: { 
+    height: 220, 
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  marker: {
+    backgroundColor: 'white',
+    padding: 8,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#7c3aed',
+  },
+  servicesContainer: { 
+    marginHorizontal: 20,
+    marginBottom: 20,
+  },
+  servicesList: { 
+    paddingVertical: 10,
+    paddingRight: 20,
+  },
   serviceCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    width: 200,
-    marginRight: 12,
+    width: 220,
+    marginRight: 15,
+    borderRadius: 20,
+    overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 10,
   },
-  serviceName: { fontSize: 16, fontWeight: '600', color: '#2D3748', marginBottom: 8 },
-  servicePrice: { fontSize: 18, fontWeight: '700', color: '#6C63FF', marginBottom: 4 },
-  serviceTime: { fontSize: 14, color: '#718096' },
+  serviceGradient: {
+    padding: 20,
+    borderRadius: 20,
+  },
+  serviceName: { 
+    fontSize: 18, 
+    fontWeight: '700', 
+    color: '#1e293b', 
+    marginBottom: 12,
+  },
+  servicePrice: { 
+    fontSize: 22, 
+    fontWeight: '800', 
+    color: '#7c3aed', 
+    marginBottom: 12,
+  },
+  timeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  serviceTime: { 
+    fontSize: 16, 
+    color: '#64748b',
+    marginLeft: 6,
+  },
   emptyServices: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
-    backgroundColor: '#F7FAFC',
-    borderRadius: 16,
+    padding: 40,
+    backgroundColor: '#f8fafc',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
-  emptyText: { fontSize: 16, color: '#A0AEC0', marginTop: 10 },
+  emptyText: { 
+    fontSize: 16, 
+    color: '#94a3b8', 
+    marginTop: 15,
+    fontWeight: '500'
+  },
+  buttonContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 30,
+  },
   contactButton: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  contactGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#6C63FF',
-    borderRadius: 12,
-    padding: 16,
-    margin: 16,
-    marginTop: 8,
+    padding: 18,
   },
-  contactButtonText: { fontSize: 18, fontWeight: '600', color: '#fff', marginLeft: 10 },
+  contactButtonText: { 
+    fontSize: 18, 
+    fontWeight: '600', 
+    color: '#fff', 
+    marginLeft: 10 
+  },
 });
