@@ -79,6 +79,7 @@ export default function RootLayout() {
             <ActionSheetProvider>
               <QueryClientProvider client={queryClient}>
                 <StatusBar style="auto" />
+                <>
                 <Stack initialRouteName='(auth)' screenOptions={{ headerShown: false }}>
                   <Stack.Screen name="splash" />
                   <Stack.Screen name="onboarding" />
@@ -97,6 +98,7 @@ export default function RootLayout() {
 
                <Stack.Screen name="+not-found" />
                 </Stack>
+                </>
               </QueryClientProvider>
             </ActionSheetProvider>
           </ThemeProvider>
