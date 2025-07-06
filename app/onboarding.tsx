@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
@@ -59,9 +58,6 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onDone }) => {
   const handleDone = async () => {
     await AsyncStorage.setItem('hasCompletedOnboarding', 'true');
     onDone();
-    setTimeout(() => {
-      router.replace('/(auth)/login');
-    }, 100);
   };
 
   useEffect(() => {

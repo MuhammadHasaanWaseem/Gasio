@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/Gasio.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.hasaan.com"
     },
     "web": {
       "bundler": "metro",
@@ -31,13 +32,18 @@
           "image": "./assets/images/Gasio.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#000000"
+          "backgroundColor": "#ffffff"
         }
       ]
-     
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "0e3b927e-0b00-498e-b061-1634e9853ab7"
+      }
     }
   }
 }
