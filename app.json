@@ -7,7 +7,7 @@
     "icon": "./assets/images/Gasio.png",
     "scheme": "gasio",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true
     },
