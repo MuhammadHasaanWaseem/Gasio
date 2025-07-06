@@ -1,7 +1,7 @@
-import Login from "@/screens/auth/login"
+import Loginasuser from "@/screens/auth/loginasuser"
 
 export default ()=>{
     return(
-      <Login/>
+<Loginasuser/>
     )
 }

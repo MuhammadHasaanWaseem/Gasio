@@ -118,7 +118,7 @@ export default () => {
           <Text style={styles.sectionTitle}>Service Provider</Text>
           <TouchableOpacity 
             style={styles.vendorInfo}
-            onPress={() => router.push(`/vendor/${service.vendor_id}` as any)}
+            // onPress={() => router.push(`/vendor/${service.vendor_id}` as any)}
           >
             {service.vendors.business_logo_url ? (
               <Image 

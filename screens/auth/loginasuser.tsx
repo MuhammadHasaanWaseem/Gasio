@@ -1,13 +1,15 @@
 import { useRouter } from 'expo-router';
 import { Eye, EyeOff } from 'lucide-react-native'; // Ensure you have lucide-react-native installed
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../../context/authcontext';
 import { useUser } from '../../context/usercontext';
 import { supabase } from '../../lib/supabase';
 
-const Login = () => {
- 
+
+const Loginasuser = () => {
+
+  
 
   const router = useRouter();
   const { loginAsUser } = useAuth();
@@ -16,7 +18,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showpass,setshowpass]=useState(false);
-const handleLogin = async () => {
+  const handleLogin = useCallback(async () => {
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -33,15 +35,15 @@ const handleLogin = async () => {
       // Navigate to tabs after successful login
       router.push('/(tabs)'); // Adjust path to your tabs route
     }
-  };
+  }, [email, password, loginAsUser, refreshUserProfile, router]);
 
-  const handleSignupNavigation = () => {
+  const handleSignupNavigation = useCallback(() => {
     router.push('/registerasuser'); // Navigate to signup screen
-  };
+  }, [router]);
 
-  const handleForgotPasswordNavigation = () => {
+  const handleForgotPasswordNavigation = useCallback(() => {
     router.push('/forgotpassword'); // Navigate to forgot password screen
-  };
+  }, [router]);
 
   return (
     <View style={styles.container}>
@@ -155,4 +157,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Login;
+export default Loginasuser;
