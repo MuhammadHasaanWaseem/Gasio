@@ -34,7 +34,7 @@ interface UserProfile {
   avatar_url: string;
   phone: string;
   address: string;
-    country_code?:any;
+  country_code?: any;
 
 }
 
@@ -45,8 +45,8 @@ interface Service {
   estimated_time: string;
   unit: string;
   description: string;
-    payment_method:string
-      country_code?:any;
+  payment_method: string
+  country_code?: any;
 
 
 }
@@ -115,10 +115,10 @@ export default function OrderDetailScreen() {
           .single(),
         orderData.service_id
           ? supabase
-              .from("services")
-              .select("*")
-              .eq("id", orderData.service_id)
-              .single()
+            .from("services")
+            .select("*")
+            .eq("id", orderData.service_id)
+            .single()
           : Promise.resolve({ data: null, error: null }),
       ]);
 
@@ -374,8 +374,8 @@ export default function OrderDetailScreen() {
                 color={order.is_paid ? "#10B981" : "#EF4444"}
               />
               <Text style={[styles.paymentText, { color: order.is_paid ? "#10B981" : "#EF4444" }]}>
-               {order.is_paid}
-               
+                {order.is_paid}
+
               </Text>
             </View>
           </View>
@@ -402,6 +402,29 @@ export default function OrderDetailScreen() {
             <View style={styles.customerDetails}>
               <Text style={styles.customerName}>{customer?.full_name || "Customer"}</Text>
               <Text style={styles.customerPhone}>{customer?.country_code}{customer?.phone || "No phone provided"}</Text>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: 'lightpink',
+                  width: '50%',
+                  paddingVertical: 10, paddingHorizontal: 6, borderRadius: 9
+                }}
+                onPress={() =>
+                  router.push({
+                    pathname: '/chat',
+                    params: {
+                      receiver_id: customer?.id,
+                      receiver_name: customer?.full_name,
+                      receiver_avatar: customer?.avatar_url,
+                       sender_role: "vendor",
+                       receiver_role: "user",
+                    },
+                  })
+                }>
+                <Text style={{
+                  color: 'black'
+                }}>Chat with customer</Text>
+
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -434,16 +457,16 @@ export default function OrderDetailScreen() {
                 <Text style={styles.detailText}>{service.unit}</Text>
               </View>
 
-             
+
             </View>
             <View style={styles.serviceDetails}>
-               <View style={styles.detailItem}>
+              <View style={styles.detailItem}>
                 <Feather name="dollar-sign" size={16} color="#6B7280" />
                 <Text style={styles.detailText}> {service.price.toFixed(0)}</Text>
               </View>
-              
+
               <View style={styles.detailItem}>
-                <Octagon  size={16} color="#6B7280" />
+                <Octagon size={16} color="#6B7280" />
                 <Text style={styles.detailText}>{service.payment_method}</Text>
               </View>
             </View>
@@ -481,7 +504,7 @@ export default function OrderDetailScreen() {
                   updating && styles.disabledButton,
                 ]}
                 onPress={() => updateOrderStatus(status)}
-          disabled={updating || order.status === status || order.status === "Cancelled"}
+                disabled={updating || order.status === status || order.status === "Cancelled"}
               >
                 <Text
                   style={[
