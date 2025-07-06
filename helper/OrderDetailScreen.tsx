@@ -34,6 +34,8 @@ interface UserProfile {
   avatar_url: string;
   phone: string;
   address: string;
+    country_code?:any;
+
 }
 
 interface Service {
@@ -44,6 +46,8 @@ interface Service {
   unit: string;
   description: string;
     payment_method:string
+      country_code?:any;
+
 
 }
 
@@ -397,7 +401,7 @@ export default function OrderDetailScreen() {
             )}
             <View style={styles.customerDetails}>
               <Text style={styles.customerName}>{customer?.full_name || "Customer"}</Text>
-              <Text style={styles.customerPhone}>{customer?.phone || "No phone provided"}</Text>
+              <Text style={styles.customerPhone}>{customer?.country_code}{customer?.phone || "No phone provided"}</Text>
             </View>
           </View>
 

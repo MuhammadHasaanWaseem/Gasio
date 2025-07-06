@@ -13,6 +13,7 @@ type VendorProfile = {
   country_code?: string;
   business_logo_url?: string;
   owner_id?:string
+  
 
 };
 
@@ -32,6 +33,7 @@ type VendorBusiness = {
   total_earnings?: number;
   created_at?: string;
   website?:string;
+  country_code?:any;
   
 };
 

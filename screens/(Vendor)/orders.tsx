@@ -4,14 +4,14 @@ import { Feather } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 interface Order {
@@ -244,7 +244,7 @@ export default function OrderDetailScreen() {
           
           <View style={[styles.infoRow, { marginBottom: 0 }]}>
             <Text style={styles.infoLabel}>Total Amount:</Text>
-            <Text style={styles.totalPrice}>Rs {order.total_price.toFixed(0)}</Text>
+            <Text style={styles.totalPrice}> {order.total_price.toFixed(0)}</Text>
           </View>
         </View>
 
