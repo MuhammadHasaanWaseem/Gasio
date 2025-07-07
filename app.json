@@ -35,16 +35,22 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "@rnmapbox/maps",
+        {
+          "mapboxPublicKey": "pk.eyJ1IjoiaGFzYWFud2FzZWVtIiwiYSI6ImNtY29yYXl6cTA2MzEybHNhbmluN216YnAifQ.faqaZsus5jTj27JMmvBVqw"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
-      "router": {},
       "eas": {
         "projectId": "0e3b927e-0b00-498e-b061-1634e9853ab7"
-      }
+      },
+      "EXPO_PUBLIC_MAP_BOX_API_KEY": "pk.eyJ1IjoiaGFzYWFud2FzZWVtIiwiYSI6ImNtY29yYXl6cTA2MzEybHNhbmluN216YnAifQ.faqaZsus5jTj27JMmvBVqw"
     }
   }
 }
