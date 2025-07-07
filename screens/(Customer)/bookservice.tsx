@@ -1,17 +1,16 @@
 
-import { useVendor } from '@/context/vendorcontext';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { Calendar, TimerIcon } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { useUser } from '../../context/usercontext';
 import { Service } from '../../interface';
@@ -23,7 +22,6 @@ const BookServiceScreen = () => {
   const route = useRoute<BookServiceRouteProp>();
   const navigation = useNavigation();
   const { user } = useUser();
-  const {vendor}=useVendor()
   const service = route.params.service;
   const [loading, setLoading] = useState(false);
   const [notes, setNotes] = useState('');
@@ -73,7 +71,7 @@ const BookServiceScreen = () => {
         <Text style={styles.description}>{service.description}</Text>
     <View>
     <Text style={styles.sectionTitle}>Payment method</Text>
-     <Text style={styles.description}>{service.payment_method}</Text>
+     <Text style={styles.description}>Cash on delivery</Text>
     </View>
         
         <View style={styles.priceContainer}>

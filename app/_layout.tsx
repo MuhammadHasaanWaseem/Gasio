@@ -6,8 +6,9 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthProvider } from '@/context/authcontext';
 import { UserProvider } from '@/context/usercontext';
 import { VendorProvider } from '@/context/vendorcontext';
@@ -72,38 +73,40 @@ export default function RootLayout() {
 
   // ✅ Main App Render
   return (
-    <AuthProvider>
-      <UserProvider>
-        <VendorProvider>
-          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-            <ActionSheetProvider>
-              <QueryClientProvider client={queryClient}>
-                <StatusBar style="auto" />
-                <>
-                <Stack initialRouteName='(auth)' screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name="splash" />
-                  <Stack.Screen name="onboarding" />
-                  <Stack.Screen name="(auth)" options={{ animation: 'slide_from_right' }} />
-                  <Stack.Screen name="(Vendortab)" options={{ animation: 'slide_from_right' }} />
-                  <Stack.Screen name="(tabs)" options={{ animation: 'slide_from_right' }} />
-                  <Stack.Screen name="Vendordrawer" options={{ animation: 'slide_from_right' }} />
-                  <Stack.Screen name="(drawer)" options={{ animation: 'slide_from_right' }} />
-                  <Stack.Screen name="createservice" options={{ animation: 'slide_from_right' }} />
-                  <Stack.Screen name="(Edrawer)" options={{ animation: 'slide_from_right' }} />
-                  <Stack.Screen name="(Shared)" options={{ animation: 'slide_from_right' }} />
-                  <Stack.Screen name="bookservice" options={{ animation: 'slide_from_right' }} />
-                  <Stack.Screen name="orderdetail" options={{ animation: 'slide_from_right' }} />
-                  <Stack.Screen name="LeaveReview" options={{ animation: 'slide_from_right' }} />                
-                                 
+    <ErrorBoundary>
+      <AuthProvider>
+        <UserProvider>
+          <VendorProvider>
+            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+              <ActionSheetProvider>
+                <QueryClientProvider client={queryClient}>
+                  <StatusBar style="auto" />
+                  <>
+                  <Stack initialRouteName='splash' screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="splash" />
+                    <Stack.Screen name="onboarding" />
+                    <Stack.Screen name="(auth)" options={{ animation: 'slide_from_right' }} />
+                    <Stack.Screen name="(Vendortab)" options={{ animation: 'slide_from_right' }} />
+                    <Stack.Screen name="(tabs)" options={{ animation: 'slide_from_right' }} />
+                    <Stack.Screen name="Vendordrawer" options={{ animation: 'slide_from_right' }} />
+                    <Stack.Screen name="(drawer)" options={{ animation: 'slide_from_right' }} />
+                    <Stack.Screen name="createservice" options={{ animation: 'slide_from_right' }} />
+                    <Stack.Screen name="(Edrawer)" options={{ animation: 'slide_from_right' }} />
+                    <Stack.Screen name="(Shared)" options={{ animation: 'slide_from_right' }} />
+                    <Stack.Screen name="bookservice" options={{ animation: 'slide_from_right' }} />
+                    <Stack.Screen name="orderdetail" options={{ animation: 'slide_from_right' }} />
+                    <Stack.Screen name="LeaveReview" options={{ animation: 'slide_from_right' }} />                
+                                   
 
-               <Stack.Screen name="+not-found" />
-                </Stack>
-                </>
-              </QueryClientProvider>
-            </ActionSheetProvider>
-          </ThemeProvider>
-        </VendorProvider>
-      </UserProvider>
-    </AuthProvider>
+                 <Stack.Screen name="+not-found" />
+                  </Stack>
+                  </>
+                </QueryClientProvider>
+              </ActionSheetProvider>
+            </ThemeProvider>
+          </VendorProvider>
+        </UserProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }

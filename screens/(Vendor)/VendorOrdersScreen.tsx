@@ -4,12 +4,12 @@ import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 interface Order {
@@ -34,7 +34,10 @@ export default function VendorOrdersScreen() {
   }, []);
 
   const fetchOrders = async () => {
-    if (!vendorBusiness) return;
+    if (!vendorBusiness?.id) {
+      console.warn('Vendor business ID is undefined, skipping orders fetch');
+      return;
+    }
     setLoading(true);
     try {
       // Fetch orders with user profile and service details similar to user orders screen

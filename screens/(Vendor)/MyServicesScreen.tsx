@@ -4,30 +4,30 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import {
-  BadgeDollarSign,
-  ChevronRight,
-  Edit,
-  FileText,
-  PercentIcon,
-  Plus,
-  SearchIcon,
-  Tag,
-  Timer,
-  X
+    BadgeDollarSign,
+    ChevronRight,
+    Edit,
+    FileText,
+    PercentIcon,
+    Plus,
+    SearchIcon,
+    Tag,
+    Timer,
+    X
 } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  Dimensions,
-  FlatList,
-  Modal,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    Animated,
+    Dimensions,
+    FlatList,
+    Modal,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 
 const { width, height } = Dimensions.get('window');
@@ -63,11 +63,18 @@ export default function ServicesScreen() {
   }, []);
 
   const fetchServices = async () => {
+    if (!vendorBusiness?.id) {
+      console.warn('Vendor business ID is undefined, skipping service fetch');
+      setLoading(false);
+      setRefreshing(false);
+      return;
+    }
+
     setLoading(true);
     const { data, error } = await supabase
       .from("services")
       .select("*")
-      .eq("vendor_id", vendorBusiness?.id);
+      .eq("vendor_id", vendorBusiness.id);
 
     if (!error) {
       setServices(data || []);

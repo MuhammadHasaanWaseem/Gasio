@@ -132,15 +132,22 @@ export const VendorProvider = ({ children }: { children: ReactNode }) => {
 
       if (vendorBusinessError) {
         if (vendorBusinessError.code === 'PGRST116') {
+          // No vendor business found, this is normal for new vendors
           setVendorBusiness(null);
         } else {
           console.error('Error fetching vendor business info:', vendorBusinessError);
           setVendorBusiness(null);
         }
       } else {
-        setVendorBusiness(vendorBusinessData);
-        console.log('Vendor:', data);
-        console.log('VendorBusiness:', vendorBusinessData);
+        // Only set vendor business if we have valid data with an ID
+        if (vendorBusinessData && vendorBusinessData.id) {
+          setVendorBusiness(vendorBusinessData);
+          console.log('Vendor:', data);
+          console.log('VendorBusiness:', vendorBusinessData);
+        } else {
+          console.warn('Vendor business data missing ID, setting to null');
+          setVendorBusiness(null);
+        }
       }
     } catch (error) {
       console.error('Unexpected error fetching vendor profile:', error);

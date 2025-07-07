@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (!currentUser || userError) {
           setUserType(null);
           setIsLoggedIn(false);
-          router.replace('/login');
+          router.replace('/(auth)/login');
           return;
         }
 
@@ -50,6 +50,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setIsLoggedIn(true);
           router.replace('/(tabs)');
         } else if (storedUserType === 'vendor') {
+          if (!currentUser.id) {
+            console.error('Current user ID is undefined');
+            setUserType(null);
+            setIsLoggedIn(false);
+            router.replace('/(auth)/login');
+            return;
+          }
+
           const { data: vendorProfile, error: profileError } = await supabase
             .from('vendor_owners')
             .select('*')
@@ -67,53 +75,68 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } else {
           setUserType(null);
           setIsLoggedIn(false);
-          router.replace('/login');
+          router.replace('/(auth)/login');
         }
-      } catch (error) {
-        console.error('Login status check failed:', error);
-        setUserType(null);
-        setIsLoggedIn(false);
-        router.replace('/login');
-      }
+              } catch (error) {
+          console.error('Login status check failed:', error);
+          setUserType(null);
+          setIsLoggedIn(false);
+          router.replace('/(auth)/login');
+        }
     };
 
     checkLoginStatus();
   }, []);
 
   const loginAsUser = async () => {
-    setUserType('user');
-    setIsLoggedIn(true);
     try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser?.id) {
+        console.error('No authenticated user found during login');
+        return;
+      }
+      
+      setUserType('user');
+      setIsLoggedIn(true);
       await storage.setItem('userType', 'user');
     } catch (error) {
-      console.error('Failed to store userType for user:', error);
+      console.error('Failed to login as user:', error);
     }
     // router.replace('/(tabs)');
   };
 
   const loginAsVendor = async () => {
-    setUserType('vendor');
-    setIsLoggedIn(true);
     try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser?.id) {
+        console.error('No authenticated user found during vendor login');
+        return;
+      }
+      
+      setUserType('vendor');
+      setIsLoggedIn(true);
       await storage.setItem('userType', 'vendor');
+      router.push('/(Vendortab)');
     } catch (error) {
-      console.error('Failed to store userType for vendor:', error);
+      console.error('Failed to login as vendor:', error);
     }
-          router.push('/(Vendortab)');
-
     // Navigation handled outside based on vendor profile existence
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    setUserType(null);
-    setIsLoggedIn(false);
     try {
+      await supabase.auth.signOut();
+      setUserType(null);
+      setIsLoggedIn(false);
       await storage.removeItem('userType');
+      router.replace('/(auth)/login');
     } catch (error) {
-      console.error('Failed to clear userType:', error);
+      console.error('Failed to logout:', error);
+      // Even if logout fails, clear local state
+      setUserType(null);
+      setIsLoggedIn(false);
+      router.replace('/(auth)/login');
     }
-    router.replace('/login');
   };
 
   return (

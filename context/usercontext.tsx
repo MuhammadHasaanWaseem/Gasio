@@ -33,7 +33,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         data: { user: currentUser },
         error: userError,
       } = await supabase.auth.getUser();
-      if (userError || !currentUser) {
+      if (userError || !currentUser || !currentUser.id) {
+        console.warn('User not found or user ID is undefined');
         setUser(null);
         setLoading(false);
         return;
