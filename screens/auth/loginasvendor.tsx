@@ -77,6 +77,7 @@ export default () => {
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
+        placeholderTextColor={'grey'}
         keyboardType="email-address"
         autoCapitalize="none"
         style={styles.input}
@@ -85,6 +86,7 @@ export default () => {
         <TextInput
           placeholder="Password"
           value={password}
+          placeholderTextColor={'grey'}
           onChangeText={setPassword}
           secureTextEntry={!eye}
           style={[styles.input, { borderWidth: 0, flex: 1, marginBottom: 0 }]}
@@ -152,6 +154,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
+    color:'#000',
     padding: 10,
     marginBottom: 10,
     width: '100%',

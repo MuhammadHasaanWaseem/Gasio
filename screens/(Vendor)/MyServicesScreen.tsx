@@ -682,6 +682,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ffcdd2',
     justifyContent: 'center',
+    color:'#000',
     alignItems: 'center',
     marginLeft: 10,
   },

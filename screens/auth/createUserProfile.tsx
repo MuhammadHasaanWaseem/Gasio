@@ -209,6 +209,7 @@ const handleUseCurrentLocation = async () => {
 
       <TextInput
         placeholder="Full Name"
+        placeholderTextColor="grey"
         value={fullName}
         onChangeText={setFullName}
         style={styles.input}
@@ -225,6 +226,7 @@ const handleUseCurrentLocation = async () => {
         <View style={styles.countryListContainer}>
           <TextInput
             placeholder="Search country"
+            placeholderTextColor="grey"
             value={countrySearch}
             onChangeText={setCountrySearch}
             style={styles.searchInput}
@@ -250,6 +252,7 @@ const handleUseCurrentLocation = async () => {
 
       <TextInput
         placeholder="Phone (without country code)"
+        placeholderTextColor="grey"
         value={phone}
         onChangeText={setPhone}
         keyboardType="phone-pad"
@@ -257,20 +260,17 @@ const handleUseCurrentLocation = async () => {
       />
       <TextInput
         placeholder="CNIC (13 digits)"
+        placeholderTextColor="grey"
         value={cnic}
         onChangeText={setCnic}
         keyboardType="numeric"
         style={styles.input}
       />
-      {/* <TextInput
-        placeholder="Address"
-        value={address}
-        onChangeText={setAddress}
-        style={styles.input}
-      /> */}
+      
   <View>
   <TextInput
     placeholder="Address"
+    placeholderTextColor="grey"
     value={address}
     onChangeText={setAddress}
     style={[styles.input, { paddingRight: 40 }]}
@@ -342,6 +342,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 12,
     marginBottom: 15,
+    color:'#000'
   },
   button: {
     backgroundColor: '#ed3237',
@@ -378,6 +379,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     borderWidth: 1,
+    color:'#000',
     borderColor: '#ccc',
     borderRadius: 5,
     padding: 10,

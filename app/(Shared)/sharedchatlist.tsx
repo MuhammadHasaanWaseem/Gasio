@@ -5,16 +5,16 @@ import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    ActivityIndicator,
-    Animated,
-    Easing,
-    FlatList,
-    Image,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Animated,
+  Easing,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const tabs = [
@@ -190,6 +190,7 @@ const SharedContactList = () => {
         <TextInput
           style={styles.searchInput}
           placeholder="Search..."
+          placeholderTextColor={'grey'}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
@@ -241,8 +242,8 @@ const styles = StyleSheet.create({
   },
   avatar: { width: 50, height: 50, borderRadius: 25, marginRight: 12 },
   textContainer: { flex: 1 },
-  name: { fontSize: 16, fontWeight: '600' },
-  messageHint: { fontSize: 12, color: '#666' },
+  name: { fontSize: 16, fontWeight: '600' ,color:'black'},
+  messageHint: { fontSize: 12, color: 'black' },
 });
 
 export default SharedContactList;

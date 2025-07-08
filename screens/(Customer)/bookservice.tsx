@@ -65,6 +65,7 @@ const BookServiceScreen = () => {
   };
 
   return (
+    
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>Book Service</Text>
       
@@ -72,7 +73,9 @@ const BookServiceScreen = () => {
         <Text style={styles.serviceTitle}>{service.service_name}</Text>
         <Text style={styles.description}>{service.description}</Text>
     <View>
+      
     <Text style={styles.sectionTitle}>Payment method</Text>
+    {/* @ts-ignore */}
      <Text style={styles.description}>{service.payment_method}</Text>
     </View>
         

@@ -1,18 +1,25 @@
 import { useUser } from '@/context/usercontext';
 import { supabase } from '@/lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
+import MapboxGL from '@rnmapbox/maps';
+import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TextInput,
-  ToastAndroid,
-  TouchableOpacity,
-  View
+    FlatList,
+    StyleSheet,
+    Text,
+    TextInput,
+    ToastAndroid,
+    TouchableOpacity,
+    View
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+
+MapboxGL.setAccessToken(
+  Constants.expoConfig?.extra?.EXPO_PUBLIC_MAP_BOX_API_KEY ||
+    process.env.EXPO_PUBLIC_MAP_BOX_API_KEY ||
+    ''
+);
 
 const SearchNearbyScreen = () => {
   const router = useRouter();
@@ -73,47 +80,47 @@ const SearchNearbyScreen = () => {
 
       {/* Map View */}
       <View style={styles.mapContainer}>
-        <MapView
+        <MapboxGL.MapView
           style={styles.map}
-          initialRegion={{
-            latitude: user?.latitude || 37.78825,
-            longitude: user?.longitude || -122.4324,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
-          region={
-            selectedLocation ? {
-              ...selectedLocation,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-            } : undefined
-          }
+          logoEnabled={false}
         >
+          <MapboxGL.Camera
+            centerCoordinate={
+              selectedLocation 
+                ? [selectedLocation.longitude, selectedLocation.latitude]
+                : [user?.longitude || -122.4324, user?.latitude || 37.78825]
+            }
+            zoomLevel={12}
+          />
+          
           {user?.latitude && user.longitude && (
-            <Marker
-              coordinate={{
-                latitude: user.latitude,
-                longitude: user.longitude
-              }}
+            <MapboxGL.PointAnnotation
+              id="userLocation"
+              coordinate={[user.longitude, user.latitude]}
               title="Your Location"
-              pinColor="#6C63FF"
-            />
+            >
+              <View style={styles.userMarker}>
+                <Ionicons name="location" size={20} color="#6C63FF" />
+              </View>
+            </MapboxGL.PointAnnotation>
           )}
           
           {results.map(vendor => (
             vendor.latitude && vendor.longitude && (
-              <Marker
+              <MapboxGL.PointAnnotation
                 key={vendor.id}
-                coordinate={{
-                  latitude: vendor.latitude,
-                  longitude: vendor.longitude
-                }}
+                id={`vendor-${vendor.id}`}
+                coordinate={[vendor.longitude, vendor.latitude]}
                 title={vendor.business_name}
-                onPress={() => handleLocationSelect(vendor)}
-              />
+                onSelected={() => handleLocationSelect(vendor)}
+              >
+                <View style={styles.vendorMarker}>
+                  <Ionicons name="business" size={16} color="#FF6B6B" />
+                </View>
+              </MapboxGL.PointAnnotation>
             )
           ))}
-        </MapView>
+        </MapboxGL.MapView>
       </View>
 
       {/* Search Results */}
@@ -227,6 +234,32 @@ const styles = StyleSheet.create({
     color: '#A0AEC0',
     marginTop: 10,
     textAlign: 'center',
+  },
+  userMarker: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  vendorMarker: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });
 

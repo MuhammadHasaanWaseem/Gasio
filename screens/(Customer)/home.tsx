@@ -3,6 +3,7 @@ import { useUser } from '@/context/usercontext';
 import { Service } from '@/interface';
 import { supabase } from '@/lib/supabase';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import MapboxGL from '@rnmapbox/maps';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRouter } from 'expo-router';
 import { MessageCircle } from 'lucide-react-native';
@@ -19,7 +20,6 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 
 const HomeScreen = () => {
@@ -283,47 +283,56 @@ const HomeScreen = () => {
 
           {/* Location Map Preview */}
           <View style={styles.mapContainer}>
-            <Text style={styles.sectionTitle}>Services Near You</Text>
-            <View style={styles.mapWrapper}>
-              {user?.latitude && user.longitude ? (
-                <MapView
-                  style={styles.map}
-                  region={region}
-                  scrollEnabled={false}
-                  zoomEnabled={false}
-                  rotateEnabled={false}
-                  pitchEnabled={false}
-                >
-                  <Marker
-                    coordinate={{
-                      latitude: user.latitude,
-                      longitude: user.longitude
-                    }}
-                    title="Your Location"
-                    pinColor="#6C63FF"
-                  />
-                  {vendors.slice(0, 5).map(vendor => (
-                    vendor.latitude && vendor.longitude && (
-                      <Marker
-                        key={vendor.id}
-                        coordinate={{
-                          latitude: vendor.latitude,
-                          longitude: vendor.longitude
-                        }}
-                        title={vendor.business_name}
-                      />
-                    )
-                  ))}
-                </MapView>
-              ) : (
-                <View style={styles.mapPlaceholder}>
-                  <Ionicons name="map-outline" size={48} color="#CBD5E0" />
-                  <Text style={styles.mapPlaceholderText}>Enable location to see nearby services</Text>
-                </View>
-              )}
-            </View>
-          </View>
+  <Text style={styles.sectionTitle}>Services Near You</Text>
+  <View style={styles.mapWrapper}>
+    {user?.latitude && user.longitude ? (
+      <MapboxGL.MapView
+        style={styles.map}
+        logoEnabled={false}
+        compassEnabled={false}
+        zoomEnabled={false}
+        scrollEnabled={false}
+      >
+        <MapboxGL.Camera
+          zoomLevel={12}
+          centerCoordinate={[user.longitude, user.latitude]}
+        />
 
+        {/* User Location Marker */}
+        <MapboxGL.PointAnnotation
+          id="user-location"
+          coordinate={[user.longitude, user.latitude]}
+        >
+          <View style={{ backgroundColor: '#6C63FF', borderRadius: 10, padding: 5 }}>
+            <View style={{ width: 10, height: 10, backgroundColor: 'white', borderRadius: 5 }} />
+          </View>
+        </MapboxGL.PointAnnotation>
+
+        {/* Vendor Markers */}
+        {vendors.slice(0, 5).map(vendor => (
+          vendor.latitude && vendor.longitude && (
+            <MapboxGL.PointAnnotation
+              key={vendor.id}
+              id={`vendor-${vendor.id}`}
+              coordinate={[vendor.longitude, vendor.latitude]}
+            >
+              <View style={{ backgroundColor: '#FF9800', borderRadius: 10, padding: 5 }}>
+                <View style={{ width: 10, height: 10, backgroundColor: 'white', borderRadius: 5 }} />
+              </View>
+            </MapboxGL.PointAnnotation>
+          )
+        ))}
+      </MapboxGL.MapView>
+    ) : (
+      <View style={styles.mapPlaceholder}>
+        <Ionicons name="map-outline" size={48} color="#CBD5E0" />
+        <Text style={styles.mapPlaceholderText}>
+          Enable location to see nearby services
+        </Text>
+      </View>
+    )}
+  </View>
+</View>
           {/* Quick Actions */}
           <View style={styles.quickActions}>
             <TouchableOpacity

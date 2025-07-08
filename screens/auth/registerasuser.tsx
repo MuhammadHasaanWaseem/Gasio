@@ -173,6 +173,7 @@ const styles = StyleSheet.create({
   optinput: {
     borderWidth: 1,
     borderColor: '#ed3237',
+    
     borderRadius: 25,
     paddingVertical: 14,
     paddingHorizontal: 20,

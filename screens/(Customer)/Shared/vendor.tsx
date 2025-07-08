@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
+import MapboxGL from '@rnmapbox/maps';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Star } from 'lucide-react-native';
@@ -14,7 +15,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
 import Animated, { FadeInDown, FadeInRight, FadeInUp } from 'react-native-reanimated';
 
 export default () => {
@@ -218,28 +218,24 @@ colors={['#ed3237', '#ff5f6d']}          start={{ x: 0, y: 0 }}
             style={styles.mapContainer}
           >
             <Text style={styles.sectionTitle}>Location</Text>
-            <MapView
+            <MapboxGL.MapView
               style={styles.map}
-              initialRegion={{
-                latitude: vendor.latitude,
-                longitude: vendor.longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              }}
-              scrollEnabled={false}
+              logoEnabled={false}
             >
-              <Marker
-                coordinate={{
-                  latitude: vendor.latitude,
-                  longitude: vendor.longitude,
-                }}
+              <MapboxGL.Camera
+                centerCoordinate={[vendor.longitude, vendor.latitude]}
+                zoomLevel={14}
+              />
+              <MapboxGL.PointAnnotation
+                id="vendorLocation"
+                coordinate={[vendor.longitude, vendor.latitude]}
                 title={vendor.business_name}
               >
                 <View style={styles.marker}>
                   <Ionicons name="location" size={24} color="#7c3aed" />
                 </View>
-              </Marker>
-            </MapView>
+              </MapboxGL.PointAnnotation>
+            </MapboxGL.MapView>
           </Animated.View>
         )}
 

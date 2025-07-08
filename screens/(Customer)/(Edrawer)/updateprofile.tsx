@@ -249,7 +249,7 @@ const handleUseCurrentLocation = async () => {
         )}
       </TouchableOpacity>
 
-      <TextInput placeholder="Full Name" value={fullName} onChangeText={setFullName} style={styles.input} />
+      <TextInput placeholder="Full Name" placeholderTextColor="grey" value={fullName} onChangeText={setFullName} style={styles.input} />
 
       <View style={styles.phoneRow}>
         <TouchableOpacity onPress={() => setShowCountryList(true)} style={styles.countrySelector}>
@@ -257,6 +257,7 @@ const handleUseCurrentLocation = async () => {
         </TouchableOpacity>
         <TextInput
           placeholder="Phone"
+          placeholderTextColor="grey"
           value={phone}
           onChangeText={(text) => {
             setPhone(text);
@@ -268,7 +269,7 @@ const handleUseCurrentLocation = async () => {
         {phoneError ? <Text style={{ color: 'red', marginBottom: 10 }}>{phoneError}</Text> : null}
       </View>
 
-      <TextInput placeholder="CNIC (13 digits)" value={cnic} onChangeText={(text) => {
+      <TextInput placeholder="CNIC (13 digits)" placeholderTextColor="grey" value={cnic} onChangeText={(text) => {
         setCnic(text);
         validateCnic(text);
       }} keyboardType="numeric" style={styles.input} />
@@ -276,6 +277,7 @@ const handleUseCurrentLocation = async () => {
       <View>
   <TextInput
     placeholder="Address"
+    placeholderTextColor="grey"
     value={address}
     onChangeText={setAddress}
     style={[styles.input, { paddingRight: 80 }]}
@@ -342,7 +344,7 @@ const handleUseCurrentLocation = async () => {
             <SearchIcon color="#ed3237" size={20} />
             <TextInput
               placeholder="Search country..."
-              placeholderTextColor="#888"
+              placeholderTextColor="grey"
               value={countrySearch}
               onChangeText={setCountrySearch}
               style={{
@@ -398,12 +400,12 @@ const styles = StyleSheet.create({
   avatarContainer: { marginTop: 20, alignSelf: 'center', marginBottom: 20, width: 120, height: 120, borderRadius: 60, backgroundColor: '#eee', justifyContent: 'center', alignItems: 'center' },
   avatarPlaceholder: { color: '#999', textAlign: 'center', paddingHorizontal: 10 },
   avatar: { width: 120, height: 120, borderRadius: 60 },
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 12, marginBottom: 15 },
-  searchinput: { alignItems: 'center', borderRadius: 8, padding: 12, marginBottom: 15 },
+  input: { borderWidth: 1,color:'black', borderColor: '#ccc', borderRadius: 8, padding: 12, marginBottom: 15 },
+  searchinput: { color:'black',alignItems: 'center', borderRadius: 8, padding: 12, marginBottom: 15 },
   phoneRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#ccc', borderRadius: 8, overflow: 'hidden', marginBottom: 15 },
   countrySelector: { paddingHorizontal: 12, paddingVertical: 10, backgroundColor: '#f0f0f0' },
-  countryText: { fontSize: 16 },
-  phoneInput: { flex: 1, padding: 10, fontSize: 16 },
+  countryText: { color:'black',fontSize: 16 },
+  phoneInput: { flex: 1,color:'black', padding: 10, fontSize: 16 },
   button: { backgroundColor: '#ed3237', padding: 15, width: '60%', borderRadius: 15, alignItems: 'center' },
   buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },

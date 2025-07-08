@@ -3,19 +3,35 @@
     "preview": {
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "MAPBOX_DOWNLOADS_TOKEN": "MAPBOX_DOWNLOADS_TOKEN"
       }
     },
     "preview2": {
       "android": {
         "gradleCommand": ":app:assembleRelease"
+      },
+      "env": {
+        "MAPBOX_DOWNLOADS_TOKEN": "MAPBOX_DOWNLOADS_TOKEN"
       }
     },
     "preview3": {
-      "developmentClient": true
+      "developmentClient": true,
+      "env": {
+        "MAPBOX_DOWNLOADS_TOKEN": "MAPBOX_DOWNLOADS_TOKEN"
+      }
     },
     "preview4": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "MAPBOX_DOWNLOADS_TOKEN": "MAPBOX_DOWNLOADS_TOKEN"
+      }
     },
-    "production": {}
+    "production": {
+      "env": {
+        "MAPBOX_DOWNLOADS_TOKEN": "MAPBOX_DOWNLOADS_TOKEN"
+      }
+    }
   }
 }

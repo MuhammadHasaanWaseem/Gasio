@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { Eye, EyeOff } from 'lucide-react-native'; // Ensure you have lucide-react-native installed
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../../context/authcontext';
 import { useUser } from '../../context/usercontext';
@@ -56,12 +56,14 @@ const Loginasuser = () => {
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
+        placeholderTextColor={'grey'}
         autoCapitalize="none"
         style={styles.input}
       />
       <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#ccc', borderRadius: 5, marginBottom: 10 }}>
         <TextInput
           placeholder="Password"
+          placeholderTextColor={'grey'}
           value={password}
           onChangeText={setPassword}
           secureTextEntry={!showpass}
@@ -134,6 +136,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 5,
     padding: 10,
+    color:'black',
     marginBottom: 10,
     width: '100%',
   },

@@ -232,7 +232,7 @@ export default () => {
         )}
       </TouchableOpacity>
 
-      <TextInput placeholder="Full Name" value={fullName} onChangeText={setFullName} style={styles.input} />
+      <TextInput placeholder="Full Name" placeholderTextColor="grey" value={fullName} onChangeText={setFullName} style={styles.input} />
 
       <TouchableOpacity onPress={() => setShowCountryList(!showCountryList)} style={styles.countryPicker}>
         <Text>{`${selectedCountry.flag} ${selectedCountry.name} (${selectedCountry.dial_code})`}</Text>
@@ -240,12 +240,13 @@ export default () => {
 
       {showCountryList && (
         <View style={styles.countryListContainer}>
-          <TextInput
-            placeholder="Search country"
-            value={countrySearch}
-            onChangeText={setCountrySearch}
-            style={styles.searchInput}
-          />
+      <TextInput
+        placeholder="Search country"
+        placeholderTextColor="grey"
+        value={countrySearch}
+        onChangeText={setCountrySearch}
+        style={styles.searchInput}
+      />
           <FlatList
             data={filteredCountries}
             keyExtractor={(item) => item.code}
@@ -281,6 +282,7 @@ export default () => {
       <View>
         <TextInput
           placeholder="Address"
+          placeholderTextColor="grey"
           value={address}
           onChangeText={setAddress}
           style={[styles.input, { paddingRight: 40 }]}
@@ -337,6 +339,7 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
+    color:'#000',
     borderRadius: 5,
     padding: 12,
     marginBottom: 15,
@@ -378,6 +381,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 5,
     padding: 10,
+    color:'#000',
     margin: 10,
     backgroundColor: '#f9f9f9',
   },
