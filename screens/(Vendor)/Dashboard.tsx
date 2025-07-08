@@ -2,12 +2,12 @@ import { useVendor } from "@/context/vendorcontext";
 import { supabase } from "@/lib/supabase";
 import { LinearGradient } from "expo-linear-gradient";
 import {
+  Activity,
   Briefcase,
   Clock,
   DollarSign,
   MessageCircle,
-  ShoppingCart,
-  Star
+  ShoppingCart
 } from "lucide-react-native";
 import type { ColorValue } from "react-native";
 
@@ -269,8 +269,8 @@ const fetchRecentOrders = async () => {
             <View style={styles.vendorInfo}>
               <Text style={styles.vendorName}>{vendor?.full_name}</Text>
               <View style={styles.ratingContainer}>
-                <Star size={18} fill="#ffc107" color="#ffc107" />
-                <Text style={styles.ratingText}>{stats.rating.toFixed(1)}</Text>
+                <Activity color="darkblue" size={18} />
+                <Text style={styles.ratingText}>Vendor Verified !!</Text>
               </View>
             </View>
           </View>
@@ -688,7 +688,7 @@ const styles = StyleSheet.create({
   ratingText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ff9800',
+    color: 'darkblue',
     marginLeft: 5,
   },
   statsRow: {
