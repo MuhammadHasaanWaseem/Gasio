@@ -14,7 +14,6 @@ import { VendorProvider } from '@/context/vendorcontext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import MapboxProvider from '../components/MapboxProvider';
 import OnboardingScreen from './onboarding';
-import Splash from './splash';
 
 SplashScreen.preventAutoHideAsync(); // Ensure splash stays until fonts + onboarding check complete
 
@@ -56,12 +55,12 @@ export default function RootLayout() {
 
   //  Still loading: fonts or onboarding check
   if (!fontsLoaded || !isReady) {
-    return <Splash />;
+    return null;
   }
 
   //  Optional: fake starter screen (2 seconds)
   if (showStarter) {
-    return <Splash />; // or render <SplashAnimation />
+    return null; // or render <SplashAnimation />
   }
 
   //  Show onboarding if not completed
@@ -72,7 +71,7 @@ export default function RootLayout() {
     }} />;
   }
 
-  // ✅ Main App Render
+  
   return (
     <MapboxProvider>
       <AuthProvider>
@@ -97,9 +96,7 @@ export default function RootLayout() {
                     <Stack.Screen name="bookservice" options={{ animation: 'slide_from_right' }} />
                     <Stack.Screen name="orderdetail" options={{ animation: 'slide_from_right' }} />
                     <Stack.Screen name="LeaveReview" options={{ animation: 'slide_from_right' }} />                
-                                   
-
-                 <Stack.Screen name="+not-found" />
+                   <Stack.Screen name="+not-found" />
                   </Stack>
                   </>
                 </QueryClientProvider>
