@@ -71,7 +71,7 @@ const SearchScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="Search for services..."
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor="grey"
           value={query}
           onChangeText={setQuery}
           autoFocus
