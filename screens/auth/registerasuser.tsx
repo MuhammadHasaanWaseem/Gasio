@@ -93,6 +93,7 @@ const AuthFlow = () => {
         <>
           <TextInput
             placeholder="Email"
+            placeholderTextColor={'#000'}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -103,6 +104,7 @@ const AuthFlow = () => {
             <TextInput
               placeholder="Password"
               value={password}
+              placeholderTextColor={'#000'}
               onChangeText={setPassword}
               secureTextEntry={!eye}
               style={styles.inputPassword}

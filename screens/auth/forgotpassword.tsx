@@ -73,6 +73,7 @@ export default () => {
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
+            placeholderTextColor="#000"
             autoCapitalize="none"
             style={styles.input}
           />
@@ -91,6 +92,7 @@ export default () => {
             value={otp}
             onChangeText={setOtp}
             keyboardType="number-pad"
+            placeholderTextColor={'#000'}
             style={styles.input}
           />
           <TextInput
@@ -98,6 +100,7 @@ export default () => {
             value={newPassword}
             onChangeText={setNewPassword}
             secureTextEntry
+            placeholderTextColor={'#000'}
             style={styles.input}
           />
           <TouchableOpacity onPress={handleChangePassword} style={styles.button} disabled={loading}>

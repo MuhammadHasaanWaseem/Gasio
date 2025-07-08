@@ -4,14 +4,14 @@ import Constants from 'expo-constants';
 import debounce from 'lodash/debounce';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    FlatList,
-    Modal,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Modal,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 // Mapbox access token is now initialized globally in app/_layout.tsx
@@ -135,7 +135,7 @@ const MapModal: React.FC<MapModalProps> = ({
                 style={styles.resultItem}
                 onPress={() => handleLocationSelect(item)}
               >
-                <Text>{item.name}</Text>
+                <Text style={{color:'black'}}>{item.name}</Text>
               </TouchableOpacity>
             )}
           />

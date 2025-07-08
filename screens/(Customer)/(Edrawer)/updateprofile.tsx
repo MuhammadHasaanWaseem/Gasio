@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
   buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   modalContent: { backgroundColor: '#fff', padding: 20, borderRadius: 10, width: '80%', alignItems: 'center' },
-  modalText: { fontSize: 18, marginBottom: 20 },
+  modalText: { fontSize: 18, marginBottom: 20 ,color:'black'},
   modalButton: { backgroundColor: '#ed3237', paddingVertical: 10, paddingHorizontal: 30, borderRadius: 10 },
   modalButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   countryItem: { padding: 15, borderBottomWidth: 1, borderBottomColor: '#eee' },

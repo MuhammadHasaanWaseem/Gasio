@@ -14,6 +14,7 @@ import { VendorProvider } from '@/context/vendorcontext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import MapboxProvider from '../components/MapboxProvider';
 import OnboardingScreen from './onboarding';
+import Splash from './splash';
 
 SplashScreen.preventAutoHideAsync(); // Ensure splash stays until fonts + onboarding check complete
 
@@ -55,12 +56,12 @@ export default function RootLayout() {
 
   //  Still loading: fonts or onboarding check
   if (!fontsLoaded || !isReady) {
-    return null;
+    return <Splash />;
   }
 
   //  Optional: fake starter screen (2 seconds)
   if (showStarter) {
-    return null; // or render <SplashAnimation />
+    return <Splash />; // or render <SplashAnimation />
   }
 
   //  Show onboarding if not completed
