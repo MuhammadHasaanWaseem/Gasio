@@ -4,21 +4,17 @@ import Constants from 'expo-constants';
 import debounce from 'lodash/debounce';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  FlatList,
-  Modal,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    Modal,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
-MapboxGL.setAccessToken(
-  Constants.expoConfig?.extra?.EXPO_PUBLIC_MAP_BOX_API_KEY ||
-    process.env.EXPO_PUBLIC_MAP_BOX_API_KEY ||
-    ''
-);
+// Mapbox access token is now initialized globally in app/_layout.tsx
 
 interface LocationResult {
   id: string;

@@ -2,7 +2,6 @@ import { useUser } from '@/context/usercontext';
 import { supabase } from '@/lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import MapboxGL from '@rnmapbox/maps';
-import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -15,11 +14,7 @@ import {
     View
 } from 'react-native';
 
-MapboxGL.setAccessToken(
-  Constants.expoConfig?.extra?.EXPO_PUBLIC_MAP_BOX_API_KEY ||
-    process.env.EXPO_PUBLIC_MAP_BOX_API_KEY ||
-    ''
-);
+// Mapbox access token is now initialized globally in app/_layout.tsx
 
 const SearchNearbyScreen = () => {
   const router = useRouter();
