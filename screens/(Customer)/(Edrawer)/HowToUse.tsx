@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Bell, BookOpen, Check, ChevronLeft, Phone } from 'lucide-react-native';
+import { Bell, BookOpen, Check, ChevronLeft, MessageCircle, Phone } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated';
@@ -27,7 +27,9 @@ export default function HowToUseScreen() {
             <Text style={styles.headerTitle}>
               {isEnglish ? "How to Use Gasio" : "گیسیو کیسے استعمال کریں"}
             </Text>
-            <View style={{ width: 28 }} />
+            <TouchableOpacity onPress={() => router.push('/(Edrawer)/Aichatsupport')} style={styles.chatButton}>
+              <MessageCircle color="#fff" size={22} />
+            </TouchableOpacity>
           </View>
           <View style={styles.header3DEffect} />
         </LinearGradient>
@@ -243,6 +245,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.2)',
     borderRadius: 20,
     padding: 5,
+  },
+  chatButton: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 18,
+    padding: 6,
   },
   headerTitle: {
     color: '#fff',

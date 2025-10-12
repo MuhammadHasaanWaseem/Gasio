@@ -10,7 +10,7 @@ export default ()=>{
             <Stack.Screen name="trermofuse" options={{ headerShown: false ,animation:'slide_from_right'}} />
             <Stack.Screen name="contactsupport" options={{ headerShown: false ,animation:'slide_from_right'}} />
             <Stack.Screen name="Edrawer" options={{ headerShown: false ,animation:'slide_from_right'}} />
-
+<Stack.Screen name="Aichatsupport" options={{ headerShown: false ,animation:'slide_from_right'}} />
 
         </Stack>
     )

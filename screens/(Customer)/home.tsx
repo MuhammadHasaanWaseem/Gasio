@@ -14,6 +14,7 @@ import {
   RefreshControl,
   SafeAreaView,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -248,6 +249,7 @@ const HomeScreen = () => {
       colors={['#f5f7fa', '#e4e7f1']}
       style={styles.container}
     >
+      <StatusBar hidden={true} />
       <SafeAreaView style={styles.safeArea}>
         <ScrollView
           refreshControl={
@@ -493,6 +495,7 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+    marginTop:20
   },
   header: {
     flexDirection: 'row',
