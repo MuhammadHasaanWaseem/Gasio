@@ -198,7 +198,8 @@ const handleUseCurrentLocation = async () => {
   );
 
   return (
-    <View style={styles.container}>
+  <View style={{ flex: 1, backgroundColor: '#fff' ,flexGrow: 1}}>
+      <View style={styles.container}>
       <TouchableOpacity onPress={pickImage} style={styles.avatarContainer}>
         {avatar ? (
           <Image source={{ uri: avatar }} style={styles.avatar} />
@@ -300,6 +301,7 @@ const handleUseCurrentLocation = async () => {
   onLocationSelect={handleLocationSelect}
 />
     </View>
+  </View>
   );
 };
 

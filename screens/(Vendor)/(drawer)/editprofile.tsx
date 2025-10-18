@@ -14,7 +14,10 @@ import {
   Alert,
   FlatList,
   Image,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -246,8 +249,8 @@ const handleUseCurrentLocation = async () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <LinearGradient colors={["#ed3237", "#ff5f6d"]} style={styles.headerBackground}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+       <LinearGradient colors={["#ed3237", "#ff5f6d"]} style={styles.headerBackground}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
             <ChevronLeft color="#fff" size={28} />
@@ -256,6 +259,9 @@ const handleUseCurrentLocation = async () => {
           <View style={{ width: 28 }} />
         </View>
       </LinearGradient>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}>
+        <ScrollView style={styles.container} showsVerticalScrollIndicator={false} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
+     
 
       <TouchableOpacity onPress={pickImage} style={styles.avatarContainer}>
         {vendor?.profile_picture_url ? (
@@ -408,7 +414,9 @@ const handleUseCurrentLocation = async () => {
   onLocationSelect={handleLocationSelect}
 />
 
-    </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -418,7 +426,8 @@ const styles = StyleSheet.create({
   top: 15,
 },
 
-  container: { backgroundColor: '#fff', flex: 1, marginTop: 20 },
+  container: { backgroundColor: '#fff', flex: 1,marginHorizontal:20 },
+  contentContainer: { padding: 20, paddingBottom: 80 },
   headerBackground: { paddingBottom: 60, borderBottomLeftRadius: 30, borderBottomRightRadius: 30 },
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingTop: 15 },
   headerTitle: { fontSize: 20, fontWeight: "700", color: "#fff" },
@@ -431,7 +440,7 @@ const styles = StyleSheet.create({
   countrySelector: { paddingHorizontal: 12, paddingVertical: 10, backgroundColor: '#f0f0f0' },
   countryText: { fontSize: 16 },
   phoneInput: { flex: 1, padding: 10, fontSize: 16 },
-  button: { backgroundColor: '#ed3237', padding: 15, width: '60%', borderRadius: 15, alignItems: 'center' },
+  button: {marginBottom:40, backgroundColor: '#ed3237', padding: 15, width: '60%', borderRadius: 15, alignItems: 'center' },
   buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   modalContent: { backgroundColor: '#fff', padding: 20, borderRadius: 10, width: '80%', alignItems: 'center' },

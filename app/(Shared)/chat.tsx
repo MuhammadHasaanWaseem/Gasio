@@ -248,7 +248,8 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    paddingVertical: 56,
+    paddingHorizontal: 16,
     paddingTop: Platform.OS === 'ios' ? 50 : 16,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
@@ -261,6 +262,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: 40,
     height: 40,
+    marginTop:20,
     borderRadius: 20,
     marginRight: 12,
     borderWidth: 2,

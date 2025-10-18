@@ -20,6 +20,7 @@ import {
 } from "lucide-react-native";
 import React, { JSX, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Image,
   Modal,
   SafeAreaView,
@@ -34,8 +35,19 @@ import Animated, { FadeInUp } from "react-native-reanimated";
 
 export default function VendorProfile() {
   const router = useRouter();
-  const { vendor, vendorBusiness } = useVendor();
+  const { vendor, vendorBusiness, loading } = useVendor();
   const [modalVisible, setModalVisible] = useState(false);
+
+  // Debug logs
+  useEffect(() => {
+    console.log('=== VendorProfile Debug ===');
+    console.log('Loading:', loading);
+    console.log('Vendor:', vendor ? 'Present' : 'Null');
+    console.log('VendorBusiness:', vendorBusiness ? 'Present' : 'Null');
+    if (vendorBusiness) {
+      console.log('VendorBusiness details:', JSON.stringify(vendorBusiness, null, 2));
+    }
+  }, [loading, vendor, vendorBusiness]);
 
   const joinedDate = vendor?.created_at
     ? new Date(vendor.created_at).toLocaleDateString()
@@ -78,6 +90,7 @@ const fetchAverageRating = async () => {
 useEffect(() => {
   fetchAverageRating();
 }, [vendorBusiness]);
+
   // Business stats
   const stats = [
     { 
@@ -96,6 +109,36 @@ useEffect(() => {
       icon: <Activity size={20} color="blue" fill={'blue'} /> 
     },
   ];
+
+  // Show loading state
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#e91e63" />
+          <Text style={styles.loadingText}>Loading profile...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Show error state if no data after loading
+  if (!vendor || !vendorBusiness) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.errorText}>Unable to load profile data</Text>
+          <Text style={styles.errorSubtext}>Please make sure you have completed your business setup</Text>
+          <TouchableOpacity 
+            style={styles.retryButton}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.retryButtonText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -122,7 +165,7 @@ useEffect(() => {
           <TouchableOpacity onPress={() => setModalVisible(true)}>
             {vendor?.profile_picture_url ? (
               <Image
-                source={{ uri: `${vendor.profile_picture_url}?t=${Date.now()}` }}
+                source={{ uri: vendor.profile_picture_url }}
                 style={styles.avatar}
               />
             ) : (
@@ -135,8 +178,11 @@ useEffect(() => {
           </TouchableOpacity>
           
           <View style={styles.profileInfo}>
-            <Text style={styles.name}>{vendor?.full_name || "N/A"}</Text>
-            
+          <Text style={styles.name}>
+  {vendor?.full_name
+    ? vendor.full_name.slice(0, 8) + '...'
+    : "N/A"}
+</Text>            
             <View style={styles.verifiedRow}>
               <CheckCircle color="#4CAF50" size={18} />
               <Text style={styles.verifiedText}>Verified Vendor</Text>
@@ -313,7 +359,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     borderWidth: 4,
     borderColor: "#fff",
-    backgroundColor: "#fff",
+  
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.25,
@@ -485,5 +531,48 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#333",
     flexWrap: "wrap",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fafafa",
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 15,
+    fontSize: 16,
+    color: "#666",
+    fontWeight: "600",
+  },
+  errorText: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#333",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  errorSubtext: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 25,
+    textAlign: "center",
+    paddingHorizontal: 20,
+  },
+  retryButton: {
+    backgroundColor: "#e91e63",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 25,
+    elevation: 3,
+    shadowColor: "#e91e63",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  retryButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

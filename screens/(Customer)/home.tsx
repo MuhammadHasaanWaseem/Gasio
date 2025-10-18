@@ -260,7 +260,7 @@ const HomeScreen = () => {
           {/* Header with user greeting */}
           <Animated.View entering={FadeIn.duration(600)} style={styles.header}>
             <View>
-              <Text style={styles.greeting}>Hello, {user?.full_name?.split(' ')[0] || 'there'}! 👋</Text>
+              <Text style={styles.greeting}>Hello, {user?.full_name?.slice(0,8)+'...'|| 'there'}! 👋</Text>
               <Text style={styles.subtitle}>What service do you need today?</Text>
             </View>
             <TouchableOpacity onPress={() => router.push('/profile')}>

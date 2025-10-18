@@ -1,7 +1,8 @@
-import CreateUserProfile from "@/screens/auth/createUserProfile"
+import CreateUserProfile from "@/screens/auth/createUserProfile";
 
 export default ()=>{
     return(
-      <CreateUserProfile/>
-    )
-}
+              <CreateUserProfile/>
+
+  );
+};

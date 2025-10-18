@@ -267,7 +267,7 @@ const fetchRecentOrders = async () => {
             />
              
             <View style={styles.vendorInfo}>
-              <Text style={styles.vendorName}>{vendor?.full_name}</Text>
+              <Text style={styles.vendorName}>{vendor?.full_name.slice(0,13)+'...'}</Text>
               <View style={styles.ratingContainer}>
                 <Star size={18} fill="#ffc107" color="#ffc107" />
                 <Text style={styles.ratingText}>{stats.rating.toFixed(1)}</Text>

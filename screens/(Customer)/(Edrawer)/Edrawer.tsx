@@ -136,7 +136,7 @@ export default function MenuScreen() {
               )}
             </View>
             <View style={styles.userInfo}>
-              <Text style={styles.userName}>{user?.full_name || "User"}</Text>
+              <Text style={styles.userName}>{user?.full_name.slice(0,8)+'...' || "User"}</Text>
               <Text style={styles.userEmail}>{user?.country_code}{user?.phone || "user@example.com"}</Text>
             </View>
           </View>

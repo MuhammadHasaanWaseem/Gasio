@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 
 export default ()=>{
     return(
-        <Stack initialRouteName="login" screenOptions={{ 
+        <Stack initialRouteName="createUserProfile" screenOptions={{ 
             headerShown: false,
             animation: 'slide_from_right',
           }}>

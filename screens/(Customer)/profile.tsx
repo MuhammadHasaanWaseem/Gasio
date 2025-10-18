@@ -80,8 +80,7 @@ export default ()=> {
           </TouchableOpacity>
           
           <View style={styles.profileInfo}>
-            <Text style={styles.name}>{user?.full_name || "N/A"}</Text>
-            
+            <Text style={styles.name}>{user?.full_name ? user.full_name.slice(0,8)+'...' : "Customer"}</Text>
             <View style={styles.verifiedRow}>
               <CheckCircle color="#4CAF50" size={18} />
               <Text style={styles.verifiedText}>Verified User</Text>

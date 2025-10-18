@@ -4,7 +4,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import {
   ArrowLeft,
-  Briefcase,
   CreditCard,
   FileText,
   HelpCircle,
@@ -137,8 +136,8 @@ export default function MenuScreen() {
               )}
             </View>
             <View style={styles.userInfo}>
-              <Text style={styles.userName}>{user?.full_name || "User"}</Text>
-              <Text style={styles.userEmail}>{user?.email || "user@example.com"}</Text>
+              <Text style={styles.userName}>{user?.full_name.slice(0, 15) + '...' || "User"}</Text>
+              <Text style={styles.userEmail}>{user?.email?.slice(0,15)+'..' || "user@example.com"}</Text>
             </View>
           </View>
         </Animated.View>

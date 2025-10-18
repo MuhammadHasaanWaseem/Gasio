@@ -9,6 +9,7 @@ import {
   Alert,
   FlatList,
   Image,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -44,6 +45,8 @@ export default () => {
     item.code.toLowerCase().includes(countrySearch.toLowerCase()) ||
     item.dial_code.includes(countrySearch)
   );
+  // only show at most 3 countries in the visible list
+  const displayedCountries = filteredCountries.slice(0, 3);
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -223,7 +226,7 @@ export default () => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <TouchableOpacity onPress={pickImage} style={styles.avatarContainer}>
         {avatar ? (
           <Image source={{ uri: avatar }} style={styles.avatar} />
@@ -247,7 +250,8 @@ export default () => {
             style={styles.searchInput}
           />
           <FlatList
-            data={filteredCountries}
+            data={displayedCountries}
+            scrollEnabled={false}
             keyExtractor={(item) => item.code}
             renderItem={({ item }) => (
               <TouchableOpacity
@@ -303,7 +307,7 @@ export default () => {
         onClose={() => setModalVisible(false)}
         onLocationSelect={handleLocationSelect}
       />
-    </View>
+    </ScrollView>
   );
 };
 
@@ -346,6 +350,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 15,
     alignItems: 'center',
+    marginBottom:30
   },
   buttonText: {
     color: '#fff',

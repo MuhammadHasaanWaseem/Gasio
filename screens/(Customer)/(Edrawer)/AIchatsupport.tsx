@@ -2,21 +2,20 @@
 import Constants from 'expo-constants';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import { Bot, ChevronLeft, MessageCircle, Send } from 'lucide-react-native';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
     FlatList,
     Keyboard,
+    StatusBar,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
     TouchableWithoutFeedback,
-    View,
+    View
 } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 type ChatMsg = { id: string; role: 'user' | 'assistant'; text: string };
 
@@ -170,8 +169,8 @@ useEffect(()=>{
     };
 
     return (
-            <SafeAreaView style={[styles.screen, { backgroundColor: BG }]}>
-            <StatusBar hidden={true} backgroundColor='transparent' style="dark" />
+            <View style={[styles.screen, { backgroundColor: BG }]}>
+            <StatusBar hidden={true} backgroundColor='transparent' translucent />
             <Animated.View entering={FadeIn.duration(250)}>
                 <LinearGradient
                     colors={["#e91e63", "#ff5252"]}
@@ -220,7 +219,7 @@ useEffect(()=>{
                     </View>
                 </View>
             </TouchableWithoutFeedback>
-        </SafeAreaView>
+        </View>
     );
 }
 
