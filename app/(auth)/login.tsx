@@ -1,7 +1,5 @@
 import Loginasuser from "@/screens/auth/loginasuser"
 
-export default ()=>{
-    return(
-<Loginasuser/>
-    )
+export default function LoginScreen() {
+    return <Loginasuser />
 }

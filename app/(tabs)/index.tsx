@@ -1,7 +1,5 @@
 import Home from "@/screens/(Customer)/home"
 
-export default ()=>{
-    return(
-       <Home/>
-    )
+export default function HomeScreen() {
+    return <Home />
 }

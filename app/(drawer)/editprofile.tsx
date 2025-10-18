@@ -1,7 +1,5 @@
 import Editprofile from "@/screens/(Vendor)/(drawer)/editprofile"
 
-export default ()=>{
-    return (
-        <Editprofile/>
-    )
+export default function EditProfileScreen() {
+    return <Editprofile />
 }

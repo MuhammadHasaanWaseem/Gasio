@@ -8,11 +8,8 @@ import { supabase } from '../../lib/supabase';
 
 
 const Loginasuser = () => {
-
-  
-
   const router = useRouter();
-  const { loginAsUser } = useAuth();
+  const { loginAsUser, isLoggedIn } = useAuth();
   const { refreshUserProfile } = useUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

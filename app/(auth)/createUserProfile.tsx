@@ -1,7 +1,5 @@
 import CreateUserProfile from "@/screens/auth/createUserProfile"
 
-export default ()=>{
-    return(
-      <CreateUserProfile/>
-    )
+export default function CreateUserProfileScreen() {
+    return <CreateUserProfile />
 }

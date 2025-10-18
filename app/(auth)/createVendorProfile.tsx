@@ -1,7 +1,5 @@
 import CreateVendorProfile from "@/screens/auth/createVendorProfile"
 
-export default ()=>{
-    return(
-      <CreateVendorProfile/>
-    )
+export default function CreateVendorProfileScreen() {
+    return <CreateVendorProfile />
 }

@@ -30,6 +30,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [userType, setUserType] = useState<'user' | 'vendor' | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -41,14 +42,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (!currentUser || userError) {
           setUserType(null);
           setIsLoggedIn(false);
-          router.replace('/login');
+          setIsInitialized(true);
           return;
         }
 
         if (storedUserType === 'user') {
           setUserType('user');
           setIsLoggedIn(true);
-          router.replace('/(tabs)');
+          setIsInitialized(true);
         } else if (storedUserType === 'vendor') {
           const { data: vendorProfile, error: profileError } = await supabase
             .from('vendor_owners')
@@ -58,22 +59,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
           setUserType('vendor');
           setIsLoggedIn(true);
-
-          if (profileError || !vendorProfile) {
-            router.replace('/createVendorProfile');
-          } else {
-            router.replace('/(Vendortab)');
-          }
+          setIsInitialized(true);
         } else {
           setUserType(null);
           setIsLoggedIn(false);
-          router.replace('/login');
+          setIsInitialized(true);
         }
       } catch (error) {
         console.error('Login status check failed:', error);
         setUserType(null);
         setIsLoggedIn(false);
-        router.replace('/login');
+        setIsInitialized(true);
       }
     };
 
@@ -113,8 +109,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error('Failed to clear userType:', error);
     }
-    router.replace('/login');
+    // Don't navigate here - let the component handle navigation
   };
+
+  // Don't render children until auth is initialized
+  if (!isInitialized) {
+    return null;
+  }
 
   return (
     <AuthContext.Provider value={{ userType, isLoggedIn, loginAsUser, loginAsVendor, logout }}>

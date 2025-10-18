@@ -19,7 +19,7 @@ SplashScreen.preventAutoHideAsync(); // Ensure splash stays until fonts + onboar
 
 const queryClient = new QueryClient();
 
-export default function RootLayout() {
+function RootLayout() {
   const colorScheme = useColorScheme();
   const [isReady, setIsReady] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -108,3 +108,5 @@ export default function RootLayout() {
     </MapboxProvider>
   );
 }
+
+export default RootLayout;
