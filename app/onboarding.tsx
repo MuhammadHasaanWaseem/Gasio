@@ -124,7 +124,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onDone }) => {
             backgroundColor: '#fff',
             image: (
               <AnimatedImage
-                source={require('../assets/images/save.png')}
+                source={require('../assets/images/vendor.png')}
                 style={styles.imageLarge}
               />
             ),
