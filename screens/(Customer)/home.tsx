@@ -13,7 +13,6 @@ import {
   FlatList,
   Image,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -248,7 +247,7 @@ const HomeScreen = () => {
       colors={['#f5f7fa', '#e4e7f1']}
       style={styles.container}
     >
-      <SafeAreaView style={styles.safeArea}>
+      <View style={styles.safeArea}>
         <ScrollView
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -283,56 +282,56 @@ const HomeScreen = () => {
 
           {/* Location Map Preview */}
           <View style={styles.mapContainer}>
-  <Text style={styles.sectionTitle}>Services Near You</Text>
-  <View style={styles.mapWrapper}>
-    {user?.latitude && user.longitude ? (
-      <MapboxGL.MapView
-        style={styles.map}
-        logoEnabled={false}
-        compassEnabled={false}
-        zoomEnabled={false}
-        scrollEnabled={false}
-      >
-        <MapboxGL.Camera
-          zoomLevel={12}
-          centerCoordinate={[user.longitude, user.latitude]}
-        />
+            <Text style={styles.sectionTitle}>Services Near You</Text>
+            <View style={styles.mapWrapper}>
+              {user?.latitude && user.longitude ? (
+                <MapboxGL.MapView
+                  style={styles.map}
+                  logoEnabled={false}
+                  compassEnabled={false}
+                  zoomEnabled={false}
+                  scrollEnabled={false}
+                >
+                  <MapboxGL.Camera
+                    zoomLevel={12}
+                    centerCoordinate={[user.longitude, user.latitude]}
+                  />
 
-        {/* User Location Marker */}
-        <MapboxGL.PointAnnotation
-          id="user-location"
-          coordinate={[user.longitude, user.latitude]}
-        >
-          <View style={{ backgroundColor: '#6C63FF', borderRadius: 10, padding: 5 }}>
-            <View style={{ width: 10, height: 10, backgroundColor: 'white', borderRadius: 5 }} />
+                  {/* User Location Marker */}
+                  <MapboxGL.PointAnnotation
+                    id="user-location"
+                    coordinate={[user.longitude, user.latitude]}
+                  >
+                    <View style={{ backgroundColor: '#6C63FF', borderRadius: 10, padding: 5 }}>
+                      <View style={{ width: 10, height: 10, backgroundColor: 'white', borderRadius: 5 }} />
+                    </View>
+                  </MapboxGL.PointAnnotation>
+
+                  {/* Vendor Markers */}
+                  {vendors.slice(0, 5).map(vendor => (
+                    vendor.latitude && vendor.longitude && (
+                      <MapboxGL.PointAnnotation
+                        key={vendor.id}
+                        id={`vendor-${vendor.id}`}
+                        coordinate={[vendor.longitude, vendor.latitude]}
+                      >
+                        <View style={{ backgroundColor: '#FF9800', borderRadius: 10, padding: 5 }}>
+                          <View style={{ width: 10, height: 10, backgroundColor: 'white', borderRadius: 5 }} />
+                        </View>
+                      </MapboxGL.PointAnnotation>
+                    )
+                  ))}
+                </MapboxGL.MapView>
+              ) : (
+                <View style={styles.mapPlaceholder}>
+                  <Ionicons name="map-outline" size={48} color="#CBD5E0" />
+                  <Text style={styles.mapPlaceholderText}>
+                    Enable location to see nearby services
+                  </Text>
+                </View>
+              )}
+            </View>
           </View>
-        </MapboxGL.PointAnnotation>
-
-        {/* Vendor Markers */}
-        {vendors.slice(0, 5).map(vendor => (
-          vendor.latitude && vendor.longitude && (
-            <MapboxGL.PointAnnotation
-              key={vendor.id}
-              id={`vendor-${vendor.id}`}
-              coordinate={[vendor.longitude, vendor.latitude]}
-            >
-              <View style={{ backgroundColor: '#FF9800', borderRadius: 10, padding: 5 }}>
-                <View style={{ width: 10, height: 10, backgroundColor: 'white', borderRadius: 5 }} />
-              </View>
-            </MapboxGL.PointAnnotation>
-          )
-        ))}
-      </MapboxGL.MapView>
-    ) : (
-      <View style={styles.mapPlaceholder}>
-        <Ionicons name="map-outline" size={48} color="#CBD5E0" />
-        <Text style={styles.mapPlaceholderText}>
-          Enable location to see nearby services
-        </Text>
-      </View>
-    )}
-  </View>
-</View>
           {/* Quick Actions */}
           <View style={styles.quickActions}>
             <TouchableOpacity
@@ -363,7 +362,7 @@ const HomeScreen = () => {
 
             <TouchableOpacity
               style={styles.actionCard}
-            onPress={() => router.push('/sharedchatlist')}
+              onPress={() => router.push('/sharedchatlist')}
             >
               <LinearGradient
                 colors={['#FF9800', '#FFB74D']}
@@ -490,7 +489,7 @@ const HomeScreen = () => {
 
           </Text>
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </LinearGradient>
   );
 };
@@ -499,9 +498,12 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+
   },
   safeArea: {
     flex: 1,
+    marginTop: 20,
+
   },
   header: {
     flexDirection: 'row',

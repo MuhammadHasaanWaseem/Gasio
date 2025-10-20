@@ -22,7 +22,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-export default ()=>{
+export default () => {
   const router = useRouter();
   const { vendor, vendorBusiness, refreshVendorProfile } = useVendor();
   const [modalVisible, setModalVisible] = useState(false);
@@ -42,32 +42,32 @@ export default ()=>{
   const [modalMapVisible, setModalMapVisible] = useState(false);
   const [selectedCoords, setSelectedCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const handleLocationSelect = async (location: { latitude: number; longitude: number }) => {
-  setSelectedCoords(location);
-  setModalMapVisible(false);
+    setSelectedCoords(location);
+    setModalMapVisible(false);
 
-  try {
-    const [reverseGeocode] = await Location.reverseGeocodeAsync(location);
-    if (reverseGeocode) {
-      const formattedAddress = `${reverseGeocode.name ? reverseGeocode.name + ', ' : ''}${reverseGeocode.street ? reverseGeocode.street + ', ' : ''}${reverseGeocode.city ? reverseGeocode.city + ', ' : ''}${reverseGeocode.region ? reverseGeocode.region + ', ' : ''}${reverseGeocode.postalCode ? reverseGeocode.postalCode + ', ' : ''}${reverseGeocode.country ? reverseGeocode.country : ''}`;
-      setAddress(formattedAddress.trim().replace(/,\s*$/, ''));
+    try {
+      const [reverseGeocode] = await Location.reverseGeocodeAsync(location);
+      if (reverseGeocode) {
+        const formattedAddress = `${reverseGeocode.name ? reverseGeocode.name + ', ' : ''}${reverseGeocode.street ? reverseGeocode.street + ', ' : ''}${reverseGeocode.city ? reverseGeocode.city + ', ' : ''}${reverseGeocode.region ? reverseGeocode.region + ', ' : ''}${reverseGeocode.postalCode ? reverseGeocode.postalCode + ', ' : ''}${reverseGeocode.country ? reverseGeocode.country : ''}`;
+        setAddress(formattedAddress.trim().replace(/,\s*$/, ''));
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to get address from location');
     }
-  } catch (error) {
-    Alert.alert('Error', 'Failed to get address from location');
-  }
-};
+  };
 
-const handleUseCurrentLocation = async () => {
-  const { status } = await Location.requestForegroundPermissionsAsync();
-  if (status !== 'granted') {
-    Alert.alert('Permission denied', 'Location permission is required.');
-    return;
-  }
-  const location = await Location.getCurrentPositionAsync({});
-  await handleLocationSelect({
-    latitude: location.coords.latitude,
-    longitude: location.coords.longitude,
-  });
-};
+  const handleUseCurrentLocation = async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission denied', 'Location permission is required.');
+      return;
+    }
+    const location = await Location.getCurrentPositionAsync({});
+    await handleLocationSelect({
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+    });
+  };
 
   useEffect(() => {
     if (vendor) {
@@ -295,21 +295,21 @@ const handleUseCurrentLocation = async () => {
       <TextInput placeholder="Business License" placeholderTextColor="grey" value={businessLicense} onChangeText={setBusinessLicense} style={styles.input} />
       {/* <TextInput placeholder="Address" value={address} onChangeText={setAddress} style={styles.input} /> */}
       <View>
-  <TextInput
-    placeholder="Address"
-    placeholderTextColor="grey"
-    value={address}
-    onChangeText={setAddress}
-    style={[styles.input, { paddingRight: 80 }]}
-    editable={false}
-  />
-  <TouchableOpacity style={[styles.locationIcon, { right: 15 }]} onPress={handleUseCurrentLocation}>
-    <Ionicons name="location-outline" size={24} color="gray" />
-  </TouchableOpacity>
-  <TouchableOpacity style={[styles.locationIcon, { right: 50 }]} onPress={() => setModalMapVisible(true)}>
-    <Ionicons name="map-outline" size={24} color="gray" />
-  </TouchableOpacity>
-</View>
+        <TextInput
+          placeholder="Address"
+          placeholderTextColor="grey"
+          value={address}
+          onChangeText={setAddress}
+          style={[styles.input, { paddingRight: 80 }]}
+          editable={false}
+        />
+        <TouchableOpacity style={[styles.locationIcon, { right: 15 }]} onPress={handleUseCurrentLocation}>
+          <Ionicons name="location-outline" size={24} color="gray" />
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.locationIcon, { right: 50 }]} onPress={() => setModalMapVisible(true)}>
+          <Ionicons name="map-outline" size={24} color="gray" />
+        </TouchableOpacity>
+      </View>
 
       <TextInput
         placeholder="Website (optional)"
@@ -386,7 +386,7 @@ const handleUseCurrentLocation = async () => {
               <X color="#ed3237" size={22} />
             </TouchableOpacity>
           </View>
-              
+
           <FlatList
             data={filteredCountries}
             keyExtractor={(item) => item.code}
@@ -406,10 +406,10 @@ const handleUseCurrentLocation = async () => {
         </View>
       </Modal>
       <MapModal
-  visible={modalMapVisible}
-  onClose={() => setModalMapVisible(false)}
-  onLocationSelect={handleLocationSelect}
-/>
+        visible={modalMapVisible}
+        onClose={() => setModalMapVisible(false)}
+        onLocationSelect={handleLocationSelect}
+      />
 
     </ScrollView>
   );
@@ -417,9 +417,9 @@ const handleUseCurrentLocation = async () => {
 
 const styles = StyleSheet.create({
   locationIcon: {
-  position: 'absolute',
-  top: 15,
-},
+    position: 'absolute',
+    top: 15,
+  },
 
   container: { backgroundColor: '#fff', flex: 1, marginTop: 20 },
   headerBackground: { paddingBottom: 60, borderBottomLeftRadius: 30, borderBottomRightRadius: 30 },
@@ -428,17 +428,17 @@ const styles = StyleSheet.create({
   avatarContainer: { marginTop: 20, alignSelf: 'center', marginBottom: 20, width: 120, height: 120, borderRadius: 60, backgroundColor: '#eee', justifyContent: 'center', alignItems: 'center' },
   avatarPlaceholder: { color: '#999', textAlign: 'center', paddingHorizontal: 10 },
   avatar: { width: 120, height: 120, borderRadius: 60 },
-  input: { borderWidth: 1, borderColor: '#ccc', color:'black',borderRadius: 8, padding: 12, marginBottom: 15 },
-  searchinput: { alignItems: 'center',color:'black', borderRadius: 8, padding: 12, marginBottom: 15 },
+  input: { borderWidth: 1, borderColor: '#ccc', color: 'black', borderRadius: 8, padding: 12, marginBottom: 15 },
+  searchinput: { alignItems: 'center', color: 'black', borderRadius: 8, padding: 12, marginBottom: 15 },
   phoneRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#ccc', borderRadius: 8, overflow: 'hidden', marginBottom: 15 },
   countrySelector: { paddingHorizontal: 12, paddingVertical: 10, backgroundColor: '#f0f0f0' },
-  countryText: { color:'black',fontSize: 16 },
-  phoneInput: { color:'black',flex: 1, padding: 10, fontSize: 16 },
+  countryText: { color: 'black', fontSize: 16 },
+  phoneInput: { color: 'black', flex: 1, padding: 10, fontSize: 16 },
   button: { backgroundColor: '#ed3237', padding: 15, width: '60%', borderRadius: 15, alignItems: 'center' },
   buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   modalContent: { backgroundColor: '#fff', padding: 20, borderRadius: 10, width: '80%', alignItems: 'center' },
-  modalText: { fontSize: 18, marginBottom: 20 ,color:'black'},
+  modalText: { fontSize: 18, marginBottom: 20, color: 'black' },
   modalButton: { backgroundColor: '#ed3237', paddingVertical: 10, paddingHorizontal: 30, borderRadius: 10 },
   modalButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   countryItem: { padding: 15, borderBottomWidth: 1, borderBottomColor: '#eee' },
