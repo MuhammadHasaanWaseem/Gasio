@@ -1,5 +1,3 @@
-// Complete Auth Flow with OTP Verification using Supabase
-
 import { useRouter } from 'expo-router';
 import { Eye, EyeOff } from 'lucide-react-native';
 import React, { useState } from 'react';
@@ -7,7 +5,10 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -70,7 +71,7 @@ const AuthFlow = () => {
         Alert.alert('OTP Verification Failed', error.message);
       } else {
         // Refresh session after OTP verification
-        
+
         router.push('/createVendorProfile');
       }
     } catch (error) {
@@ -96,69 +97,82 @@ const AuthFlow = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Image source={require('../../assets/images/suau.png')} style={styles.image} />
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Image source={require('../../assets/images/suau.png')} style={styles.image} />
 
-      {screen === 'register' && (
-        <>
-          <TextInput
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            placeholderTextColor={'#000'}
-            autoCapitalize="none"
-            style={styles.input}
-          />
-          <View style={styles.passwordContainer}>
+        {screen === 'register' && (
+          <>
             <TextInput
-              placeholder="Password"
-              value={password}
-              onChangeText={setPassword}
-              placeholderTextColor={'#000'}
-              secureTextEntry={!eye}
-              style={styles.inputPassword}
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              placeholderTextColor="#000"
+              autoCapitalize="none"
+              style={styles.input}
             />
-            <Pressable onPress={() => seteye(!eye)} style={styles.eyeButton}>
-              {eye ? <Eye color={'#ed3237'} /> : <EyeOff color={'#ed3237'} />}
-            </Pressable>
-          </View>
-          <TouchableOpacity onPress={handleRegister} style={styles.button} disabled={loading}>
-            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Register as Vendor</Text>}
-          </TouchableOpacity>
-        </>
-      )}
+            <View style={styles.passwordContainer}>
+              <TextInput
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                placeholderTextColor="#000"
+                secureTextEntry={!eye}
+                style={styles.inputPassword}
+              />
+              <Pressable onPress={() => seteye(!eye)} style={styles.eyeButton}>
+                {eye ? <Eye color={'#ed3237'} /> : <EyeOff color={'#ed3237'} />}
+              </Pressable>
+            </View>
+            <TouchableOpacity onPress={handleRegister} style={styles.button} disabled={loading}>
+              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Register as Vendor</Text>}
+            </TouchableOpacity>
+          </>
+        )}
 
-      {screen === 'otp' && (
-        <View style={styles.waitingContainer}>
-          <Text style={styles.text}>Enter OTP sent to your email</Text>
-          <TextInput
-            placeholder="OTP Code"
-            value={otp}
-            onChangeText={setOtp}
-            keyboardType="numeric"
-            style={styles.inputExtra}
-            maxLength={6}
-          />
-          <TouchableOpacity onPress={handleVerifyOtp} style={styles.buttontwo} disabled={loading}>
-            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Verify OTP</Text>}
-          </TouchableOpacity>
-          <TouchableOpacity onPress={resendOtp}>
-            <Text style={styles.resendText}>Resend OTP</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
+        {screen === 'otp' && (
+          <View style={styles.waitingContainer}>
+            <Text style={styles.text}>Enter OTP sent to your email</Text>
+            <TextInput
+              placeholder="OTP Code"
+              placeholderTextColor="#000"
+              value={otp}
+              onChangeText={setOtp}
+              keyboardType="numeric"
+              style={styles.inputExtra}
+              maxLength={6}
+            />
+            <TouchableOpacity onPress={handleVerifyOtp} style={styles.buttontwo} disabled={loading}>
+              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Verify OTP</Text>}
+            </TouchableOpacity>
+            <TouchableOpacity onPress={resendOtp}>
+              <Text style={styles.resendText}>Resend OTP</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
+  },
+  scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: 30,
     paddingVertical: 40,
     justifyContent: 'center',
-    backgroundColor: '#fff',
   },
   image: {
     width: '80%',

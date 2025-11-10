@@ -5,7 +5,10 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -40,7 +43,7 @@ const AuthFlow = () => {
       if (error) throw error;
 
       setScreen('otp');
-    } catch (err:any) {
+    } catch (err: any) {
       Alert.alert('Registration Error', err.message);
     } finally {
       setLoading(false);
@@ -63,7 +66,7 @@ const AuthFlow = () => {
 
       // loginAsUser();
       router.push('/createUserProfile');
-    } catch (err:any) {
+    } catch (err: any) {
       Alert.alert('OTP Verification Failed', err.message);
     } finally {
       setLoading(false);
@@ -83,72 +86,85 @@ const AuthFlow = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Image
-        source={require('../../assets/images/Gasio.png')}
-        style={styles.image}
-      />
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Image
+          source={require('../../assets/images/Gasio.png')}
+          style={styles.image}
+        />
 
-      {screen === 'register' && (
-        <>
-          <TextInput
-            placeholder="Email"
-            placeholderTextColor={'#000'}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            style={styles.input}
-          />
-          <View style={styles.passwordContainer}>
+        {screen === 'register' && (
+          <>
             <TextInput
-              placeholder="Password"
-              value={password}
-              placeholderTextColor={'#000'}
-              onChangeText={setPassword}
-              secureTextEntry={!eye}
-              style={styles.inputPassword}
+              placeholder="Email"
+              placeholderTextColor="#000"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              style={styles.input}
             />
-            <Pressable onPress={() => seteye(!eye)} style={styles.eyeButton}>
-              {eye ? <Eye color={'#ed3237'} /> : <EyeOff color={'#ed3237'} />}
-            </Pressable>
-          </View>
-          <TouchableOpacity onPress={handleRegister} style={styles.button} disabled={loading}>
-            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Register as User</Text>}
-          </TouchableOpacity>
-        </>
-      )}
+            <View style={styles.passwordContainer}>
+              <TextInput
+                placeholder="Password"
+                value={password}
+                placeholderTextColor="#000"
+                onChangeText={setPassword}
+                secureTextEntry={!eye}
+                style={styles.inputPassword}
+              />
+              <Pressable onPress={() => seteye(!eye)} style={styles.eyeButton}>
+                {eye ? <Eye color={'#ed3237'} /> : <EyeOff color={'#ed3237'} />}
+              </Pressable>
+            </View>
+            <TouchableOpacity onPress={handleRegister} style={styles.button} disabled={loading}>
+              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Register as User</Text>}
+            </TouchableOpacity>
+          </>
+        )}
 
-      {screen === 'otp' && (
-        <View style={styles.waitingContainer}>
-          <Text style={styles.text}>Enter OTP sent to your email</Text>
-          <TextInput
-            placeholder="OTP Code"
-            value={otp}
-            onChangeText={setOtp}
-            keyboardType="numeric"
-            style={styles.optinput}
-            maxLength={6}
-          />
-          <TouchableOpacity onPress={handleVerifyOtp} style={styles.buttontwo} disabled={loading}>
-            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Verify OTP</Text>}
-          </TouchableOpacity>
-          <TouchableOpacity onPress={resendOtp}>
-            <Text style={styles.resendText}>Resend OTP</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
+        {screen === 'otp' && (
+          <View style={styles.waitingContainer}>
+            <Text style={styles.text}>Enter OTP sent to your email</Text>
+            <TextInput
+              placeholder="OTP Code"
+              placeholderTextColor="#000"
+              value={otp}
+              onChangeText={setOtp}
+              keyboardType="numeric"
+              style={styles.optinput}
+              maxLength={6}
+            />
+            <TouchableOpacity onPress={handleVerifyOtp} style={styles.buttontwo} disabled={loading}>
+              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Verify OTP</Text>}
+            </TouchableOpacity>
+            <TouchableOpacity onPress={resendOtp}>
+              <Text style={styles.resendText}>Resend OTP</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
+  },
+  scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: 30,
     paddingVertical: 40,
     justifyContent: 'center',
-    backgroundColor: '#fff',
   },
   image: {
     width: '80%',
@@ -175,7 +191,7 @@ const styles = StyleSheet.create({
   optinput: {
     borderWidth: 1,
     borderColor: '#ed3237',
-    
+
     borderRadius: 25,
     paddingVertical: 14,
     paddingHorizontal: 20,

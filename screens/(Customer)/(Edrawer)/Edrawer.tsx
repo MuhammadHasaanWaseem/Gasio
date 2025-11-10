@@ -4,6 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import {
   ArrowLeft,
+  Bot,
   CreditCard,
   FileText,
   HelpCircle,
@@ -36,7 +37,7 @@ const { width } = Dimensions.get("window");
 
 export default function MenuScreen() {
   const { logout } = useAuth();
-  const {user}=useUser();
+  const { user } = useUser();
   const [activeTab, setActiveTab] = useState("settings");
 
   const settingsItems = [
@@ -47,6 +48,7 @@ export default function MenuScreen() {
   ];
 
   const supportItems = [
+    { title: "AI Chat Support", icon: <Bot size={24} color="#ff5252" /> },
     { title: "How To Use", icon: <HelpCircle size={24} color="#ff5252" /> },
     { title: "Privacy Policy", icon: <Shield size={24} color="#ff5252" /> },
     { title: "Terms of Use", icon: <FileText size={24} color="#ff5252" /> },
@@ -64,7 +66,7 @@ export default function MenuScreen() {
         break;
       case "Add Payment Method":
         // router.push("/AddPayment");
-          ToastAndroid.show(
+        ToastAndroid.show(
           "Expo go Doesn't support this feature yet.",
           ToastAndroid.SHORT
         );
@@ -76,6 +78,9 @@ export default function MenuScreen() {
           ToastAndroid.SHORT
         );
         break;
+      case "AI Chat Support":
+        router.push("/supportforalluser");
+        break;
       case "How To Use":
         router.push("/HowToUse");
         break;
@@ -86,9 +91,9 @@ export default function MenuScreen() {
         router.push("/trermofuse");
         break;
       case "Contact Support":
-                router.push("/contactsupport");
+        router.push("/contactsupport");
 
-      
+
         break;
       case "About":
         router.push('/about')

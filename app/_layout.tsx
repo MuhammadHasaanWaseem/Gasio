@@ -71,7 +71,7 @@ export default function RootLayout() {
     }} />;
   }
 
-  
+
   return (
     <MapboxProvider>
       <AuthProvider>
@@ -82,22 +82,23 @@ export default function RootLayout() {
                 <QueryClientProvider client={queryClient}>
                   <StatusBar style="auto" />
                   <>
-                  <Stack initialRouteName='(auth)' screenOptions={{ headerShown: false }}>
-                    <Stack.Screen name="splash" />
-                    <Stack.Screen name="onboarding" />
-                    <Stack.Screen name="(auth)" options={{ animation: 'slide_from_right' }} />
-                    <Stack.Screen name="(Vendortab)" options={{ animation: 'slide_from_right' }} />
-                    <Stack.Screen name="(tabs)" options={{ animation: 'slide_from_right' }} />
-                    <Stack.Screen name="Vendordrawer" options={{ animation: 'slide_from_right' }} />
-                    <Stack.Screen name="(drawer)" options={{ animation: 'slide_from_right' }} />
-                    <Stack.Screen name="createservice" options={{ animation: 'slide_from_right' }} />
-                    <Stack.Screen name="(Edrawer)" options={{ animation: 'slide_from_right' }} />
-                    <Stack.Screen name="(Shared)" options={{ animation: 'slide_from_right' }} />
-                    <Stack.Screen name="bookservice" options={{ animation: 'slide_from_right' }} />
-                    <Stack.Screen name="orderdetail" options={{ animation: 'slide_from_right' }} />
-                    <Stack.Screen name="LeaveReview" options={{ animation: 'slide_from_right' }} />                
-                   <Stack.Screen name="+not-found" />
-                  </Stack>
+                    <Stack screenOptions={{ headerShown: false }}>
+                      <Stack.Screen name="splash" />
+                      <Stack.Screen name="onboarding" />
+                      <Stack.Screen name="(auth)" options={{ animation: 'slide_from_right' }} />
+                      <Stack.Screen name="(Vendortab)" options={{ animation: 'slide_from_right' }} />
+                      <Stack.Screen name="(tabs)" options={{ animation: 'slide_from_right' }} />
+                      <Stack.Screen name="Vendordrawer" options={{ animation: 'slide_from_right' }} />
+                      <Stack.Screen name="(drawer)" options={{ animation: 'slide_from_right' }} />
+                      <Stack.Screen name="createservice" options={{ animation: 'slide_from_right' }} />
+                      <Stack.Screen name="(Edrawer)" options={{ animation: 'slide_from_right' }} />
+                      <Stack.Screen name="(Shared)" options={{ animation: 'slide_from_right' }} />
+                      <Stack.Screen name="bookservice" options={{ animation: 'slide_from_right' }} />
+                      <Stack.Screen name="orderdetail" options={{ animation: 'slide_from_right' }} />
+                      <Stack.Screen name="LeaveReview" options={{ animation: 'slide_from_right' }} />
+                      <Stack.Screen name="supportforalluser" options={{ animation: 'slide_from_right' }} />
+                      <Stack.Screen name="+not-found" />
+                    </Stack>
                   </>
                 </QueryClientProvider>
               </ActionSheetProvider>
