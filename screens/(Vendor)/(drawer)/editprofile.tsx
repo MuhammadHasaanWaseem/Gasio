@@ -7,14 +7,16 @@ import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
-import { ChevronLeft, SearchIcon, X } from 'lucide-react-native';
+import { Building2, Camera, CheckCircle, ChevronLeft, CreditCard, FileText, Globe, Mail, MapPin, Phone, SearchIcon, User, X } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Dimensions,
   FlatList,
   Image,
   Modal,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -22,6 +24,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+
+const { width } = Dimensions.get('window');
 export default () => {
   const router = useRouter();
   const { vendor, vendorBusiness, refreshVendorProfile } = useVendor();
@@ -246,145 +251,304 @@ export default () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <LinearGradient colors={["#ed3237", "#ff5f6d"]} style={styles.headerBackground}>
+    <SafeAreaView style={styles.container}>
+      {/* Header with Gradient */}
+      <LinearGradient
+        colors={["#e91e63", "#ff5252"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.headerBackground}
+      >
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <ChevronLeft color="#fff" size={28} />
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <ChevronLeft color="#fff" size={26} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Edit Profile</Text>
-          <View style={{ width: 28 }} />
+          <View style={{ width: 26 }} />
         </View>
       </LinearGradient>
 
-      <TouchableOpacity onPress={pickImage} style={styles.avatarContainer}>
-        {vendor?.profile_picture_url ? (
-          <Image source={{ uri: `${vendor?.profile_picture_url}?t=${Date.now()}` }} style={styles.avatar} />
-        ) : (
-          <Text style={styles.avatarPlaceholder}>Tap to select business logo</Text>
-        )}
-      </TouchableOpacity>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Avatar Section */}
+        <Animated.View entering={FadeInUp.duration(600)} style={styles.avatarSection}>
+          <TouchableOpacity onPress={pickImage} style={styles.avatarContainer}>
+            {avatar ? (
+              <Image source={{ uri: avatar }} style={styles.avatar} />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Building2 size={40} color="#e91e63" />
+              </View>
+            )}
+            <View style={styles.cameraIconContainer}>
+              <LinearGradient
+                colors={["#e91e63", "#ff5252"]}
+                style={styles.cameraIconGradient}
+              >
+                <Camera size={18} color="#fff" />
+              </LinearGradient>
+            </View>
+          </TouchableOpacity>
+          <Text style={styles.avatarLabel}>Business Logo</Text>
+          <Text style={styles.avatarSubLabel}>Tap to change</Text>
+        </Animated.View>
 
-      <TextInput placeholder="Full Name" placeholderTextColor="grey" value={fullName} onChangeText={setFullName} style={styles.input} />
+        {/* Personal Information Section */}
+        <Animated.View entering={FadeInDown.delay(100).duration(600)} style={styles.section}>
+          <Text style={styles.sectionTitle}>Personal Information</Text>
 
-      <View style={styles.phoneRow}>
-        <TouchableOpacity onPress={() => setShowCountryList(true)} style={styles.countrySelector}>
-          <Text style={styles.countryText}>{selectedCountry.flag} {selectedCountry.dial_code}</Text>
-        </TouchableOpacity>
-        <TextInput
-          placeholder="Phone"
-          placeholderTextColor="grey"
-          value={phone}
-          onChangeText={(text) => {
-            setPhone(text);
-            validatePhone(text);
-          }}
-          keyboardType="phone-pad"
-          style={styles.phoneInput}
-        />
-        {phoneError ? <Text style={{ color: 'red', marginBottom: 10 }}>{phoneError}</Text> : null}
-      </View>
+          <View style={styles.inputGroup}>
+            <View style={styles.inputIconContainer}>
+              <User size={20} color="#e91e63" />
+            </View>
+            <TextInput
+              placeholder="Full Name"
+              placeholderTextColor="#999"
+              value={fullName}
+              onChangeText={setFullName}
+              style={styles.input}
+            />
+          </View>
 
-      <TextInput placeholder="Email" placeholderTextColor="grey" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" style={styles.input} />
-      <TextInput placeholder="CNIC (13 digits)" placeholderTextColor="grey" value={cnic} onChangeText={(text) => {
-        setCnic(text);
-        validateCnic(text);
-      }} keyboardType="numeric" style={styles.input} />
-      {cnicError ? <Text style={{ color: 'red', marginBottom: 10 }}>{cnicError}</Text> : null}
-      <TextInput placeholder="Business Name" placeholderTextColor="grey" value={businessName} onChangeText={setBusinessName} style={styles.input} />
-      <TextInput placeholder="Business License" placeholderTextColor="grey" value={businessLicense} onChangeText={setBusinessLicense} style={styles.input} />
-      {/* <TextInput placeholder="Address" value={address} onChangeText={setAddress} style={styles.input} /> */}
-      <View>
-        <TextInput
-          placeholder="Address"
-          placeholderTextColor="grey"
-          value={address}
-          onChangeText={setAddress}
-          style={[styles.input, { paddingRight: 80 }]}
-          editable={false}
-        />
-        <TouchableOpacity style={[styles.locationIcon, { right: 15 }]} onPress={handleUseCurrentLocation}>
-          <Ionicons name="location-outline" size={24} color="gray" />
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.locationIcon, { right: 50 }]} onPress={() => setModalMapVisible(true)}>
-          <Ionicons name="map-outline" size={24} color="gray" />
-        </TouchableOpacity>
-      </View>
+          <View style={styles.inputGroup}>
+            <View style={styles.inputIconContainer}>
+              <Mail size={20} color="#e91e63" />
+            </View>
+            <TextInput
+              placeholder="Email Address"
+              placeholderTextColor="#999"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              style={styles.input}
+            />
+          </View>
 
-      <TextInput
-        placeholder="Website (optional)"
-        placeholderTextColor="grey"
-        value={website}
-        onChangeText={setwebsite}
-        keyboardType="url"
-        style={styles.input}
-      />
-
-      <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>
-        <TouchableOpacity
-          onPress={handleSaveProfile}
-          style={styles.button}
-          disabled={loading || phoneError !== '' || cnicError !== ''}
-          activeOpacity={0.8}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Save Profile</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-
-      <Modal visible={modalVisible} transparent animationType="fade" onRequestClose={() => setModalVisible(false)}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalText}>Profile updated successfully!</Text>
+          <View style={styles.phoneContainer}>
+            <View style={styles.inputIconContainer}>
+              <Phone size={20} color="#e91e63" />
+            </View>
             <TouchableOpacity
-              style={styles.modalButton}
+              onPress={() => setShowCountryList(true)}
+              style={styles.countrySelector}
+            >
+              <Text style={styles.countryText}>
+                {selectedCountry.flag} {selectedCountry.dial_code}
+              </Text>
+            </TouchableOpacity>
+            <TextInput
+              placeholder="Phone Number"
+              placeholderTextColor="#999"
+              value={phone}
+              onChangeText={(text) => {
+                setPhone(text);
+                validatePhone(text);
+              }}
+              keyboardType="phone-pad"
+              style={styles.phoneInput}
+            />
+          </View>
+          {phoneError ? (
+            <Text style={styles.errorText}>{phoneError}</Text>
+          ) : null}
+
+          <View style={styles.inputGroup}>
+            <View style={styles.inputIconContainer}>
+              <CreditCard size={20} color="#e91e63" />
+            </View>
+            <TextInput
+              placeholder="CNIC (13 digits)"
+              placeholderTextColor="#999"
+              value={cnic}
+              onChangeText={(text) => {
+                setCnic(text);
+                validateCnic(text);
+              }}
+              keyboardType="numeric"
+              maxLength={13}
+              style={styles.input}
+            />
+          </View>
+          {cnicError ? (
+            <Text style={styles.errorText}>{cnicError}</Text>
+          ) : null}
+        </Animated.View>
+
+        {/* Business Information Section */}
+        <Animated.View entering={FadeInDown.delay(200).duration(600)} style={styles.section}>
+          <Text style={styles.sectionTitle}>Business Information</Text>
+
+          <View style={styles.inputGroup}>
+            <View style={styles.inputIconContainer}>
+              <Building2 size={20} color="#e91e63" />
+            </View>
+            <TextInput
+              placeholder="Business Name"
+              placeholderTextColor="#999"
+              value={businessName}
+              onChangeText={setBusinessName}
+              style={styles.input}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <View style={styles.inputIconContainer}>
+              <FileText size={20} color="#e91e63" />
+            </View>
+            <TextInput
+              placeholder="Business License Number"
+              placeholderTextColor="#999"
+              value={businessLicense}
+              onChangeText={setBusinessLicense}
+              style={styles.input}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <View style={styles.inputIconContainer}>
+              <Globe size={20} color="#e91e63" />
+            </View>
+            <TextInput
+              placeholder="Website (optional)"
+              placeholderTextColor="#999"
+              value={website}
+              onChangeText={setwebsite}
+              keyboardType="url"
+              autoCapitalize="none"
+              style={styles.input}
+            />
+          </View>
+        </Animated.View>
+
+        {/* Location Section */}
+        <Animated.View entering={FadeInDown.delay(300).duration(600)} style={styles.section}>
+          <Text style={styles.sectionTitle}>Business Location</Text>
+
+          <View style={styles.locationContainer}>
+            <View style={styles.inputIconContainer}>
+              <MapPin size={20} color="#e91e63" />
+            </View>
+            <TextInput
+              placeholder="Business Address"
+              placeholderTextColor="#999"
+              value={address}
+              onChangeText={setAddress}
+              style={[styles.input, styles.addressInput]}
+              editable={false}
+              multiline
+            />
+          </View>
+
+          <View style={styles.locationButtonsRow}>
+            <TouchableOpacity
+              style={styles.locationButton}
+              onPress={handleUseCurrentLocation}
+            >
+              <Ionicons name="location" size={20} color="#e91e63" />
+              <Text style={styles.locationButtonText}>Current Location</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.locationButton}
+              onPress={() => setModalMapVisible(true)}
+            >
+              <Ionicons name="map" size={20} color="#e91e63" />
+              <Text style={styles.locationButtonText}>Choose on Map</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+
+        {/* Save Button */}
+        <Animated.View entering={FadeInDown.delay(400).duration(600)} style={styles.buttonContainer}>
+          <TouchableOpacity
+            onPress={handleSaveProfile}
+            style={styles.saveButtonWrapper}
+            disabled={loading || phoneError !== '' || cnicError !== ''}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={loading || phoneError !== '' || cnicError !== ''
+                ? ["#ccc", "#999"]
+                : ["#e91e63", "#ff5252"]
+              }
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.saveButton}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <>
+                  <CheckCircle size={20} color="#fff" />
+                  <Text style={styles.saveButtonText}>Save Changes</Text>
+                </>
+              )}
+            </LinearGradient>
+          </TouchableOpacity>
+        </Animated.View>
+      </ScrollView>
+
+      {/* Success Modal */}
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <Animated.View entering={FadeInUp.duration(400)} style={styles.modalContent}>
+            <View style={styles.successIconContainer}>
+              <CheckCircle size={60} color="#4CAF50" />
+            </View>
+            <Text style={styles.modalTitle}>Success!</Text>
+            <Text style={styles.modalText}>Your profile has been updated successfully</Text>
+            <TouchableOpacity
+              style={styles.modalButtonWrapper}
               onPress={() => {
                 setModalVisible(false);
                 router.back();
               }}
             >
-              <Text style={styles.modalButtonText}>OK</Text>
+              <LinearGradient
+                colors={["#e91e63", "#ff5252"]}
+                style={styles.modalButton}
+              >
+                <Text style={styles.modalButtonText}>Done</Text>
+              </LinearGradient>
             </TouchableOpacity>
-          </View>
+          </Animated.View>
         </View>
       </Modal>
 
+      {/* Country Selector Modal */}
       <Modal visible={showCountryList} animationType="slide">
-        <View style={{ flex: 1, backgroundColor: '#fff' }}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              borderRadius: 12,
-              marginHorizontal: 5,
-              marginTop: 3,
-              marginBottom: 10,
-              paddingHorizontal: 12,
-              paddingVertical: 8,
-              elevation: 2,
-              backgroundColor: '#fff'
-
-            }}
+        <SafeAreaView style={styles.countryModalContainer}>
+          <LinearGradient
+            colors={["#e91e63", "#ff5252"]}
+            style={styles.countryModalHeader}
           >
-            <SearchIcon color="#ed3237" size={20} />
+            <Text style={styles.countryModalTitle}>Select Country</Text>
+            <TouchableOpacity
+              onPress={() => setShowCountryList(false)}
+              style={styles.closeButton}
+            >
+              <X color="#fff" size={24} />
+            </TouchableOpacity>
+          </LinearGradient>
+
+          <View style={styles.searchContainer}>
+            <SearchIcon color="#e91e63" size={20} />
             <TextInput
               placeholder="Search country..."
-              placeholderTextColor="grey"
+              placeholderTextColor="#999"
               value={countrySearch}
               onChangeText={setCountrySearch}
-              style={{
-                flex: 1,
-                marginLeft: 10,
-                fontSize: 16,
-                color: '#333',
-              }}
+              style={styles.searchInput}
             />
-            <TouchableOpacity onPress={() => setShowCountryList(false)}>
-              <X color="#ed3237" size={22} />
-            </TouchableOpacity>
           </View>
 
           <FlatList
@@ -399,48 +563,392 @@ export default () => {
                 }}
                 style={styles.countryItem}
               >
-                <Text style={styles.countryItemText}>{item.flag} {item.name} ({item.dial_code})</Text>
+                <Text style={styles.countryFlag}>{item.flag}</Text>
+                <View style={styles.countryInfo}>
+                  <Text style={styles.countryName}>{item.name}</Text>
+                  <Text style={styles.countryCode}>{item.dial_code}</Text>
+                </View>
               </TouchableOpacity>
             )}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
           />
-        </View>
+        </SafeAreaView>
       </Modal>
+
       <MapModal
         visible={modalMapVisible}
         onClose={() => setModalMapVisible(false)}
         onLocationSelect={handleLocationSelect}
       />
-
-    </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fafafa'
+  },
+  headerBackground: {
+    paddingTop: 60,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
+    elevation: 10,
+    shadowColor: "#e91e63",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+  },
+  backButton: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 12,
+    padding: 8,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#fff",
+    textShadowColor: "rgba(0,0,0,0.2)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 30,
+  },
+  avatarSection: {
+    alignItems: 'center',
+    marginTop: -40,
+    marginBottom: 20,
+  },
+  avatarContainer: {
+    position: 'relative',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+  },
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 4,
+    borderColor: '#fff',
+  },
+  avatarPlaceholder: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#e91e63',
+    borderStyle: 'dashed',
+  },
+  cameraIconContainer: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    elevation: 10,
+  },
+  cameraIconGradient: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#fff',
+  },
+  avatarLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginTop: 12,
+  },
+  avatarSubLabel: {
+    fontSize: 13,
+    color: '#999',
+    marginTop: 4,
+  },
+  section: {
+    marginHorizontal: 20,
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 16,
+    paddingBottom: 10,
+    borderBottomWidth: 2,
+    borderBottomColor: '#fce4ec',
+  },
+  inputGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f8f8f8',
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+  },
+  inputIconContainer: {
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fce4ec',
+    borderTopLeftRadius: 12,
+    borderBottomLeftRadius: 12,
+  },
+  input: {
+    flex: 1,
+    padding: 12,
+    fontSize: 15,
+    color: '#333',
+  },
+  phoneContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f8f8f8',
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+  },
+  countrySelector: {
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
+    borderRightWidth: 1,
+    borderRightColor: '#f0f0f0',
+  },
+  countryText: {
+    color: '#333',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  phoneInput: {
+    flex: 1,
+    padding: 12,
+    fontSize: 15,
+    color: '#333',
+  },
+  errorText: {
+    color: '#f44336',
+    fontSize: 13,
+    marginTop: -8,
+    marginBottom: 12,
+    marginLeft: 8,
+  },
+  locationContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: '#f8f8f8',
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+  },
+  addressInput: {
+    minHeight: 60,
+    textAlignVertical: 'top',
+  },
+  locationButtonsRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  locationButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fce4ec',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    gap: 8,
+  },
+  locationButtonText: {
+    color: '#e91e63',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  buttonContainer: {
+    paddingHorizontal: 20,
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  saveButtonWrapper: {
+    borderRadius: 14,
+    overflow: 'hidden',
+    elevation: 5,
+    shadowColor: "#e91e63",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  saveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    gap: 10,
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 30,
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 30,
+    borderRadius: 20,
+    width: '100%',
+    alignItems: 'center',
+    elevation: 10,
+  },
+  successIconContainer: {
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 25,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  modalButtonWrapper: {
+    width: '100%',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  modalButton: {
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  countryModalContainer: {
+    flex: 1,
+    backgroundColor: '#fafafa',
+  },
+  countryModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 60,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+  },
+  countryModalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  closeButton: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 12,
+    padding: 8,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    marginHorizontal: 20,
+    marginVertical: 15,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 10,
+    fontSize: 16,
+    color: '#333',
+  },
+  countryItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#fff',
+    marginHorizontal: 20,
+    marginBottom: 8,
+    borderRadius: 12,
+    elevation: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+  },
+  countryFlag: {
+    fontSize: 32,
+    marginRight: 15,
+  },
+  countryInfo: {
+    flex: 1,
+  },
+  countryName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  countryCode: {
+    fontSize: 14,
+    color: '#999',
+    marginTop: 2,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: '#f0f0f0',
+  },
   locationIcon: {
     position: 'absolute',
     top: 15,
   },
-
-  container: { backgroundColor: '#fff', flex: 1, marginTop: 20 },
-  headerBackground: { paddingBottom: 60, borderBottomLeftRadius: 30, borderBottomRightRadius: 30 },
-  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingTop: 15 },
-  headerTitle: { fontSize: 20, fontWeight: "700", color: "#fff" },
-  avatarContainer: { marginTop: 20, alignSelf: 'center', marginBottom: 20, width: 120, height: 120, borderRadius: 60, backgroundColor: '#eee', justifyContent: 'center', alignItems: 'center' },
-  avatarPlaceholder: { color: '#999', textAlign: 'center', paddingHorizontal: 10 },
-  avatar: { width: 120, height: 120, borderRadius: 60 },
-  input: { borderWidth: 1, borderColor: '#ccc', color: 'black', borderRadius: 8, padding: 12, marginBottom: 15 },
-  searchinput: { alignItems: 'center', color: 'black', borderRadius: 8, padding: 12, marginBottom: 15 },
-  phoneRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#ccc', borderRadius: 8, overflow: 'hidden', marginBottom: 15 },
-  countrySelector: { paddingHorizontal: 12, paddingVertical: 10, backgroundColor: '#f0f0f0' },
-  countryText: { color: 'black', fontSize: 16 },
-  phoneInput: { color: 'black', flex: 1, padding: 10, fontSize: 16 },
-  button: { backgroundColor: '#ed3237', padding: 15, width: '60%', borderRadius: 15, alignItems: 'center' },
-  buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
-  modalContent: { backgroundColor: '#fff', padding: 20, borderRadius: 10, width: '80%', alignItems: 'center' },
-  modalText: { fontSize: 18, marginBottom: 20, color: 'black' },
-  modalButton: { backgroundColor: '#ed3237', paddingVertical: 10, paddingHorizontal: 30, borderRadius: 10 },
-  modalButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  countryItem: { padding: 15, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  countryItemText: { fontSize: 16 },
 });
