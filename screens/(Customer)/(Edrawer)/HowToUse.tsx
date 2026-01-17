@@ -4,9 +4,11 @@ import { Bell, BookOpen, Check, ChevronLeft, Phone } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function HowToUseScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [language, setLanguage] = useState('english'); // 'english' or 'urdu'
   
   const isEnglish = language === 'english';
@@ -16,7 +18,7 @@ export default function HowToUseScreen() {
       {/* 3D Header with Gradient */}
       <Animated.View entering={FadeIn.duration(500)}>
         <LinearGradient
- colors={["#e91e63", "#ff5252"]}          style={styles.header}
+ colors={["#e91e63", "#ff5252"]}          style={[styles.header, { paddingTop: insets.top }]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
@@ -213,7 +215,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f2f5',
   },
   header: {
-    paddingTop: 60,
     paddingBottom: 30,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 30,

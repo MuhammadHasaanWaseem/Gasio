@@ -17,6 +17,7 @@ import {
   View,
 } from 'react-native';
 import Animated, { FadeInDown, FadeInUp, Layout } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type MessageType = {
   id: string;
@@ -32,6 +33,7 @@ const AnimatedFlatList = Animated.createAnimatedComponent(FlatList<MessageType>)
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
 const ChatScreen = () => {
+  const insets = useSafeAreaInsets();
   const { user } = useUser();
   const { vendor } = useVendor();
   const flatListRef = useRef<FlatList>(null);
@@ -185,7 +187,7 @@ const newMessage = payload.new as MessageType;
       <LinearGradient
       colors={['#ed3237', '#ff5f6d']}        start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
-        style={styles.header}
+        style={[styles.header, {  }]}
       >
         <Image
           source={
@@ -244,12 +246,12 @@ export default ChatScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    paddingTop: Platform.OS === 'ios' ? 50 : 16,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     elevation: 4,

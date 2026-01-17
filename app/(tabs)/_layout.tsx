@@ -10,10 +10,13 @@ import {
 } from 'lucide-react-native';
 import React from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+  
   return (
     <Tabs
       screenOptions={{
@@ -21,7 +24,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: '#fff',
         tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.6)',
         tabBarButton: HapticTab,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [styles.tabBar, { bottom: insets.bottom  }],
         tabBarLabelStyle: styles.label,
         tabBarBackground: () => (
           <View style={styles.tabBackgroundWrapper}>
@@ -98,7 +101,6 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     position: 'absolute',
-    bottom: 25,
     left: 15,
     right: 15,
     height: 75,
@@ -128,7 +130,6 @@ const styles = StyleSheet.create({
     width: width - 20,
     height: 60,
     borderRadius: 40,
-    backgroundColor: '#ed3237',
     opacity: 0.25,
     shadowColor: '#ed3237',
     shadowOffset: { width: 0, height: 0 },

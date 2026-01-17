@@ -12,6 +12,8 @@ import { AuthProvider } from '@/context/authcontext';
 import { UserProvider } from '@/context/usercontext';
 import { VendorProvider } from '@/context/vendorcontext';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapboxProvider from '../components/MapboxProvider';
 import OnboardingScreen from './onboarding';
 
@@ -81,25 +83,31 @@ export default function RootLayout() {
               <ActionSheetProvider>
                 <QueryClientProvider client={queryClient}>
                   <StatusBar style="auto" />
-                  <>
+                  
+                  <View style={{
+                    // flex:1,
+                    flex:1,
+                    // backgroundColor:'white'
+                    // paddingTop:useSafeAreaInsets().top
+                  }}>
                     <Stack screenOptions={{ headerShown: false }}>
                       <Stack.Screen name="splash" />
                       <Stack.Screen name="onboarding" />
-                      <Stack.Screen name="(auth)" options={{ animation: 'slide_from_right' }} />
+                      <Stack.Screen name="(auth)" options={{ animation: 'slide_from_right' ,contentStyle:{}}} />
                       <Stack.Screen name="(Vendortab)" options={{ animation: 'slide_from_right' }} />
                       <Stack.Screen name="(tabs)" options={{ animation: 'slide_from_right' }} />
                       <Stack.Screen name="Vendordrawer" options={{ animation: 'slide_from_right' }} />
                       <Stack.Screen name="(drawer)" options={{ animation: 'slide_from_right' }} />
-                      <Stack.Screen name="createservice" options={{ animation: 'slide_from_right' }} />
+                      <Stack.Screen name="createservice" options={{ animation: 'slide_from_right' ,contentStyle:{}}} />
                       <Stack.Screen name="(Edrawer)" options={{ animation: 'slide_from_right' }} />
-                      <Stack.Screen name="(Shared)" options={{ animation: 'slide_from_right' }} />
-                      <Stack.Screen name="bookservice" options={{ animation: 'slide_from_right' }} />
-                      <Stack.Screen name="orderdetail" options={{ animation: 'slide_from_right' }} />
-                      <Stack.Screen name="LeaveReview" options={{ animation: 'slide_from_right' }} />
-                      <Stack.Screen name="supportforalluser" options={{ animation: 'slide_from_right' }} />
+                      <Stack.Screen name="(Shared)" options={{ animation: 'slide_from_right' ,contentStyle:{paddingTop:useSafeAreaInsets().top}}} />
+                      <Stack.Screen name="bookservice" options={{ animation: 'slide_from_right' ,contentStyle:{paddingTop:useSafeAreaInsets().top}}} />
+                      <Stack.Screen name="orderdetail" options={{ animation: 'slide_from_right' ,contentStyle:{paddingTop:useSafeAreaInsets().top}}} />
+                      <Stack.Screen name="LeaveReview" options={{ animation: 'slide_from_right' ,contentStyle:{paddingTop:useSafeAreaInsets().top}}} />
+                      <Stack.Screen name="supportforalluser" options={{ animation: 'slide_from_right'}} />
                       <Stack.Screen name="+not-found" />
                     </Stack>
-                  </>
+                  </View>
                 </QueryClientProvider>
               </ActionSheetProvider>
             </ThemeProvider>

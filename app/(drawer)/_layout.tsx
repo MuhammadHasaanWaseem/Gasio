@@ -9,7 +9,7 @@ export default ()=>{
             <Stack.Screen name="about" options={{ headerShown: false ,animation:'slide_from_right'}} />
             <Stack.Screen name="trermofuse" options={{ headerShown: false ,animation:'slide_from_right'}} />
             <Stack.Screen name="contactsupport" options={{ headerShown: false ,animation:'slide_from_right'}} />
-
+            <Stack.Screen name="faq" options={{ headerShown: false ,animation:'slide_from_right'}} />
         </Stack>
     )
 }

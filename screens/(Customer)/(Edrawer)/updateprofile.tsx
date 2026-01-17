@@ -16,19 +16,20 @@ import {
   FlatList,
   Image,
   Modal,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 export default () => {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user, refreshUserProfile } = useUser();
   const [modalVisible, setModalVisible] = useState(false);
   const [avatar, setAvatar] = useState<string | null>(null);
@@ -235,13 +236,13 @@ export default () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header with Gradient */}
       <LinearGradient
         colors={["#e91e63", "#ff5252"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.headerBackground}
+        style={[styles.headerBackground, { paddingTop: insets.top }]}
       >
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -449,10 +450,10 @@ export default () => {
 
       {/* Country Selector Modal */}
       <Modal visible={showCountryList} animationType="slide">
-        <SafeAreaView style={styles.countryModalContainer}>
+        <View style={styles.countryModalContainer}>
           <LinearGradient
             colors={["#e91e63", "#ff5252"]}
-            style={styles.countryModalHeader}
+            style={[styles.countryModalHeader, { paddingTop: insets.top }]}
           >
             <Text style={styles.countryModalTitle}>Select Country</Text>
             <TouchableOpacity
@@ -495,7 +496,7 @@ export default () => {
             )}
             ItemSeparatorComponent={() => <View style={styles.separator} />}
           />
-        </SafeAreaView>
+        </View>
       </Modal>
 
       <MapModal
@@ -503,7 +504,7 @@ export default () => {
         onClose={() => setModalMapVisible(false)}
         onLocationSelect={handleLocationSelect}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -513,7 +514,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fafafa'
   },
   headerBackground: {
-    paddingTop: 60,
     paddingBottom: 20,
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
@@ -800,7 +800,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 60,
     paddingBottom: 20,
     paddingHorizontal: 20,
   },

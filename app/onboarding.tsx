@@ -72,6 +72,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onDone }) => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
       <StatusBar hidden />
+      {/* ./ts-ignore */}
       <Onboarding
         onSkip={handleDone}
         onDone={handleDone}

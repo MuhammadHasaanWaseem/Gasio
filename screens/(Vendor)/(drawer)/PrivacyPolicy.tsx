@@ -4,9 +4,11 @@ import { ChevronLeft } from 'lucide-react-native';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function PrivacyPolicy() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   return (
     <View style={styles.container}>
@@ -14,7 +16,7 @@ export default function PrivacyPolicy() {
       <Animated.View entering={FadeIn.duration(500)}>
         <LinearGradient
           colors={['#e91e63', '#ff5252']}
-          style={styles.header}
+          style={[styles.header, { paddingTop: insets.top }]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
@@ -116,7 +118,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f2f5',
   },
   header: {
-    paddingTop: 60,
     paddingBottom: 30,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 30,

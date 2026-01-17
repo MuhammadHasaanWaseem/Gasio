@@ -1,21 +1,25 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Bot, Send, Trash2 } from "lucide-react-native";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
     Alert,
+    Dimensions,
+    Keyboard,
     KeyboardAvoidingView,
     Platform,
-    SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const { width, height } = Dimensions.get("window");
 
 interface Message {
     id: string;
@@ -26,6 +30,7 @@ interface Message {
 
 export default function AIChatSupport() {
     const router = useRouter();
+    const insets = useSafeAreaInsets();
     const scrollViewRef = useRef<ScrollView>(null);
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -37,6 +42,16 @@ export default function AIChatSupport() {
     ]);
     const [inputText, setInputText] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+    useEffect(() => {
+        const showSub = Keyboard.addListener("keyboardDidShow", () => setIsKeyboardVisible(true));
+        const hideSub = Keyboard.addListener("keyboardDidHide", () => setIsKeyboardVisible(false));
+        return () => {
+            showSub.remove();
+            hideSub.remove();
+        };
+    }, []);
 
     // Hardcoded OpenAI API Key
     const OPENAI_API_KEY = "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";
@@ -166,12 +181,12 @@ export default function AIChatSupport() {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={[styles.container, isKeyboardVisible ? { flex: 1 } : { flexGrow: 1 }]}>
             <LinearGradient
                 colors={["#e91e63", "#ff5252"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                style={styles.header}
+                style={[styles.header, { paddingTop: insets.top }]}
             >
                 <View style={styles.headerContent}>
                     <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -283,7 +298,7 @@ export default function AIChatSupport() {
                     </View>
                 </View>
             </KeyboardAvoidingView>
-        </SafeAreaView>
+        </View>
     );
 }
 
@@ -293,9 +308,8 @@ const styles = StyleSheet.create({
         backgroundColor: "#fafafa",
     },
     header: {
-        paddingTop: 60,
-        paddingBottom: 20,
-        paddingHorizontal: 20,
+        paddingBottom: height * 0.025,
+        paddingHorizontal: width * 0.05,
         borderBottomLeftRadius: 25,
         borderBottomRightRadius: 25,
         elevation: 10,

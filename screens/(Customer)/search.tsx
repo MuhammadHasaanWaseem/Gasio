@@ -66,7 +66,7 @@ const SearchScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchContainer}>
+      <View style={[styles.searchContainer,{}]}>
         <Search size={24} color="#6B7280" />
         <TextInput
           style={styles.input}

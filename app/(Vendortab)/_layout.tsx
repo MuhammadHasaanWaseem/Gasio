@@ -15,11 +15,13 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
@@ -28,7 +30,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: '#fff',
         tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.6)',
         tabBarButton: HapticTab,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [styles.tabBar, { bottom: insets.bottom + 25 }],
         tabBarLabelStyle: styles.label,
         tabBarBackground: () => (
           <View style={styles.tabBackgroundWrapper}>
@@ -105,7 +107,6 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     position: 'absolute',
-    bottom: 25,
     left: 15,
     right: 15,
     height: 75,
@@ -135,7 +136,6 @@ const styles = StyleSheet.create({
     width: width - 20,
     height: 60,
     borderRadius: 40,
-    backgroundColor: '#ed3237',
     opacity: 0.25,
     shadowColor: '#ed3237',
     shadowOffset: { width: 0, height: 0 },

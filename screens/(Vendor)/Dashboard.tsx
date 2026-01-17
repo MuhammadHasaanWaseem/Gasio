@@ -25,7 +25,8 @@ import {
   View,
 } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
-;
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 interface RecentOrder {
   total_price: number;
   order_time: string;
@@ -39,7 +40,7 @@ interface RecentOrdersState {
 const { width } = Dimensions.get('window');
 
 export default function VendorDashboard() {
-
+  const insets = useSafeAreaInsets();
 const [totalorder,settotalorder]=useState<any>('');
 const { vendorBusiness } = useVendor();
   const [total_earnings,settearning]=useState<number | null>(null);
@@ -227,7 +228,7 @@ const fetchRecentOrders = async () => {
         colors={['#e91e63', '#ff5252']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.header}
+        style={[styles.header, { paddingTop: insets.top }]}
       >
         <View style={styles.headerContent}>
          
@@ -595,7 +596,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f2f5',
   },
   header: {
-    paddingTop: 55,
     paddingBottom: 30,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 30,

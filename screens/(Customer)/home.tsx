@@ -247,7 +247,7 @@ const HomeScreen = () => {
       colors={['#f5f7fa', '#e4e7f1']}
       style={styles.container}
     >
-      <View style={styles.safeArea}>
+      <View style={[styles.safeArea,{}]}>
         <ScrollView
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -502,7 +502,6 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    marginTop: 20,
 
   },
   header: {

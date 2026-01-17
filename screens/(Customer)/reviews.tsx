@@ -165,7 +165,7 @@ const ReviewsScreen = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container,{}]}>
       <Text style={styles.title}>My Reviews</Text>
       
       {loading ? (
@@ -248,13 +248,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8f9fa',
-    padding: 16,
+    // padding: 16,
   },
   title: {
     fontSize: 26,
     fontWeight: '700',
     color: '#1F2937',
-    marginVertical: 20,
+    marginBottom: 20,
     textAlign: 'center',
   },
   loadingContainer: {

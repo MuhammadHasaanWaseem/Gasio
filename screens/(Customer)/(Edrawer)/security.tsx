@@ -2,16 +2,15 @@ import Forgotpassword from "@/screens/auth/forgotpassword";
 import { router } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 
 export default function ForgotPasswordScreenWrapper() {
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -29,7 +28,7 @@ export default function ForgotPasswordScreenWrapper() {
       <View style={styles.content}>
         <Forgotpassword />
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 

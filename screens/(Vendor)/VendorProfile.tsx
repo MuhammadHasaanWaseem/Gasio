@@ -22,18 +22,19 @@ import React, { JSX, useEffect, useState } from "react";
 import {
   Image,
   Modal,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import ImageViewer from "react-native-image-zoom-viewer";
 import Animated, { FadeInUp } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function VendorProfile() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { vendor, vendorBusiness } = useVendor();
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -98,13 +99,13 @@ useEffect(() => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header with Gradient */}
       <LinearGradient
         colors={['#e91e63', '#ff5252']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.headerBackground}
+        style={[styles.headerBackground, { paddingTop: insets.top }]}
       >
         <View style={styles.header}>
           <View style={{ width: 24 }} />
@@ -237,7 +238,7 @@ useEffect(() => {
           backgroundColor="rgba(0,0,0,0.9)"
         />
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -280,7 +281,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   header: {
-    paddingTop: 30,
     paddingBottom: 15,
     paddingHorizontal: 20,
     flexDirection: "row",

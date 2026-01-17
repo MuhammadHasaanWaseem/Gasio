@@ -178,7 +178,7 @@ const OrdersScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>My Orders</Text>
+      <Text style={[styles.title,{}]}>My Orders</Text>
       
       <FlatList
         data={orders}
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#1F2937',
-    marginVertical: 15,
+    marginBottom: 15,
     textAlign: 'center',
   },
   listContent: {

@@ -11,6 +11,7 @@ import {
   Info,
   Lock,
   LogOut,
+  MessageCircleQuestion,
   MessageSquare,
   Settings,
   Shield,
@@ -32,12 +33,14 @@ import Animated, {
   FadeInUp,
   Layout
 } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
 export default function MenuScreen() {
   const { logout } = useAuth();
   const { vendor: user } = useVendor();
+  const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState("settings");
 
   const settingsItems = [
@@ -49,6 +52,7 @@ export default function MenuScreen() {
 
   const supportItems = [
     { title: "AI Chat Support", icon: <Bot size={24} color="#ff5252" /> },
+    { title: "FAQ", icon: <MessageCircleQuestion size={24} color="#ff5252" /> },
     { title: "How To Use", icon: <HelpCircle size={24} color="#ff5252" /> },
     { title: "Privacy Policy", icon: <Shield size={24} color="#ff5252" /> },
     { title: "Terms of Use", icon: <FileText size={24} color="#ff5252" /> },
@@ -81,6 +85,9 @@ export default function MenuScreen() {
       case "AI Chat Support":
         router.push("/supportforalluser");
         break;
+      case "FAQ":
+        router.push("/faq");
+        break;
       case "How To Use":
         router.push("/HowToUse");
         break;
@@ -107,7 +114,7 @@ export default function MenuScreen() {
     <View style={styles.container}>
       <LinearGradient
         colors={["#e91e63", "#ff5252"]}
-        style={styles.header}
+        style={[styles.header, { paddingTop: insets.top }]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
@@ -240,7 +247,6 @@ export default function MenuScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fef1f3" },
   header: {
-    paddingTop: 60,
     paddingBottom: 90,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 30,

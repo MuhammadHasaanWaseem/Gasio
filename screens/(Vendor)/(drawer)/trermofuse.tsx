@@ -4,11 +4,13 @@ import { ChevronDown, ChevronLeft, ChevronUp } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn, FadeInUp, Layout, SlideInUp } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
 export default ()=> {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [expandedSections, setExpandedSections] = useState(Array(12).fill(false));
 
   const toggleSection = (index:any) => {
@@ -74,7 +76,7 @@ export default ()=> {
       <Animated.View entering={FadeIn.duration(500)}>
         <LinearGradient 
           colors={['#e91e63', '#ff5252']} 
-          style={styles.header}
+          style={[styles.header, { paddingTop: insets.top }]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
@@ -179,7 +181,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f2f5' 
   },
   header: {
-    paddingTop: 55,
     paddingBottom: 30,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 30,
