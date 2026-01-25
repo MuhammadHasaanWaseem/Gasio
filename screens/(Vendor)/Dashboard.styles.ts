@@ -1,0 +1,292 @@
+import { StyleSheet } from "react-native";
+
+export type DashboardStyles = ReturnType<typeof createDashboardStyles>;
+
+export function createDashboardStyles(screenWidth: number) {
+  const contentPadding = 20;
+  const gap = 10;
+  const isSmall = screenWidth < 360;
+
+  const availableWidth = screenWidth - contentPadding * 2;
+  const cardWidth = isSmall ? availableWidth : (availableWidth - gap) / 2;
+
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: "#f0f2f5",
+    },
+    header: {
+      paddingTop: 30,
+      paddingBottom: 30,
+      paddingHorizontal: 20,
+      borderBottomLeftRadius: 30,
+      borderBottomRightRadius: 30,
+      elevation: 12,
+      shadowColor: "#d81b60",
+      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: 0.3,
+      shadowRadius: 15,
+      zIndex: 10,
+      overflow: "hidden",
+    },
+    header3DEffect: {
+      position: "absolute",
+      bottom: -20,
+      left: 0,
+      right: 0,
+      height: 25,
+      backgroundColor: "#d81b60",
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      opacity: 0.7,
+    },
+    headerContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      zIndex: 2,
+    },
+    headerTitle: {
+      color: "#fff",
+      fontSize: 22,
+      fontWeight: "800",
+      textShadowColor: "rgba(0, 0, 0, 0.2)",
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 3,
+      letterSpacing: 0.5,
+      flex: 1,
+      textAlign: "center",
+      marginLeft: 10,
+    },
+    content: {
+      padding: contentPadding,
+      paddingBottom: 40,
+    },
+    profileCard: {
+      backgroundColor: "#ffffff",
+      borderRadius: 20,
+      padding: 20,
+      elevation: 8,
+      shadowColor: "#3f51b5",
+      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: 0.1,
+      shadowRadius: 15,
+      marginBottom: 20,
+      transform: [{ translateY: -20 }],
+    },
+    profileRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: 15,
+    },
+    avatar: {
+      width: 70,
+      height: 70,
+      borderRadius: 35,
+      borderWidth: 3,
+      borderColor: "#e91e63",
+      backgroundColor: "#eee",
+    },
+    vendorInfo: {
+      marginLeft: 15,
+      flex: 1,
+    },
+    vendorName: {
+      fontSize: 20,
+      fontWeight: "700",
+      color: "#333",
+    },
+    ratingContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginTop: 5,
+    },
+    ratingText: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: "darkblue",
+      marginLeft: 5,
+    },
+    statsRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      borderTopWidth: 1,
+      borderTopColor: "#eee",
+      paddingTop: 15,
+    },
+    statItem: {
+      alignItems: "center",
+    },
+    statValue: {
+      fontSize: 18,
+      fontWeight: "700",
+      color: "#333",
+    },
+    statLabel: {
+      fontSize: 14,
+      color: "#666",
+      marginTop: 5,
+    },
+    tabsContainer: {
+      flexDirection: "row",
+      backgroundColor: "#fff",
+      borderRadius: 15,
+      padding: 5,
+      elevation: 5,
+      shadowColor: "#3f51b5",
+      shadowOffset: { width: 0, height: 5 },
+      shadowOpacity: 0.1,
+      shadowRadius: 10,
+      marginBottom: 20,
+    },
+    tab: {
+      flex: 1,
+      alignItems: "center",
+      paddingVertical: 12,
+      borderRadius: 12,
+    },
+    activeTab: {
+      backgroundColor: "#e91e63",
+    },
+    tabText: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: "#666",
+    },
+    activeTabText: {
+      color: "#fff",
+    },
+    section: {
+      marginBottom: 25,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+      color: "#333",
+      marginBottom: 15,
+      marginLeft: 5,
+    },
+    cardsContainer: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: isSmall ? "center" : "space-between",
+      gap,
+    },
+    cardWrapper: {
+      width: cardWidth,
+      marginBottom: 15,
+    },
+    card: {
+      borderRadius: 18,
+      padding: 20,
+      elevation: 6,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.1,
+      shadowRadius: 12,
+      height: 150,
+      justifyContent: "space-between",
+    },
+    cardHeader: {
+      backgroundColor: "rgba(255,255,255,0.3)",
+      width: 40,
+      height: 40,
+      borderRadius: 12,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    cardTitle: {
+      fontSize: 15,
+      fontWeight: "600",
+      color: "#fff",
+      marginTop: 10,
+    },
+    cardValue: {
+      fontSize: 22,
+      fontWeight: "800",
+      color: "#fff",
+      marginTop: 5,
+    },
+    activityCard: {
+      backgroundColor: "#fff",
+      borderRadius: 20,
+      padding: 20,
+      elevation: 5,
+      shadowColor: "#3f51b5",
+      shadowOffset: { width: 0, height: 5 },
+      shadowOpacity: 0.1,
+      shadowRadius: 10,
+    },
+    activityItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: "#f0f0f0",
+    },
+    activityIcon: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: "rgba(76, 175, 80, 0.1)",
+      alignItems: "center",
+      justifyContent: "center",
+      marginRight: 15,
+    },
+    activityContent: {
+      flex: 1,
+      paddingRight: 10,
+    },
+    activityTitle: {
+      fontSize: 15,
+      fontWeight: "600",
+      color: "#333",
+    },
+    activityTime: {
+      fontSize: 13,
+      color: "#888",
+      marginTop: 3,
+    },
+    activityAmount: {
+      minWidth: 72,
+      textAlign: "right",
+      fontSize: 16,
+      fontWeight: "700",
+      color: "#333",
+    },
+    metricsContainer: {
+      flexDirection: isSmall ? "column" : "row",
+      justifyContent: "space-between",
+      gap: 15,
+    },
+    metricCard: {
+      flex: 1,
+      backgroundColor: "#fff",
+      borderRadius: 15,
+      padding: 15,
+      elevation: 5,
+      shadowColor: "#3f51b5",
+      shadowOffset: { width: 0, height: 5 },
+      shadowOpacity: 0.1,
+      shadowRadius: 10,
+    },
+    metricValue: {
+      fontSize: 24,
+      fontWeight: "800",
+      color: "#333",
+      textAlign: "center",
+      marginBottom: 5,
+    },
+    metricLabel: {
+      fontSize: 13,
+      color: "#666",
+      textAlign: "center",
+      marginBottom: 15,
+    },
+    metricBar: {
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: "#2196f3",
+    },
+  });
+}

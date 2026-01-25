@@ -10,7 +10,6 @@ import {
   Alert,
   FlatList,
   Image,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -18,17 +17,20 @@ import {
 } from 'react-native';
 import { useAuth } from '../../context/authcontext';
 import { useUser } from '../../context/usercontext';
+import { toE164Phone } from '../../helper/phoneCountry';
 import { supabase } from '../../lib/supabase';
+import styles from './createUserProfile.styles';
 export default () => {
   const router = useRouter();
   const { loginAsUser } = useAuth();
   const { refreshUserProfile } = useUser();
+  const defaultCountry = countries.find((c) => c.code === 'PK') ?? countries[0];
   const [avatar, setAvatar] = useState<string | null>(null);
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [cnic, setCnic] = useState('');
-  const [selectedCountry, setSelectedCountry] = useState(countries[0]);
+  const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
   const [showCountryList, setShowCountryList] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
   const [loading, setLoading] = useState(false);
@@ -166,11 +168,11 @@ const handleUseCurrentLocation = async () => {
       const { error } = await supabase.from('user_profiles').upsert({
         id: userId,
         full_name: fullName,
-        phone: `${phone}`,
+        phone: toE164Phone(phone, selectedCountry),
         address,
         avatar_url: avatarUrl,
         cnic,
-        country_code: selectedCountry.dial_code,
+        country_code: selectedCountry.code,
         latitude: selectedCoords?.latitude ?? null,
         longitude: selectedCoords?.longitude ?? null,
       });
@@ -303,7 +305,7 @@ const handleUseCurrentLocation = async () => {
   );
 };
 
-const styles = StyleSheet.create({
+/* const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
@@ -387,4 +389,4 @@ const styles = StyleSheet.create({
     marginTop: 5,
     backgroundColor: '#fff',
   },
-});
+}); */

@@ -15,7 +15,8 @@ import {
   Timer,
   X
 } from "lucide-react-native";
-import React, { useEffect, useRef, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -80,6 +81,36 @@ export default function ServicesScreen() {
   useEffect(() => {
     if (!vendorLoading && vendorBusiness?.id) fetchServices();
   }, [vendorBusiness, vendorLoading]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!vendorLoading && vendorBusiness?.id) fetchServices();
+    }, [vendorLoading, vendorBusiness?.id])
+  );
+
+  useEffect(() => {
+    if (!vendorBusiness?.id) return;
+
+    const channel = supabase
+      .channel(`services_vendor_${vendorBusiness.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "services",
+          filter: `vendor_id=eq.${vendorBusiness.id}`,
+        },
+        () => {
+          fetchServices();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [vendorBusiness?.id]);
 
   const onRefresh = () => {
     setRefreshing(true);

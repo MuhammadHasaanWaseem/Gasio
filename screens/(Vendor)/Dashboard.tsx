@@ -12,20 +12,21 @@ import {
 import type { ColorValue } from "react-native";
 
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   AppState,
-  Dimensions,
   Image,
   RefreshControl,
   ScrollView,
-  StyleSheet,
+  StatusBar,
   Text,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { createDashboardStyles } from "./Dashboard.styles";
 
 interface RecentOrder {
   total_price: number;
@@ -37,10 +38,11 @@ interface RecentOrdersState {
   inProgress: RecentOrder | null;
   completed: RecentOrder | null;
 }
-const { width } = Dimensions.get('window');
 
 export default function VendorDashboard() {
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const styles = useMemo(() => createDashboardStyles(width), [width]);
 const [totalorder,settotalorder]=useState<any>('');
 const { vendorBusiness } = useVendor();
   const [total_earnings,settearning]=useState<number | null>(null);
@@ -223,6 +225,7 @@ const fetchRecentOrders = async () => {
     const order=totalorder.length;
   return (
     <View style={styles.container}>
+      <StatusBar   barStyle="light-content" />
       {/* Header with 3D effect */}
       <LinearGradient
         colors={['#e91e63', '#ff5252']}
@@ -325,6 +328,7 @@ const fetchRecentOrders = async () => {
             <Text style={styles.sectionTitle}>Business Overview</Text>
             <View style={styles.cardsContainer}>
               <DashboardCard
+                styles={styles}
                 icon={<DollarSign color="#fff" size={24} />}
                 title="Total Earnings"
                 value={`${'$'} ${total_earnings}`}
@@ -332,6 +336,7 @@ const fetchRecentOrders = async () => {
                 delay={100}
               />
               <DashboardCard
+                styles={styles}
                 icon={<ShoppingCart color="#fff" size={24} />}
                 title="Total Orders"
                 value={order}
@@ -339,6 +344,7 @@ const fetchRecentOrders = async () => {
                 delay={200}
               />
               <DashboardCard
+                styles={styles}
                 icon={<Clock color="#fff" size={24} />}
                 title="Pending Orders"
                 value={stats.pending_orders}
@@ -346,6 +352,7 @@ const fetchRecentOrders = async () => {
                 delay={300}
               />
               <DashboardCard
+                styles={styles}
                 icon={<Briefcase color="#fff" size={24} />}
                 title="Services"
                 value={stats.services_count}
@@ -353,12 +360,13 @@ const fetchRecentOrders = async () => {
                 delay={400}
               />
             </View>
+            { recentOrders.received !== null && (  
             <Animated.View 
               entering={FadeInUp.delay(400).springify()}
               style={styles.section}
             >
-              <Text style={styles.sectionTitle}>Recent Activity</Text>
-             <View style={styles.activityCard}>
+{      recentOrders.received &&        <Text style={styles.sectionTitle}>Recent Activity</Text>
+}             <View style={styles.activityCard}>
 
     {recentOrders.received && (
       <View style={styles.activityItem}>
@@ -366,8 +374,10 @@ const fetchRecentOrders = async () => {
           <ShoppingCart color="#4caf50" size={18} />
         </View>
         <View style={styles.activityContent}>
-          <Text style={styles.activityTitle}>New order received</Text>
-          <Text style={styles.activityTime}>
+          <Text style={styles.activityTitle} numberOfLines={1} ellipsizeMode="tail">
+            New order received
+          </Text>
+          <Text style={styles.activityTime} numberOfLines={1} ellipsizeMode="tail">
             {new Date(recentOrders.received.order_time).toLocaleTimeString()}
           </Text>
         </View>
@@ -381,8 +391,10 @@ const fetchRecentOrders = async () => {
           <Clock color="#ff9800" size={18} />
         </View>
         <View style={styles.activityContent}>
-          <Text style={styles.activityTitle}>Order in progress</Text>
-          <Text style={styles.activityTime}>
+          <Text style={styles.activityTitle} numberOfLines={1} ellipsizeMode="tail">
+            Order in progress
+          </Text>
+          <Text style={styles.activityTime} numberOfLines={1} ellipsizeMode="tail">
             {new Date(recentOrders.inProgress.order_time).toLocaleTimeString()}
           </Text>
         </View>
@@ -396,8 +408,10 @@ const fetchRecentOrders = async () => {
           <DollarSign color="#2196f3" size={18} />
         </View>
         <View style={styles.activityContent}>
-          <Text style={styles.activityTitle}>Payment received</Text>
-          <Text style={styles.activityTime}>
+          <Text style={styles.activityTitle} numberOfLines={1} ellipsizeMode="tail">
+            Payment received
+          </Text>
+          <Text style={styles.activityTime} numberOfLines={1} ellipsizeMode="tail">
             {new Date(recentOrders.completed.order_time).toLocaleTimeString()}
           </Text>
         </View>
@@ -406,7 +420,7 @@ const fetchRecentOrders = async () => {
     )}
 
   </View>
-            </Animated.View>
+            </Animated.View>)}
             
             <Animated.View 
               entering={FadeInUp.delay(500).springify()}
@@ -450,8 +464,10 @@ const fetchRecentOrders = async () => {
           <ShoppingCart color="#4caf50" size={18} />
         </View>
         <View style={styles.activityContent}>
-          <Text style={styles.activityTitle}>New order received</Text>
-          <Text style={styles.activityTime}>
+          <Text style={styles.activityTitle} numberOfLines={1} ellipsizeMode="tail">
+            New order received
+          </Text>
+          <Text style={styles.activityTime} numberOfLines={1} ellipsizeMode="tail">
             {new Date(recentOrders.received.order_time).toLocaleTimeString()}
           </Text>
         </View>
@@ -465,8 +481,10 @@ const fetchRecentOrders = async () => {
           <Clock color="#ff9800" size={18} />
         </View>
         <View style={styles.activityContent}>
-          <Text style={styles.activityTitle}>Order in progress</Text>
-          <Text style={styles.activityTime}>
+          <Text style={styles.activityTitle} numberOfLines={1} ellipsizeMode="tail">
+            Order in progress
+          </Text>
+          <Text style={styles.activityTime} numberOfLines={1} ellipsizeMode="tail">
             {new Date(recentOrders.inProgress.order_time).toLocaleTimeString()}
           </Text>
         </View>
@@ -480,8 +498,10 @@ const fetchRecentOrders = async () => {
           <DollarSign color="#2196f3" size={18} />
         </View>
         <View style={styles.activityContent}>
-          <Text style={styles.activityTitle}>Payment received</Text>
-          <Text style={styles.activityTime}>
+          <Text style={styles.activityTitle} numberOfLines={1} ellipsizeMode="tail">
+            Payment received
+          </Text>
+          <Text style={styles.activityTime} numberOfLines={1} ellipsizeMode="tail">
             {new Date(recentOrders.completed.order_time).toLocaleTimeString()}
           </Text>
         </View>
@@ -522,6 +542,7 @@ const fetchRecentOrders = async () => {
 
 <View style={styles.cardsContainer}>
               <DashboardCard
+                styles={styles}
                 icon={<DollarSign color="#fff" size={24} />}
                 title="Total Earnings"
                 value={`${'$'} ${total_earnings}`}
@@ -529,6 +550,7 @@ const fetchRecentOrders = async () => {
                 delay={100}
               />
               <DashboardCard
+                styles={styles}
                 icon={<ShoppingCart color="#fff" size={24} />}
                 title="Total Orders"
                 value={order}
@@ -536,6 +558,7 @@ const fetchRecentOrders = async () => {
                 delay={200}
               />
               <DashboardCard
+                styles={styles}
                 icon={<Clock color="#fff" size={24} />}
                 title="Pending Orders"
                 value={stats.pending_orders}
@@ -543,6 +566,7 @@ const fetchRecentOrders = async () => {
                 delay={300}
               />
               <DashboardCard
+                styles={styles}
                 icon={<Briefcase color="#fff" size={24} />}
                 title="Services"
                 value={stats.services_count}
@@ -559,12 +583,14 @@ const fetchRecentOrders = async () => {
 
 
 const DashboardCard = ({
+  styles,
   icon,
   title,
   value,
   colors = ['#ed3237', '#ff5f6d'],
   delay = 100,
 }: {
+  styles: any;
   icon: React.ReactNode;
   title: string;
   value: any;
@@ -589,284 +615,3 @@ const DashboardCard = ({
     </LinearGradient>
   </Animated.View>
 );
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f0f2f5',
-  },
-  header: {
-    paddingBottom: 30,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    elevation: 12,
-    shadowColor: '#d81b60',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 15,
-    zIndex: 10,
-    overflow: 'hidden',
-  },
-  header3DEffect: {
-    position: 'absolute',
-    bottom: -20,
-    left: 0,
-    right: 0,
-    height: 25,
-    backgroundColor: '#d81b60',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    opacity: 0.7,
-  },
-  headerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    zIndex: 2,
-  },
-  headerTitle: {
-    color: '#fff',
-    fontSize: 22,
-    fontWeight: '800',
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
-    letterSpacing: 0.5,
-    flex: 1,
-    textAlign: 'center',
-    marginLeft: 10,
-  },
-  logo: {
-    width: 50,
-    height: 100,
-    resizeMode: 'contain',
-  },
-  content: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  profileCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 20,
-    padding: 20,
-    elevation: 8,
-    shadowColor: '#3f51b5',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 15,
-    marginBottom: 20,
-    transform: [{ translateY: -20 }],
-  },
-  profileRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  avatar: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    borderWidth: 3,
-    borderColor: '#e91e63',
-    backgroundColor: '#eee',
-  },
-  vendorInfo: {
-    marginLeft: 15,
-    flex: 1,
-  },
-  vendorName: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#333',
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  ratingText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: 'darkblue',
-    marginLeft: 5,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    paddingTop: 15,
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
-  },
-  statLabel: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 5,
-  },
-  tabsContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: 15,
-    padding: 5,
-    elevation: 5,
-    shadowColor: '#3f51b5',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    marginBottom: 20,
-  },
-  tab: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderRadius: 12,
-  },
-  activeTab: {
-    backgroundColor: '#e91e63',
-  },
-  tabText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#666',
-  },
-  activeTabText: {
-    color: '#fff',
-  },
-  section: {
-    marginBottom: 25,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 15,
-    marginLeft: 5,
-  },
-  cardsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  cardWrapper: {
-    width: (width - 50) / 2,
-    marginBottom: 15,
-  },
-  card: {
-    borderRadius: 18,
-    padding: 20,
-    elevation: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    height: 150,
-    justifyContent: 'space-between',
-  },
-  cardHeader: {
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cardTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#fff',
-    marginTop: 10,
-  },
-  cardValue: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#fff',
-    marginTop: 5,
-  },
-  activityCard: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 20,
-    elevation: 5,
-    shadowColor: '#3f51b5',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-  },
-  activityItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  activityIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(76, 175, 80, 0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 15,
-  },
-  activityContent: {
-    flex: 1,
-  },
-  activityTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#333',
-  },
-  activityTime: {
-    fontSize: 13,
-    color: '#888',
-    marginTop: 3,
-  },
-  activityAmount: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
-  },
-  metricsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 15,
-  },
-  metricCard: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 15,
-    padding: 15,
-    elevation: 5,
-    shadowColor: '#3f51b5',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-  },
-  metricValue: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 5,
-  },
-  metricLabel: {
-    fontSize: 13,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 15,
-  },
-  metricBar: {
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#2196f3',
-  },
-});

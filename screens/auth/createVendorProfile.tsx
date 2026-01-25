@@ -1,15 +1,16 @@
 import countries from '@/constants/country';
+import { toE164Phone } from '@/helper/phoneCountry';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import { default as React } from 'react';
+import styles from './createVendorProfile.styles';
 import {
   ActivityIndicator,
   Alert,
   FlatList,
   Image,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -24,10 +25,11 @@ export default () => {
   const router = useRouter();
   const { loginAsVendor } = useAuth();
   const { refreshVendorProfile } = useVendor();
+  const defaultCountry = countries.find((c) => c.code === 'PK') ?? countries[0];
   const [avatar, setAvatar] = React.useState<string | null>(null);
   const [fullName, setFullName] = React.useState('');
   const [phone, setPhone] = React.useState('');
-  const [selectedCountry, setSelectedCountry] = React.useState(countries[0]);
+  const [selectedCountry, setSelectedCountry] = React.useState(defaultCountry);
   const [showCountryList, setShowCountryList] = React.useState(false);
   const [email, setEmail] = React.useState('');
   const [cnic, setCnic] = React.useState('');
@@ -178,11 +180,11 @@ export default () => {
       const { error: ownerError } = await supabase.from('vendor_owners').upsert({
         id: userId,
         full_name: fullName,
-        phone: `${phone}`,
+        phone: toE164Phone(phone, selectedCountry),
         email,
         cnic,
         profile_picture_url: businessLogoUrl,
-        country_code: selectedCountry.dial_code,
+        country_code: selectedCountry.code,
       });
 
       if (ownerError) {
@@ -309,7 +311,7 @@ export default () => {
   );
 };
 
-const styles = StyleSheet.create({
+/* const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
@@ -390,4 +392,4 @@ const styles = StyleSheet.create({
     right: 15,
     top: 15,
   },
-});
+}); */

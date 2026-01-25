@@ -1,6 +1,11 @@
 import MapModal from '@/components/MapModal';
 import countries from '@/constants/country';
 import { useVendor } from '@/context/vendorcontext';
+import {
+  findCountryByStoredCode,
+  splitE164ToLocal,
+  toE164Phone,
+} from '@/helper/phoneCountry';
 import { supabase } from '@/lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -9,6 +14,7 @@ import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import { Building2, Camera, CheckCircle, ChevronLeft, CreditCard, FileText, Globe, Mail, MapPin, Phone, SearchIcon, User, X } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
+import styles from './editprofile.styles';
 import {
     ActivityIndicator,
     Alert,
@@ -17,7 +23,6 @@ import {
     Image,
     Modal,
     ScrollView,
-    StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
@@ -31,11 +36,12 @@ export default () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { vendor, vendorBusiness, refreshVendorProfile } = useVendor();
+  const defaultCountry = countries.find((c) => c.code === 'PK') ?? countries[0];
   const [modalVisible, setModalVisible] = useState(false);
   const [avatar, setAvatar] = useState<string | null>(null);
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [selectedCountry, setSelectedCountry] = useState(countries[0]);
+  const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
   const [showCountryList, setShowCountryList] = useState(false);
   const [email, setEmail] = useState('');
   const [cnic, setCnic] = useState('');
@@ -79,12 +85,11 @@ export default () => {
     if (vendor) {
       setFullName(vendor.full_name || '');
       setEmail(vendor.email || '');
-      setPhone(vendor.phone ? vendor.phone.replace(/^[^\d]+/, '') : '');
       setCnic(vendor.cnic || '');
-      if (vendor.country_code) {
-        const match = countries.find(c => c.code === vendor.country_code);
-        if (match) setSelectedCountry(match);
-      }
+      const storedCountry = findCountryByStoredCode(countries, vendor.country_code);
+      const resolvedCountry = storedCountry ?? defaultCountry;
+      if (storedCountry) setSelectedCountry(storedCountry);
+      setPhone(splitE164ToLocal(vendor.phone, resolvedCountry));
     }
     if (vendorBusiness) {
       setBusinessName(vendorBusiness.business_name || '');
@@ -210,21 +215,21 @@ export default () => {
         return;
       }
 
-      const businessLogoUrl = await uploadBusinessLogo(userId);
-      if (!businessLogoUrl) {
-        Alert.alert('Upload Error', 'Failed to upload image');
-        setLoading(false);
-        return;
-      }
+      const uploadedLogoUrl = await uploadBusinessLogo(userId);
+      const businessLogoUrl =
+        uploadedLogoUrl ??
+        vendor?.profile_picture_url ??
+        vendorBusiness?.business_logo_url ??
+        null;
 
       const { error: ownerError } = await supabase.from('vendor_owners').upsert({
         id: userId,
         full_name: fullName,
-        phone: `${phone}`,
+        phone: toE164Phone(phone, selectedCountry),
         email,
         cnic,
         profile_picture_url: businessLogoUrl,
-        country_code: selectedCountry.dial_code,
+        country_code: selectedCountry.code,
       });
       if (ownerError) throw new Error(ownerError.message);
 
@@ -585,7 +590,7 @@ export default () => {
   );
 }
 
-const styles = StyleSheet.create({
+/* const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fafafa'
@@ -950,4 +955,4 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 15,
   },
-});
+}); */
