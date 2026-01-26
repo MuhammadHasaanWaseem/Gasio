@@ -1,55 +1,24 @@
 {
+  "cli": {
+    "version": ">= 7.0.0"
+  },
   "build": {
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "node": "22.11.0",
       "android": {
         "buildType": "apk"
-      },
-      "env": {
-        "MAPBOX_DOWNLOADS_TOKEN": "MAPBOX_DOWNLOADS_TOKEN"
       }
     },
     "preview": {
-      "node": "22.11.0",
+      "distribution": "internal",
       "android": {
         "buildType": "apk"
-      },
-      "env": {
-        "MAPBOX_DOWNLOADS_TOKEN": "MAPBOX_DOWNLOADS_TOKEN"
-      }
-    },
-    "preview2": {
-      "node": "22.11.0",
-      "android": {
-        "gradleCommand": ":app:assembleRelease"
-      },
-      "env": {
-        "MAPBOX_DOWNLOADS_TOKEN": "MAPBOX_DOWNLOADS_TOKEN"
-      }
-    },
-    "preview3": {
-      "developmentClient": true,
-      "node": "22.11.0",
-      "env": {
-        "MAPBOX_DOWNLOADS_TOKEN": "MAPBOX_DOWNLOADS_TOKEN"
-      }
-    },
-    "preview4": {
-      "distribution": "internal",
-      "node": "22.11.0",
-      "env": {
-        "MAPBOX_DOWNLOADS_TOKEN": "MAPBOX_DOWNLOADS_TOKEN"
       }
     },
     "production": {
-      "node": "22.11.0",
       "android": {
         "buildType": "apk"
-      },
-      "env": {
-        "MAPBOX_DOWNLOADS_TOKEN": "MAPBOX_DOWNLOADS_TOKEN"
       }
     }
   }
